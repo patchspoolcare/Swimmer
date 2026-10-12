@@ -110,6 +110,12 @@ h1.brand{display:flex;align-items:center;gap:8px;font-size:22px;letter-spacing:-
 .mapbox{height:52vh;min-height:300px;border-radius:14px;overflow:hidden;border:1px solid var(--bd);margin-bottom:10px;background:var(--bd)}
 .mpin{width:30px;height:30px;border-radius:50%;color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;border:2.5px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.35)}
 .leaflet-popup-content a{color:var(--ac);font-weight:600}
+.mapbox{box-shadow:0 2px 12px rgba(0,0,0,.12);border:0}.leaflet-container{font:inherit;background:#f2efe9}
+.mpin{border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3),0 0 0 1px rgba(0,0,0,.06)}
+.leaflet-popup-content-wrapper{border-radius:14px;box-shadow:0 4px 18px rgba(0,0,0,.18)}.leaflet-popup-content{margin:12px 14px;line-height:1.45}
+.leaflet-control-attribution{font-size:9px;background:rgba(255,255,255,.6)!important;border-radius:6px 0 0 0}
+a.nextbtn{display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:10px;border-radius:14px;background:var(--card);border:1px solid var(--bd);color:var(--tx);text-decoration:none;box-shadow:0 1px 4px rgba(0,0,0,.06)}a.nextbtn small{display:block;color:var(--mu);font-size:12px}a.nextbtn b{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+a.nextbtn .na{flex:none;width:34px;height:34px;border-radius:50%;background:var(--ac);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}a.nextbtn .go{flex:none;background:#2f93ff;color:#fff;font-weight:700;border-radius:99px;padding:8px 18px}
 </style></head><body>
 <input type="file" id="rf" accept=".json,application/json" style="display:none"><input type="file" id="fi" accept="image/*" style="display:none"><input type="file" id="pfi" accept="image/*" multiple style="display:none"><header id="hd"></header><main id="app"></main><div id="sv" class="sv"></div>
 <script>
@@ -619,7 +625,8 @@ function mapHtml(){var k=mapDate||today(),dd=pd(k),cs=routeFor(k),T=today(),nog=
  if(!cs.length)return o+'<div class="card mu" style="text-align:center">No customers on this day.</div>';
  o+='<div id="map" class="mapbox"></div>';
  if(pend2)o+='<div class="mu" style="font-size:13px;margin:-4px 0 8px;text-align:center">Finding '+pend2+' address'+(pend2===1?'':'es')+' on the map…</div>';
- o+='<button data-a="mapdir" style="width:100%;margin-bottom:12px">Directions for the whole route ›</button>';
+ var nx=cs.filter(function(p){return p.addr&&!done(p,k)})[0];
+ o+=(nx?'<a class="nextbtn" target="_blank" rel="noopener" href="https://maps.apple.com/?daddr='+encodeURIComponent(nx.addr)+'&dirflg=d"><span class="na">'+(cs.indexOf(nx)+1)+'</span><span style="flex:1;min-width:0"><small>Next stop · Apple Maps</small><b>'+esc(nx.name)+'</b></span><span class="go">Go</span></a>':'<div class="card t-ok" style="text-align:center;margin-bottom:10px"><b>✓ Every stop is done</b></div>')+'<button class="g" data-a="mapdir" style="width:100%;margin:-4px 0 8px;font-size:14px">Whole route in Google Maps ›</button>';
  o+=cs.map(function(p,i){return '<div class="card pool cp" data-a="open" data-id="'+p.id+'" style="padding:8px 12px;margin-bottom:6px"><div class="num" style="background:'+stopColor(p,k)+';color:#fff;min-width:30px;height:30px;font-size:14px">'+(i+1)+'</div><div class="cm"><b>'+esc(p.name)+'</b><div class="mu">'+esc(p.addr||"No address")+'</div></div></div>'}).join("");
  if(nog.length)o+='<div class="mu" style="font-size:13px;text-align:center">Not on the map: '+nog.map(function(p){return esc(p.name)}).join(", ")+' — check the address on their profile.</div>';
  return o}
@@ -630,13 +637,14 @@ function geocode(cs){cs.forEach(function(p){if(p.addr&&!(p.geo&&p.geo.a===p.addr
   fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q="+encodeURIComponent(ad),{headers:{"Accept":"application/json"}}).then(function(r){return r.json()}).then(function(j){if(p.addr!==ad)return;p.geo=j&&j[0]?{a:ad,lat:+j[0].lat,lon:+j[0].lon}:{a:ad,none:1};save();if(view==="map")render()}).catch(function(){geoFail[ad]=1}).then(function(){setTimeout(next,1100)})})()}
 function mountMap(){unmountMap();var box=document.getElementById("map");if(!box)return;var k=mapDate||today(),cs=routeFor(k);geocode(cs);
  loadLeaflet().then(function(L){if(!document.getElementById("map")||view!=="map")return;unmountMap();box=document.getElementById("map");
-  lmap=L.map(box,{zoomControl:true,attributionControl:true});L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(lmap);
+  var dk=matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches;lmap=L.map(box,{zoomControl:false,attributionControl:true});lmap.attributionControl.setPrefix(false);
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/"+(dk?"dark_all":"voyager")+"/{z}/{x}/{y}{r}.png",{maxZoom:20,subdomains:"abcd",attribution:'&copy; OpenStreetMap &copy; CARTO'}).addTo(lmap);
   var pts=[];cs.forEach(function(p,i){if(!(p.geo&&p.geo.a===p.addr&&p.geo.lat!=null))return;var ll=[p.geo.lat,p.geo.lon];pts.push(ll);
    var ic=L.divIcon({className:"",html:'<div class="mpin" style="background:'+stopColor(p,k)+'">'+(i+1)+'</div>',iconSize:[30,30],iconAnchor:[15,15]});
    L.marker(ll,{icon:ic}).addTo(lmap).bindPopup('<b>'+esc(p.name)+'</b><br>'+esc(p.addr)+'<br><a href="#" onclick="openStop(\''+p.id+'\');return false">Open visit ›</a> &nbsp; <a target="_blank" rel="noopener" href="'+mapUrl(p.addr)+'">Directions</a>')});
   if(!pts.length){lmap.setView([33.45,-112.07],10);return}
   if(pts.length===1)lmap.setView(pts[0],14);else lmap.fitBounds(pts,{padding:[30,30]});
-  if(pts.length>1){var key=pts.map(function(x){return x[0].toFixed(5)+","+x[1].toFixed(5)}).join(";"),line=function(c){if(lmap)L.polyline(c,{color:"#0a84c6",weight:4,opacity:.75}).addTo(lmap)};
+  if(pts.length>1){var key=pts.map(function(x){return x[0].toFixed(5)+","+x[1].toFixed(5)}).join(";"),line=function(c){if(lmap){L.polyline(c,{color:"#0b5fbf",weight:9,opacity:.9,lineCap:"round",lineJoin:"round"}).addTo(lmap);L.polyline(c,{color:"#2f93ff",weight:6,opacity:1,lineCap:"round",lineJoin:"round"}).addTo(lmap)}};
    if(rtCache[key])line(rtCache[key]);
    else fetch("https://router.project-osrm.org/route/v1/driving/"+pts.map(function(x){return x[1]+","+x[0]}).join(";")+"?overview=full&geometries=geojson").then(function(r){return r.json()}).then(function(j){var c=j.routes[0].geometry.coordinates.map(function(q){return[q[1],q[0]]});rtCache[key]=c;line(c)}).catch(function(){rtCache[key]=pts;line(pts)})}
   setTimeout(function(){lmap&&lmap.invalidateSize()},50)}).catch(function(){box.innerHTML='<div class="mu" style="padding:30px;text-align:center">The map needs signal to load.</div>'})}
