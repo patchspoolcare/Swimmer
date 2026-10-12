@@ -124,8 +124,11 @@ a.nextbtn .na{flex:none;width:34px;height:34px;border-radius:50%;background:var(
 .bn-in .bi{position:relative;width:24px;height:24px}.bn-in svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .bn-in .bl{font-size:11px;letter-spacing:.01em}.bn-in .bdg{position:absolute;top:-5px;left:15px;margin:0}
 body.hasnav main{padding-bottom:110px}body.hasnav .sv{bottom:calc(84px + env(safe-area-inset-bottom,0px))}body.hasnav .toast{bottom:calc(90px + env(safe-area-inset-bottom,0px))}
+.sv:not(.w):not(.o){position:static;transform:none;display:table;margin:6px auto 28px;background:transparent;border-color:transparent}
+body.hasnav main{padding-bottom:12px}body.hasnav .sv:not(.w):not(.o){margin-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+body.hasnav .sv.w,body.hasnav .sv.o{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 </style></head><body>
-<input type="file" id="rf" accept=".json,application/json" style="display:none"><input type="file" id="fi" accept="image/*" style="display:none"><input type="file" id="pfi" accept="image/*" multiple style="display:none"><header id="hd"></header><main id="app"></main><nav id="nav" class="bnav"></nav><div id="sv" class="sv"></div>
+<input type="file" id="rf" accept=".json,application/json" style="display:none"><input type="file" id="fi" accept="image/*" style="display:none"><input type="file" id="pfi" accept="image/*" multiple style="display:none"><header id="hd"></header><main id="app"></main><div id="sv" class="sv"></div><nav id="nav" class="bnav"></nav>
 <script>
 var F=[["fc","Free Cl","ppm",3,5],["tc","Total Cl","ppm",3,5],["ph","pH","",7.2,7.8],["ta","Alkalinity","ppm",70,120],["cya","CYA","ppm",30,50],["ch","Calcium H.","ppm",200,400],["salt","Salt","ppm",2700,3400],["bo","Borates","ppm",30,50]];
 var B=[["pool","Pool","🏊"],["spa","Spa","♨️"],["agspa","Above Ground Spa","🛁"],["plunge","Cold Plunge","🧊"],["fountain","Fountain","⛲"]];
@@ -296,11 +299,14 @@ function etaPlan(cs){var T=today(),t0=tmin(PL.days[selDate]||PL.start),svc=+PL.s
   else{var st=prevEnd==null?t0:prevEnd+driveMin(cs[i-1],p);if(first&&floor&&st<nowM)st=nowM;first=false;out[p.id]={t:st};prevEnd=st+svc;fin=Math.max(fin,prevEnd)}});
  ETfin=fin;return out}
 function missingPairs(cs){var need=[],seen={};for(var i=1;i<cs.length;i++){var a=cs[i-1],b=cs[i];if(a.addr&&b.addr){var k=pk(a.addr,b.addr);if(drv[k]==null&&!seen[k]){seen[k]=1;need.push({k:k,from:a.addr,to:b.addr})}}}return need}
-async function fetchDrives(cs){if(drvBusy||!smp)return;var need=missingPairs(cs).filter(function(x){return !drvFail[x.k]}).slice(0,30);if(!need.length)return;drvBusy=true;drvErr="";setTimeout(function(){if(view==="day")render()},0);
- try{var r=await smp.json("You estimate typical driving times for a pool-service route. For each numbered pair of street addresses, estimate the driving time in whole minutes on a normal weekday morning (ordinary traffic, no special events). Use your knowledge of the area; if an address is ambiguous, assume the same metro area as the other address. Reply with ONLY JSON like {\"minutes\":[12,7,...]} with exactly one integer (1-90) per pair, in the same order.\n\n"+need.map(function(x,i){return(i+1)+". FROM: "+x.from+"  TO: "+x.to}).join("\n"),{modelTier:"default"});
-  var arr=r&&r.minutes;need.forEach(function(x,i){var m=Math.round(+(arr&&arr[i]));if(m>=1&&m<=120)drv[x.k]=m;else drvFail[x.k]=1});drsave()}
- catch(e){drvErr=(e&&e.code)||"error";need.forEach(function(x){drvFail[x.k]=1})}
- drvBusy=false;if(view==="day"&&!(document.activeElement&&/INPUT|TEXTAREA/.test(document.activeElement.tagName)))render()}
+async function fetchDrives(cs){geocode(cs);if(drvBusy)return;
+ var need=missingPairs(cs).filter(function(x){return !drvFail[x.k]});var P=[];for(var i=1;i<cs.length;i++){var A=cs[i-1],Bp=cs[i];if(A.addr&&Bp.addr&&need.some(function(n){return n.k===pk(A.addr,Bp.addr)})&&A.geo&&A.geo.a===A.addr&&A.geo.lat!=null&&Bp.geo&&Bp.geo.a===Bp.addr&&Bp.geo.lat!=null)P.push([A,Bp])}
+ if(!P.length)return;drvBusy=true;
+ for(var j=0;j<P.length;j++){var A2=P[j][0],B2=P[j][1],k2=pk(A2.addr,B2.addr);if(drv[k2]!=null)continue;
+  try{var r=await fetch("https://router.project-osrm.org/route/v1/driving/"+A2.geo.lon+","+A2.geo.lat+";"+B2.geo.lon+","+B2.geo.lat+"?overview=false");var jj=await r.json();var sec=jj&&jj.routes&&jj.routes[0]&&jj.routes[0].duration;
+   if(sec!=null)drv[k2]=Math.max(1,Math.round(sec*1.25/60)+1);else drvFail[k2]=1}catch(e){drvFail[k2]=1}
+  await new Promise(function(res){setTimeout(res,350)})}
+ drsave();drvBusy=false;if(view==="day"&&!(document.activeElement&&/INPUT|TEXTAREA/.test(document.activeElement.tagName)))render()}
 function planCard(cs){var pl=PL.days[selDate]||PL.start,miss=missingPairs(cs).length,note=!smp?" · ~10 min drive between stops":drvBusy?" · estimating drive times…":miss?(drvErr==="not_granted"?" · drive-time estimates not allowed (using 10 min)":" · some drive times unknown (using 10 min)"):"";
  return '<div class="card plan" data-a="plan"><div><b>🕗 Start '+hm(tmin(pl))+'</b> · '+(+PL.svc||15)+' min per stop<div class="mu">'+(ETfin?'Est. finish ~'+hm(ETfin):'')+note+'</div></div><span class="mu">Edit ›</span></div>'}
 function planSheet(){var o=document.createElement("div");o.className="ws";var ov=PL.days[selDate]!=null;
@@ -376,7 +382,7 @@ function render(){
    return '<div class="card pool cp'+(dn?(sk?' sk':' dn'):'')+'"'+(' data-a="open" data-id="'+p.id+'"'+(n!=null&&admin?' data-rid="'+p.id+'"':''))+'><div class="num'+(n==null&&!dn?' n0':'')+'">'+(dn&&!sk?'✓':(n!=null?n+1:(sk?'–':'•')))+'</div><div class="cm"><b>'+esc(p.name)+'</b><div class="mu">'+[(ET[p.id]?'<span class="eta'+(ET[p.id].done?' ed':'')+'">'+(ET[p.id].done?'':'~')+hm(ET[p.id].t)+'</span>':''),(tag?'↪ '+tag.replace("Moved from ","From "):''),(stx&&stx!=="Not logged"?stx:''),(admin?'<span class="t-'+fs[1]+'">'+fs[0]+'</span>':esc(p.addr||""))].filter(Boolean).join(' · ')+'</div></div>'+right+'</div>'};
   var reg=regFor(selDate),inc=incFor(selDate),cs2=reg.concat(inc.map(function(x){return x.p}));
   if(!cs2.length&&!adding)o+='<div class="card mu">No customers on '+DN[wd]+'s'+(admin?' yet. Tap + Add to put a customer here.':'.')+'</div>';
-  if(cs2.length){ET=etaPlan(cs2);fetchDrives(cs2);var nd=cs2.filter(function(p){return done(p,selDate)}).length,nk=cs2.filter(function(p){return skipped(p,selDate)}).length;o+='<div class="row" style="justify-content:space-between"><b>'+nd+' of '+cs2.length+' completed'+(nk?' · '+nk+' skipped':'')+'</b>'+'</div><div class="pb"><i style="width:'+Math.round(nd/cs2.length*100)+'%"></i></div>'+whoLine(cs2)+planCard(cs2)+(admin&&reg.length>1?'<div class="mu" style="font-size:12px;margin:0 0 8px;text-align:center">Press and hold a customer, then drag to reorder</div>':'')}
+  if(cs2.length){ET=etaPlan(cs2);fetchDrives(cs2);var nd=cs2.filter(function(p){return done(p,selDate)}).length,nk=cs2.filter(function(p){return skipped(p,selDate)}).length;o+='<div class="row" style="justify-content:space-between"><b>'+nd+' of '+cs2.length+' completed'+(nk?' · '+nk+' skipped':'')+'</b>'+'</div><div class="pb"><i style="width:'+Math.round(nd/cs2.length*100)+'%"></i></div>'+whoLine(cs2)+(admin&&reg.length>1?'<div class="mu" style="font-size:12px;margin:0 0 8px;text-align:center">Press and hold a customer, then drag to reorder</div>':'')}
   if(cs2.length&&cs2.every(function(p){return done(p,selDate)}))o+='<div class="card t-ok" style="text-align:center"><b>✓ Day completed</b></div>';
   reg.forEach(function(p,i){o+=row(p,i,reg.length)});
   inc.forEach(function(x){o+=row(x.p,null,0,"Moved from "+DN[pd(x.from).getDay()],x.from)});
@@ -438,6 +444,7 @@ function render(){
   
  }
  if(canAdmin&&!admin)o='<button class="empbar" data-a="mode"><span>👷 You\'re seeing the <b>Employee view</b></span><u>Back to Admin</u></button>'+o;
+ if(!navHtml&&(view==="day"||view==="pool"||view==="prof"))tabs(view==="prof"?"cust":"days");
  a.innerHTML=o;var nv=document.getElementById("nav");nv.innerHTML=navHtml;document.body.classList.toggle("hasnav",!!navHtml);if(!navHtml)nv.classList.remove("hid");window.scrollTo(0,y);if(view==="map")mountMap();else unmountMap();
  document.querySelectorAll("img[data-ph]").forEach(function(im){pget(im.dataset.ph).then(function(d){if(d)im.src=d})});
  var pn=document.getElementById("pn");if(pn)pn.focus();
@@ -646,7 +653,7 @@ window.openStop=function(id){selDate=mapDate||today();go("pool",{pid:id})};
 function unmountMap(){if(lmap){try{lmap.remove()}catch(e){}lmap=null}}
 function geocode(cs){cs.forEach(function(p){if(p.addr&&!(p.geo&&p.geo.a===p.addr)&&!geoFail[p.addr]&&geoQ.indexOf(p)<0)geoQ.push(p)});if(geoBusy||!geoQ.length)return;geoBusy=true;
  (function next(){var p=geoQ.shift();if(!p){geoBusy=false;return}var ad=p.addr;
-  fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q="+encodeURIComponent(ad),{headers:{"Accept":"application/json"}}).then(function(r){return r.json()}).then(function(j){if(p.addr!==ad)return;p.geo=j&&j[0]?{a:ad,lat:+j[0].lat,lon:+j[0].lon}:{a:ad,none:1};save();if(view==="map")render()}).catch(function(){geoFail[ad]=1}).then(function(){setTimeout(next,1100)})})()}
+  fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q="+encodeURIComponent(ad),{headers:{"Accept":"application/json"}}).then(function(r){return r.json()}).then(function(j){if(p.addr!==ad)return;p.geo=j&&j[0]?{a:ad,lat:+j[0].lat,lon:+j[0].lon}:{a:ad,none:1};save();if(view==="map")render();else if(view==="day"){fetchDrives(routeFor(selDate));render()}}).catch(function(){geoFail[ad]=1}).then(function(){setTimeout(next,1100)})})()}
 var OSMSTYLE={version:8,sources:{osm:{type:"raster",tiles:["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],tileSize:256,maxzoom:19,attribution:"&copy; OpenStreetMap"}},layers:[{id:"osm",type:"raster",source:"osm"}]};
 function mountMap(){unmountMap();var box=document.getElementById("map");if(!box)return;var k=mapDate||today(),cs=routeFor(k);geocode(cs);
  loadLeaflet().then(function(ML){if(!document.getElementById("map")||view!=="map")return;unmountMap();box=document.getElementById("map");
