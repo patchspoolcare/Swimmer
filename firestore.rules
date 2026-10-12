@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function ownerDoc() { return /databases/$(database)/documents/config/owner; }
+    function isOwner() { return signedIn() && exists(ownerDoc()) && get(ownerDoc()).data.uid == request.auth.uid; }
+    function teamDoc() { return /databases/$(database)/documents/team/$(request.auth.uid); }
+    function isMember() { return isOwner() || (signedIn() && exists(teamDoc())); }
+    function isAdmin() { return isOwner() || (signedIn() && exists(teamDoc()) && get(teamDoc()).data.role == 'admin'); }
+
+    // The first person to sign in claims the business. Nobody can change it afterwards.
+    match /config/owner {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
+    }
+    // Approved crew. Only admins add, change or remove people.
+    match /team/{uid} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
+      allow write: if isAdmin();
+    }
+    // New accounts ask to join here.
+    match /requests/{uid} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
+      allow create, update: if signedIn() && request.auth.uid == uid;
+      allow delete: if isAdmin() || (signedIn() && request.auth.uid == uid);
+    }
+    // Customers, readings and photos: anyone on the crew.
+    match /data/route/customers/{id} { allow read, write: if isMember(); }
+    match /data/route/photos/{id}    { allow read, write: if isMember(); }
+    // Daily automatic backups: admins only.
+    match /data/route/backups/{id}   { allow read, write: if isAdmin(); }
+  }
+}
