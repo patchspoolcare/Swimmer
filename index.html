@@ -682,8 +682,11 @@ function mountMap(){unmountMap();var box=document.getElementById("map");if(!box)
 var WM=null;
 function wmHtml(){return WM?'<img class="wm" src="'+WM+'" alt="Swimmer">':'<span>Swimmer</span>'}
 function makeWM(){try{if(!document.fonts)return;document.fonts.load('80px "Pacifico"').then(function(){if(!document.fonts.check('80px "Pacifico"'))return;
- var c=document.createElement("canvas"),x=c.getContext("2d");x.font='80px "Pacifico"';var m=x.measureText("Swimmer"),L=m.actualBoundingBoxLeft||0,R=m.actualBoundingBoxRight,A=m.actualBoundingBoxAscent,D=m.actualBoundingBoxDescent;
- c.width=Math.ceil(L+R)+2;c.height=Math.ceil(A+D)+2;x=c.getContext("2d");x.font='80px "Pacifico"';x.fillStyle=getComputedStyle(document.body).color||"#12303f";x.fillText("Swimmer",L+1,A+1);
+ var c=document.createElement("canvas"),x=c.getContext("2d");x.font='80px "Pacifico"';var tw=Math.ceil(x.measureText("Swimmer").width);
+ c.width=tw+120;c.height=260;x=c.getContext("2d");x.font='80px "Pacifico"';x.textBaseline="alphabetic";x.fillStyle=getComputedStyle(document.body).color||"#12303f";x.fillText("Swimmer",60,170);
+ var d=x.getImageData(0,0,c.width,c.height).data,W=c.width,H=c.height,t=H,bo=-1,l=W,r=-1;
+ for(var yy=0;yy<H;yy++)for(var xx=0;xx<W;xx++)if(d[(yy*W+xx)*4+3]>40){if(yy<t)t=yy;if(yy>bo)bo=yy;if(xx<l)l=xx;if(xx>r)r=xx}
+ if(bo<0)return;var o2=document.createElement("canvas");o2.width=r-l+1;o2.height=bo-t+1;o2.getContext("2d").drawImage(c,l,t,o2.width,o2.height,0,0,o2.width,o2.height);c=o2;
  WM=c.toDataURL("image/png");render()}).catch(function(){})}catch(e){}}
 if(window.matchMedia)try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",function(){WM=null;makeWM()})}catch(e){}
 setTimeout(makeWM,0);
