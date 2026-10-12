@@ -104,6 +104,12 @@ html,body{touch-action:pan-y}
 button.addf{display:flex;align-items:center;gap:12px;width:100%;margin:0 0 12px;padding:12px 14px;text-align:left;background:color-mix(in srgb,var(--ac) 8%,var(--card));color:var(--tx);border:2px dashed var(--ac);border-radius:14px;font-weight:500}button.addf .pl{flex:none;width:32px;height:32px;border-radius:50%;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700}button.addf b{display:block;font-size:16px;color:var(--ac)}button.addf small{display:block;font-size:13px;color:var(--mu);margin-top:1px}
 .pg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.pc{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--bd)}.pim{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}.pim:not([src]){visibility:hidden}.px{position:absolute;top:4px;right:4px;width:28px;height:28px;padding:0;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:18px;line-height:28px;font-weight:700}
 .padd{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:transparent;color:var(--ac);border:2px dashed var(--ac);border-radius:10px;font-size:13px;padding:4px}.padd span{font-size:26px;line-height:1}
+h1.brand{display:flex;align-items:center;gap:8px;font-size:22px;letter-spacing:-.01em}h1.brand img{width:26px;height:26px;object-fit:contain}
+.seg.tabs{overflow-x:auto;scrollbar-width:none}.seg.tabs::-webkit-scrollbar{display:none}.seg.tabs button{flex:1 0 auto;padding:8px 9px;font-size:14px;position:relative;white-space:nowrap}
+.bdg{display:inline-block;min-width:17px;height:17px;line-height:17px;padding:0 4px;margin-left:4px;border-radius:99px;font-size:11px;font-style:normal;font-weight:700;color:#fff;vertical-align:1px}.b-hi{background:var(--hi)}.b-lo{background:var(--lo)}
+.mapbox{height:52vh;min-height:300px;border-radius:14px;overflow:hidden;border:1px solid var(--bd);margin-bottom:10px;background:var(--bd)}
+.mpin{width:30px;height:30px;border-radius:50%;color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;border:2.5px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.35)}
+.leaflet-popup-content a{color:var(--ac);font-weight:600}
 </style></head><body>
 <input type="file" id="rf" accept=".json,application/json" style="display:none"><input type="file" id="fi" accept="image/*" style="display:none"><input type="file" id="pfi" accept="image/*" multiple style="display:none"><header id="hd"></header><main id="app"></main><div id="sv" class="sv"></div>
 <script>
@@ -287,7 +293,8 @@ function planSheet(){var o=document.createElement("div");o.className="ws";var ov
  o.innerHTML='<div class="sh"><div style="padding:8px 0 2px;font-weight:700">Route timing</div><div class="mu" style="margin-bottom:10px">Start times for the rest of the route are estimated from this.</div><label>First stop starts at</label><input type="time" id="pt" value="'+(PL.days[selDate]||PL.start)+'"><label style="margin-top:8px">Minutes per stop</label><input type="number" id="ps" min="5" max="120" value="'+(+PL.svc||15)+'"><label style="display:flex;gap:8px;align-items:center;margin:12px 0"><input type="checkbox" id="po" style="width:auto"'+(ov?' checked':'')+'> Only for '+DN[pd(selDate).getDay()]+', '+sd(pd(selDate))+'</label><div class="row"><button class="g" id="px" style="flex:1">Cancel</button><button id="pv" style="flex:1">Save</button></div></div>';
  document.body.appendChild(o);o.addEventListener("click",function(e){if(e.target===o)o.remove()});o.querySelector("#px").onclick=function(){o.remove()};
  o.querySelector("#pv").onclick=function(){var t=o.querySelector("#pt").value||"08:00",sv=Math.max(5,Math.min(120,+o.querySelector("#ps").value||15));PL.svc=sv;if(o.querySelector("#po").checked)PL.days[selDate]=t;else{PL.start=t;delete PL.days[selDate]}plsave();o.remove();render()}}
-function tabs(a){if(!admin)return '';return '<div class="seg"><button class="'+(a==="days"?"on":"")+'" data-a="days">Route</button><button class="'+(a==="cust"?"on":"")+'" data-a="cust">Customers</button></div>'}
+function tabs(a){var T=[["days","Route"],["map","Map"]];if(admin){var fcn=fcount(),nreq=Object.keys(reqs).filter(function(k){return !team[k]}).length;T.push(["cust","Customers"],["filters","Filters",fcn,"hi"],["crew","Crew",nreq,"lo"])}
+ return '<div class="seg tabs">'+T.map(function(t){return '<button class="'+(a===t[0]?"on":"")+'" data-a="'+t[0]+'">'+t[1]+(t[2]?'<i class="bdg b-'+t[3]+'">'+t[2]+'</i>':'')+'</button>'}).join("")+'</div>'}
 function rrow(r,lab){var cur=dkey(new Date(r.t))===selDate,o='<div class="'+(cur?'rtd':'')+'" style="'+(cur?'':'padding:10px 0;')+'border-bottom:1px solid var(--bd)"><div class="row" style="justify-content:space-between"><b>'+(cur?'<span class="rbg">'+(r.skip?'SKIPPED ':'✓ COMPLETED ')+(selDate===today()?'TODAY':DN[pd(selDate).getDay()].slice(0,3).toUpperCase())+'</span>':'')+fmt(r.t)+(lab?' <span class="mu" style="font-weight:400">· '+lab+'</span>':'')+'</b>'+(r.skip?'<button class="d" data-a="del" data-id="'+r.id+'">Undo skip</button>':'<button class="tg" data-a="edit" data-id="'+r.id+'">Edit</button>')+'</div><div class="chips">';
  if(r.skip)o+='<span class="chip s-lo t-lo">Skipped'+(r.reason?' · '+esc(r.reason):'')+'</span>';
  F.forEach(function(f){var v=r.v[f[0]];if(v===""||v==null)return;var s=st(f,v);o+='<span class="chip '+(s?"s-"+s+" t-"+s:"")+'">'+L(f,bd(r))+' '+esc(v)+'</span>'});
@@ -324,18 +331,17 @@ function render(){
  if(locked&&!gate){h.innerHTML='';a.innerHTML=lockHtml();var sv2=document.getElementById("sv");if(sv2)sv2.style.display="none";return}
  if(gate){h.innerHTML='';a.innerHTML=gateHtml();var sv0=document.getElementById("sv");if(sv0)sv0.style.display="none";return}
  var sv1=document.getElementById("sv");if(sv1)sv1.style.display="";
- if(!admin&&(view==="cust"||view==="prof"||view==="filters"||view==="crew"))view="days";
+ if(!admin&&(view==="cust"||view==="prof"||view==="filters"||view==="crew"))view="days";if(view==="map"&&!mapDate)mapDate=today();
  if(view==="days"){
   var b0=new Date();b0.setHours(0,0,0,0);b0.setDate(b0.getDate()-((b0.getDay()+6)%7)+wk*7);var e0=new Date(b0);e0.setDate(e0.getDate()+6);
-  h.innerHTML='<h1>🏊 Route</h1>'+(canAdmin?'<button class="mdp'+(admin?'':' emp')+'" data-a="mode">'+(admin?'👑 Admin':'👷 Employee')+' <i>⇄</i></button>':'')+(wk||(rmode!=="week")?'<button class="tg" data-a="wk0">Today</button>':'');
+  h.innerHTML='<h1 class="brand"><img src="icons/drop.png" alt="">Swimmer</h1>'+(canAdmin?'<button class="mdp'+(admin?'':' emp')+'" data-a="mode">'+(admin?'👑 Admin':'👷 Employee')+' <i>⇄</i></button>':'')+(wk||(rmode!=="week")?'<button class="tg" data-a="wk0">Today</button>':'');
   o+=tabs("days");o+='<div class="rm">'+[["week","Week"],["month","Month"],["year","Year"]].map(function(m){return '<button class="'+(rmode===m[0]?'on':'')+'" data-a="rm" data-m="'+m[0]+'">'+m[1]+'</button>'}).join("")+'</div>';
   if(rmode==="month")o+=monthView();else if(rmode==="year")o+=yearView();else{
   o+='<div class="row" style="justify-content:space-between;margin-bottom:10px"><button class="bk" data-a="wk" data-n="-1">‹ Prev</button><b>'+sd(b0)+' – '+sd(e0)+'</b><button class="bk" data-a="wk" data-n="1">Next ›</button></div>';
   for(var i=0;i<7;i++){var d=new Date(b0);d.setDate(d.getDate()+i);var k=dkey(d),cs=routeFor(k),lg=cs.filter(function(p){return onDate(p.id,k).length}).length;
    o+='<div class="card pool'+(k===T?' td':'')+'" data-a="day" data-d="'+k+'"><div><b>'+DN[d.getDay()]+'</b>'+(k===T?'<span class="tday">TODAY</span>':'')+'<div class="mu">'+sd(d)+'</div></div><div class="mu" style="text-align:right">'+cs.length+' customer'+(cs.length==1?'':'s')+(cs.length&&k<=T?'<br>'+(cs.every(function(p){return done(p,k)})?'<b class="t-ok">✓ Completed</b>':lg+' logged'):'')+'</div></div>'}
   }
-  if(admin){var nreq=Object.keys(reqs).filter(function(k){return !team[k]}).length;o+='<div class="card pool" data-a="crew"'+(nreq?' style="border-color:var(--lo)"':'')+'><div><b>👥 Crew</b><div class="mu">'+(nreq?'<b class="t-lo">'+nreq+' waiting for approval</b>':Object.keys(team).length+' on the team')+'</div></div><span class="mu" style="font-size:22px">›</span></div>'}
-  if(admin){var fcn=fcount();o+='<div class="card pool" data-a="filters"'+(fcn?' style="border-color:var(--hi)"':'')+'><div><b>🧽 Filters</b><div class="mu">'+(fcn?'<b class="t-hi">'+fcn+' need'+(fcn===1?'s':'')+' attention</b>':'All up to date')+'</div></div><span class="mu" style="font-size:22px">›</span></div>';
+  if(admin){
   o+='<div class="row" style="justify-content:center;flex-wrap:wrap;margin-top:8px">'+(S.readings.length?'<button class="g" data-a="csv">Export CSV</button>':'')+'<button class="g" data-a="backup">Back up data</button><button class="g" data-a="restore">Restore backup</button></div>';
   o+='<div class="mu" style="text-align:center;font-size:12px;margin-top:8px">'+esc(snapLine())+'</div>'}
   var cmx=cachedMe()||{},askd=false;try{askd=localStorage.getItem("poolfidask")==="1"}catch(e){}
@@ -364,7 +370,7 @@ function render(){
   var un=admin?S.pools.filter(function(p){return p.day==null}):[];
   if(un.length){o+='<h3 style="margin:18px 0 8px">Unassigned</h3><div class="mu" style="margin-bottom:8px">Open one and set its route day.</div>';un.forEach(function(p){o+=row(p)})}
  }else if(view==="cust"){
-  h.innerHTML='<h1>Customers</h1><button data-a="addc">+ Add</button>';
+  h.innerHTML='<h1 class="brand"><img src="icons/drop.png" alt="">Swimmer</h1>'+'<button data-a="addc">+ Add</button>';
   o+=tabs("cust");
   if(addingC){o+='<div class="card">';[["name","Name"],["phone","Phone"],["email","Email"],["addr","Address"]].forEach(function(x){o+='<div style="margin-bottom:8px"><label>'+x[1]+'</label><input data-nc="'+x[0]+'" value="'+esc(nc[x[0]]||"")+'"></div>'});
    o+='<div style="margin-bottom:8px"><label>Notes (gate code, pets…)</label><textarea data-nc="notes" rows="2">'+esc(nc.notes||"")+'</textarea></div><div class="mu" style="margin-bottom:6px">Water features</div><div class="wf">'+B.map(function(b){var on=(nc.bodies||["pool"]).indexOf(b[0])>-1;return '<button class="wfb'+(on?' on':'')+'" data-a="ncb" data-b="'+b[0]+'"><span>'+b[2]+'</span><span class="n">'+b[1]+'</span><span class="c">'+(on?'✓':'+')+'</span></button>'}).join("")+'</div><div class="row"><span class="mu">Route day</span><button class="tg" data-a="ncday">'+(newDay==null?"Not set":DN[newDay])+' ›</button></div><div class="row" style="margin-top:12px"><button data-a="savec">Save customer</button><button class="g" data-a="cancelc">Cancel</button></div></div>'}
@@ -389,10 +395,12 @@ function render(){
   var pics=p.pics||[];o+='<h3 style="margin:16px 0 4px">Photos <span class="mu" style="font-weight:400">('+pics.length+' of '+MAXP+')</span></h3><div class="card"><div class="mu" style="margin-bottom:8px">Water features, equipment pad, anything worth remembering.</div><div class="pg">'+pics.map(function(k){var src=pcache[k];if(src===undefined){pcache[k]=null;pget(k).then(function(v){pcache[k]=v||"";if(view==="prof")render()})}return '<div class="pc"><img class="pim" data-a="zoom"'+(src?' src="'+src+'"':'')+'><button class="px" data-a="rmpic" data-k="'+k+'" aria-label="Remove photo">×</button></div>'}).join("")+(pics.length<MAXP?'<button class="padd" data-a="addpic"><span>+</span>Add photo'+(pics.length?'':'s')+'</button>':'')+'</div></div>';
   o+='<h3 style="margin:16px 0 4px">Service history <span class="mu" style="font-weight:400">('+rs.length+' visits)</span></h3><div class="card">'+(rs.length?rs.map(function(r){var bb=B.find(function(x){return x[0]===bd(r)});return rrow(r,bb[2]+" "+bb[1])}).join(""):'<div class="mu">No readings yet.</div>')+'</div>';
   o+='<button class="d" data-a="delpool">Remove this customer &amp; all readings</button>';
+ }else if(view==="map"){
+  h.innerHTML='<h1 class="brand"><img src="icons/drop.png" alt="">Swimmer</h1>';o+=tabs("map")+mapHtml();
  }else if(view==="crew"){
-  h.innerHTML='<button class="bk" data-a="days">‹ Days</button><h1>👥 Crew</h1>';o+=crewHtml();
+  h.innerHTML='<h1 class="brand"><img src="icons/drop.png" alt="">Swimmer</h1>';o+=tabs("crew")+crewHtml();
  }else if(view==="filters"){
-  h.innerHTML='<button class="bk" data-a="days">‹ Days</button><h1>🧽 Filters</h1>';
+  h.innerHTML='<h1 class="brand"><img src="icons/drop.png" alt="">Swimmer</h1>';o+=tabs("filters");
   var fa=[];S.pools.forEach(function(p){var us=funits(p);us.forEach(function(x){var a=fattn(x.u);if(a)fa.push({p:p,u:x.u,k:x.k,b:x.b,multi:us.length>1,a:a})})});
   if(!fa.length)o+='<div class="card t-ok" style="text-align:center"><b>✓ All filters are up to date</b></div>';
   [["due","Needs attention","t-hi"],["soon","Coming up · next 14 days","t-lo"],["none","No date set","t-n"]].forEach(function(g){var it=fa.filter(function(x){return x.a.g===g[0]}).sort(function(x,y){return g[0]==="none"?(x.p.name||"").localeCompare(y.p.name||""):x.a.n-y.a.n});if(!it.length)return;
@@ -415,7 +423,7 @@ function render(){
   
  }
  if(canAdmin&&!admin)o='<button class="empbar" data-a="mode"><span>👷 You\'re seeing the <b>Employee view</b></span><u>Back to Admin</u></button>'+o;
- a.innerHTML=o;window.scrollTo(0,y);
+ a.innerHTML=o;window.scrollTo(0,y);if(view==="map")mountMap();else unmountMap();
  document.querySelectorAll("img[data-ph]").forEach(function(im){pget(im.dataset.ph).then(function(d){if(d)im.src=d})});
  var pn=document.getElementById("pn");if(pn)pn.focus();
  loadNames()}
@@ -448,11 +456,14 @@ document.addEventListener("input",function(e){var t=e.target,ds=t.dataset||{};if
 document.addEventListener("toggle",function(e){if(e.target.dataset&&e.target.dataset.b)open[e.target.dataset.b]=e.target.open},true);
 document.addEventListener("click",function(e){
  var el=e.target.closest("[data-a]");if(!el)return;if(window.__nc&&window.__nc())return;var a=el.dataset.a,id=el.dataset.id,b=el.dataset.b;
- if(!admin){var EA={plan:1,dir:1,day:1,days:1,wk:1,wk0:1,rm:1,mo:1,yr:1,ymo:1,open:1,photo:1,rmphoto:1,pick:1,more:1,saveread:1,skip:1,edit:1,saveedit:1,canceledit:1,del:1,repeat:1,qn:1,rb:1,showall:1,zoom:1,visit:1,mode:1,auth:1,reset:1,authmode:1,claim:1,signout:1,fidon:1,fidoff:1,fidno:1,unlock:1,unlockpw:1};if(!EA[a])return;if(a==="del"){var dr=S.readings.find(function(r){return r.id===id});if(!dr||!dr.skip)return}}
+ if(!admin){var EA={plan:1,dir:1,day:1,days:1,wk:1,wk0:1,rm:1,mo:1,yr:1,ymo:1,open:1,photo:1,rmphoto:1,pick:1,more:1,saveread:1,skip:1,edit:1,saveedit:1,canceledit:1,del:1,repeat:1,qn:1,rb:1,showall:1,zoom:1,visit:1,map:1,mapd:1,mapdir:1,mode:1,auth:1,reset:1,authmode:1,claim:1,signout:1,fidon:1,fidoff:1,fidno:1,unlock:1,unlockpw:1};if(!EA[a])return;if(a==="del"){var dr=S.readings.find(function(r){return r.id===id});if(!dr||!dr.skip)return}}
  if(a==="dir"){}
  else if(a==="add")addFlow()
  else if(a==="mode"){if(!canAdmin)return;var toEmp=admin;ask(toEmp?"Switch to Employee view? You'll see the app exactly as your crew does — no Customers, Filters or profile editing.":"Switch back to Admin view?",function(){empView=toEmp;admin=canAdmin&&!empView;try{localStorage.setItem("poolview",empView?"emp":"admin")}catch(e){}go("days");toast(empView?"Now in Employee view":"Back in Admin view")},toEmp?"Employee view":"Admin view")}
  else if(a==="filters")go("filters")
+ else if(a==="map"){if(!mapDate)mapDate=today();go("map")}
+ else if(a==="mapd"){var md=pd(mapDate||today());md.setDate(md.getDate()+(+el.dataset.n));mapDate=el.dataset.n==="0"?today():dkey(md);render()}
+ else if(a==="mapdir"){var ps2=routeFor(mapDate).filter(function(p){return p.addr});if(ps2.length)window.open("https://www.google.com/maps/dir/"+ps2.map(function(p){return encodeURIComponent(p.addr)}).join("/"),"_blank")}
  else if(a==="crew")go("crew")
  else if(a==="auth")doAuth()
  else if(a==="reset")doReset()
@@ -508,7 +519,7 @@ document.addEventListener("click",function(e){
  else if(a==="rday"){var rp=S.pools.find(function(x){return x.id===pid});wheelN("Route day",[{items:DN.map(function(n,i){return[n,i]}),sel:rp.day==null?(selDate?pd(selDate).getDay():new Date().getDay()):rp.day}],function(v){rp.day=v[0];delete rp.ord;save();render()})}
  else if(a==="cancel"){adding=false;render()}
  else if(a==="savepool"){var n=document.getElementById("pn").value.trim();if(!n)return;S.pools.push({id:"p"+Date.now(),name:n,addr:document.getElementById("pa").value.trim(),bodies:["pool"],day:pd(selDate).getDay()});save();adding=false;render()}
- else if(a==="open")go("pool",{pid:id});
+ else if(a==="open"){if(view==="map")selDate=mapDate||today();go("pool",{pid:id})}
  
  else if(a==="tog"){var p=S.pools.find(function(x){return x.id===pid}),bs=p.bodies||["pool"],i=bs.indexOf(b);if(i>-1)bs.splice(i,1);else{bs.push(b);open[b]=true}p.bodies=bs;save();render();toast(B.find(function(x){return x[0]===b})[1]+(i>-1?" removed":" added"));if(i===-1){var dt=document.querySelector('details[data-b="'+b+'"]');if(dt)dt.scrollIntoView({behavior:"smooth",block:"start"})}}
  else if(a==="pick")wheel(b,el.dataset.f);
@@ -599,6 +610,36 @@ async function unlock(){var id=fidId();if(!id){locked=false;render();return}
 function lockHtml(){var cm=cachedMe()||{};return '<div style="max-width:380px;margin:0 auto;text-align:center"><img src="icons/icon-192.png" alt="" style="width:96px;height:96px;border-radius:22px;display:block;margin:64px auto 18px;box-shadow:0 2px 10px rgba(0,0,0,.18)"><h2 style="margin:0 0 4px">Swimmer</h2><div class="mu" style="margin-bottom:28px">'+esc(cm.email||"")+'</div><button data-a="unlock" style="width:100%;min-height:54px;font-size:17px">Unlock with Face ID</button><button class="g" data-a="unlockpw" style="width:100%;margin-top:10px;font-size:14px">Use password instead</button></div>'}
 function signOutNow(){wipeLocal();setMe(null);fauth&&fauth.signOut()}
 document.addEventListener("visibilitychange",function(){if(document.hidden){hidAt=Date.now()}else if(fidId()&&!gate&&cachedMe()&&hidAt&&Date.now()-hidAt>LOCKMIN*60000){locked=true;render()}});
+var mapDate=null,LM=null,lmap=null,geoQ=[],geoBusy=false,geoFail={},rtCache={};
+function loadLeaflet(){if(LM)return LM;LM=new Promise(function(res,rej){var c=document.createElement("link");c.rel="stylesheet";c.href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";document.head.appendChild(c);var j=document.createElement("script");j.src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";j.onload=function(){res(window.L)};j.onerror=function(){LM=null;rej()};document.head.appendChild(j)});return LM}
+function stopColor(p,k){return done(p,k)?(skipped(p,k)?"var(--lo)":"var(--ok)"):"var(--ac)"}
+function mapHtml(){var k=mapDate||today(),dd=pd(k),cs=routeFor(k),T=today(),nog=cs.filter(function(p){return !p.addr||(p.geo&&p.geo.none&&p.geo.a===p.addr)}),pend2=cs.filter(function(p){return p.addr&&!(p.geo&&p.geo.a===p.addr)}).length;
+ var o='<div class="row" style="justify-content:space-between;margin-bottom:10px"><button class="bk" data-a="mapd" data-n="-1">‹</button><b style="text-align:center">'+DN[dd.getDay()]+', '+sd(dd)+(k===T?' <span class="tday">TODAY</span>':'')+'</b><button class="bk" data-a="mapd" data-n="1">›</button></div>';
+ if(k!==T)o+='<div style="text-align:center;margin:-4px 0 8px"><button class="g" data-a="mapd" data-n="0" style="font-size:14px">Back to today</button></div>';
+ if(!cs.length)return o+'<div class="card mu" style="text-align:center">No customers on this day.</div>';
+ o+='<div id="map" class="mapbox"></div>';
+ if(pend2)o+='<div class="mu" style="font-size:13px;margin:-4px 0 8px;text-align:center">Finding '+pend2+' address'+(pend2===1?'':'es')+' on the map…</div>';
+ o+='<button data-a="mapdir" style="width:100%;margin-bottom:12px">Directions for the whole route ›</button>';
+ o+=cs.map(function(p,i){return '<div class="card pool cp" data-a="open" data-id="'+p.id+'" style="padding:8px 12px;margin-bottom:6px"><div class="num" style="background:'+stopColor(p,k)+';color:#fff;min-width:30px;height:30px;font-size:14px">'+(i+1)+'</div><div class="cm"><b>'+esc(p.name)+'</b><div class="mu">'+esc(p.addr||"No address")+'</div></div></div>'}).join("");
+ if(nog.length)o+='<div class="mu" style="font-size:13px;text-align:center">Not on the map: '+nog.map(function(p){return esc(p.name)}).join(", ")+' — check the address on their profile.</div>';
+ return o}
+window.openStop=function(id){selDate=mapDate||today();go("pool",{pid:id})};
+function unmountMap(){if(lmap){try{lmap.remove()}catch(e){}lmap=null}}
+function geocode(cs){cs.forEach(function(p){if(p.addr&&!(p.geo&&p.geo.a===p.addr)&&!geoFail[p.addr]&&geoQ.indexOf(p)<0)geoQ.push(p)});if(geoBusy||!geoQ.length)return;geoBusy=true;
+ (function next(){var p=geoQ.shift();if(!p){geoBusy=false;return}var ad=p.addr;
+  fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q="+encodeURIComponent(ad),{headers:{"Accept":"application/json"}}).then(function(r){return r.json()}).then(function(j){if(p.addr!==ad)return;p.geo=j&&j[0]?{a:ad,lat:+j[0].lat,lon:+j[0].lon}:{a:ad,none:1};save();if(view==="map")render()}).catch(function(){geoFail[ad]=1}).then(function(){setTimeout(next,1100)})})()}
+function mountMap(){unmountMap();var box=document.getElementById("map");if(!box)return;var k=mapDate||today(),cs=routeFor(k);geocode(cs);
+ loadLeaflet().then(function(L){if(!document.getElementById("map")||view!=="map")return;unmountMap();box=document.getElementById("map");
+  lmap=L.map(box,{zoomControl:true,attributionControl:true});L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(lmap);
+  var pts=[];cs.forEach(function(p,i){if(!(p.geo&&p.geo.a===p.addr&&p.geo.lat!=null))return;var ll=[p.geo.lat,p.geo.lon];pts.push(ll);
+   var ic=L.divIcon({className:"",html:'<div class="mpin" style="background:'+stopColor(p,k)+'">'+(i+1)+'</div>',iconSize:[30,30],iconAnchor:[15,15]});
+   L.marker(ll,{icon:ic}).addTo(lmap).bindPopup('<b>'+esc(p.name)+'</b><br>'+esc(p.addr)+'<br><a href="#" onclick="openStop(\''+p.id+'\');return false">Open visit ›</a> &nbsp; <a target="_blank" rel="noopener" href="'+mapUrl(p.addr)+'">Directions</a>')});
+  if(!pts.length){lmap.setView([33.45,-112.07],10);return}
+  if(pts.length===1)lmap.setView(pts[0],14);else lmap.fitBounds(pts,{padding:[30,30]});
+  if(pts.length>1){var key=pts.map(function(x){return x[0].toFixed(5)+","+x[1].toFixed(5)}).join(";"),line=function(c){if(lmap)L.polyline(c,{color:"#0a84c6",weight:4,opacity:.75}).addTo(lmap)};
+   if(rtCache[key])line(rtCache[key]);
+   else fetch("https://router.project-osrm.org/route/v1/driving/"+pts.map(function(x){return x[1]+","+x[0]}).join(";")+"?overview=full&geometries=geojson").then(function(r){return r.json()}).then(function(j){var c=j.routes[0].geometry.coordinates.map(function(q){return[q[1],q[0]]});rtCache[key]=c;line(c)}).catch(function(){rtCache[key]=pts;line(pts)})}
+  setTimeout(function(){lmap&&lmap.invalidateSize()},50)}).catch(function(){box.innerHTML='<div class="mu" style="padding:30px;text-align:center">The map needs signal to load.</div>'})}
 function stopListeners(){unsubs.forEach(function(u){try{u()}catch(e){}});unsubs=[]}
 function cachedMe(){try{return JSON.parse(localStorage.getItem("poolme")||"null")}catch(e){return null}}
 function setMe(o){try{if(o)localStorage.setItem("poolme",JSON.stringify(o));else localStorage.removeItem("poolme")}catch(e){}}
