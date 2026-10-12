@@ -254,7 +254,7 @@ function choose(title,sub,opts){var o=document.createElement("div");o.className=
  document.body.appendChild(o);o.addEventListener("click",function(e){if(e.target===o)o.remove()});o.querySelector("#cx").onclick=function(){o.remove()};
  o.querySelectorAll("button[data-i]").forEach(function(bt){bt.onclick=function(){o.remove();opts[+bt.dataset.i][1]()}})}
 function addFlow(){var dd=pd(selDate),wd=dd.getDay(),o=document.createElement("div");o.className="ws";
- o.innerHTML='<div class="sh" style="max-height:82vh;display:flex;flex-direction:column"><div style="padding:8px 0 2px;font-weight:700">Add a customer to '+DN[wd]+', '+sd(dd)+'</div><input id="aq" placeholder="Search customers" style="margin:8px 0"><div id="al" style="overflow:auto;flex:1;min-height:120px"></div><div class="row" style="margin-top:8px"><button class="g" id="ax" style="flex:1">Cancel</button><button class="g" id="an" style="flex:1">+ New customer</button></div></div>';
+ o.innerHTML='<div class="sh" style="max-height:82vh;display:flex;flex-direction:column"><div style="padding:8px 0 2px;font-weight:700">Add a customer to '+DN[wd]+', '+sd(dd)+'</div><input id="aq" placeholder="Search clients" style="margin:8px 0"><div id="al" style="overflow:auto;flex:1;min-height:120px"></div><div class="row" style="margin-top:8px"><button class="g" id="ax" style="flex:1">Cancel</button><button class="g" id="an" style="flex:1">+ New customer</button></div></div>';
  document.body.appendChild(o);o.addEventListener("click",function(e){if(e.target===o)o.remove()});
  var here=function(p){return regFor(selDate).indexOf(p)>-1||incFor(selDate).some(function(x){return x.p===p})};
  var list=function(){var q=o.querySelector("#aq").value.toLowerCase(),ps=S.pools.filter(function(p){return !q||[p.name,p.addr].join(" ").toLowerCase().indexOf(q)>-1}).sort(byLast),box=o.querySelector("#al");
@@ -307,8 +307,8 @@ function planSheet(){var o=document.createElement("div");o.className="ws";var ov
  o.innerHTML='<div class="sh"><div style="padding:8px 0 2px;font-weight:700">Route timing</div><div class="mu" style="margin-bottom:10px">Start times for the rest of the route are estimated from this.</div><label>First stop starts at</label><input type="time" id="pt" value="'+(PL.days[selDate]||PL.start)+'"><label style="margin-top:8px">Minutes per stop</label><input type="number" id="ps" min="5" max="120" value="'+(+PL.svc||15)+'"><label style="display:flex;gap:8px;align-items:center;margin:12px 0"><input type="checkbox" id="po" style="width:auto"'+(ov?' checked':'')+'> Only for '+DN[pd(selDate).getDay()]+', '+sd(pd(selDate))+'</label><div class="row"><button class="g" id="px" style="flex:1">Cancel</button><button id="pv" style="flex:1">Save</button></div></div>';
  document.body.appendChild(o);o.addEventListener("click",function(e){if(e.target===o)o.remove()});o.querySelector("#px").onclick=function(){o.remove()};
  o.querySelector("#pv").onclick=function(){var t=o.querySelector("#pt").value||"08:00",sv=Math.max(5,Math.min(120,+o.querySelector("#ps").value||15));PL.svc=sv;if(o.querySelector("#po").checked)PL.days[selDate]=t;else{PL.start=t;delete PL.days[selDate]}plsave();o.remove();render()}}
-var NAVI={"days": "<svg viewBox=\"0 0 24 24\"><circle cx=\"6\" cy=\"18\" r=\"2.2\"/><circle cx=\"18\" cy=\"6\" r=\"2.2\"/><path d=\"M8.2 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.8\"/></svg>", "map": "<svg viewBox=\"0 0 24 24\"><path d=\"M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z\"/><circle cx=\"12\" cy=\"10\" r=\"2.4\"/></svg>", "cust": "<svg viewBox=\"0 0 24 24\"><rect x=\"4\" y=\"3.5\" width=\"16\" height=\"17\" rx=\"2.5\"/><path d=\"M8 8.5h8M8 12.5h8M8 16.5h5\"/></svg>", "filters": "<svg viewBox=\"0 0 24 24\"><path d=\"M4 5h16l-6 7.5V19l-4 1.5v-8z\"/></svg>", "crew": "<svg viewBox=\"0 0 24 24\"><circle cx=\"9\" cy=\"8.5\" r=\"3.2\"/><path d=\"M3 19.5c.6-3.3 3-5 6-5s5.4 1.7 6 5\"/><circle cx=\"17\" cy=\"9.5\" r=\"2.4\"/><path d=\"M16.5 14.6c2.3.2 4 1.7 4.5 4.4\"/></svg>"},navHtml="";
-function tabs(a){var T=[["days","Route"],["map","Map"]];if(admin){var fcn=fcount(),nreq=Object.keys(reqs).filter(function(k){return !team[k]}).length;T.push(["cust","Customers"],["filters","Filters",fcn,"hi"],["crew","Crew",nreq,"lo"])}
+var NAVI={"days": "<svg viewBox=\"0 0 24 24\"><circle cx=\"6\" cy=\"18\" r=\"2.2\"/><circle cx=\"18\" cy=\"6\" r=\"2.2\"/><path d=\"M8.2 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.8\"/></svg>", "map": "<svg viewBox=\"0 0 24 24\"><path d=\"M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z\"/><circle cx=\"12\" cy=\"10\" r=\"2.4\"/></svg>", "cust": "<svg viewBox=\"0 0 24 24\"><rect x=\"4\" y=\"3.5\" width=\"16\" height=\"17\" rx=\"2.5\"/><path d=\"M8 8.5h8M8 12.5h8M8 16.5h5\"/></svg>", "filters": "<svg viewBox=\"0 0 24 24\"><path d=\"M12 3.2c-2.9 3.6-6 7.3-6 10.6a6 6 0 0 0 12 0c0-3.3-3.1-7-6-10.6z\"/><path d=\"M8.4 14.6c1.2-.9 2.4-.9 3.6 0s2.4.9 3.6 0\"/></svg>", "crew": "<svg viewBox=\"0 0 24 24\"><circle cx=\"9\" cy=\"8.5\" r=\"3.2\"/><path d=\"M3 19.5c.6-3.3 3-5 6-5s5.4 1.7 6 5\"/><circle cx=\"17\" cy=\"9.5\" r=\"2.4\"/><path d=\"M16.5 14.6c2.3.2 4 1.7 4.5 4.4\"/></svg>"},navHtml="";
+function tabs(a){var T=[["days","Route"],["map","Map"]];if(admin){var fcn=fcount(),nreq=Object.keys(reqs).filter(function(k){return !team[k]}).length;T.push(["cust","Clients"],["filters","Filters",fcn,"hi"],["crew","Crew",nreq,"lo"])}
  navHtml='<div class="bn-in">'+T.map(function(t){return '<button class="'+(a===t[0]?"on":"")+'" data-a="'+t[0]+'" aria-label="'+t[1]+'"><span class="bi">'+NAVI[t[0]]+(t[2]?'<i class="bdg b-'+t[3]+'">'+t[2]+'</i>':'')+'</span><span class="bl">'+t[1]+'</span></button>'}).join("")+'</div>';return ''}
 function rrow(r,lab){var cur=dkey(new Date(r.t))===selDate,o='<div class="'+(cur?'rtd':'')+'" style="'+(cur?'':'padding:10px 0;')+'border-bottom:1px solid var(--bd)"><div class="row" style="justify-content:space-between"><b>'+(cur?'<span class="rbg">'+(r.skip?'SKIPPED ':'✓ COMPLETED ')+(selDate===today()?'TODAY':DN[pd(selDate).getDay()].slice(0,3).toUpperCase())+'</span>':'')+fmt(r.t)+(lab?' <span class="mu" style="font-weight:400">· '+lab+'</span>':'')+'</b>'+(r.skip?'<button class="d" data-a="del" data-id="'+r.id+'">Undo skip</button>':'<button class="tg" data-a="edit" data-id="'+r.id+'">Edit</button>')+'</div><div class="chips">';
  if(r.skip)o+='<span class="chip s-lo t-lo">Skipped'+(r.reason?' · '+esc(r.reason):'')+'</span>';
@@ -333,8 +333,8 @@ function lastKey(n){n=String(n||"").trim();if(n.indexOf(",")>0)return n.toLowerC
 function lf(n){n=String(n||"").trim();if(!n||n.indexOf(",")>0)return n;var m=n.match(/^(.*?)\s+((?:jr|sr|ii|iii|iv)\.?)$/i),sx="";if(m){n=m[1];sx=" "+m[2]}var w=n.split(/\s+/);if(w.length<2)return n+sx;var l=w.pop();return l+", "+w.join(" ")+sx}
 function byLast(a,b){return lastKey(a.name).localeCompare(lastKey(b.name))}
 function clist(q){query=q||"";q=query.toLowerCase();var ps=S.pools.filter(function(p){return !q||[p.name,lf(p.name),p.addr,p.phone,p.email].join(" ").toLowerCase().indexOf(q)>-1}).sort(byLast);
- if(!ps.length)return '<div class="card mu">'+(S.pools.length?'No matches.':'No customers yet. Tap + Add.')+'</div>';
- return (q?'':'<div class="mu" style="margin:0 0 6px">'+ps.length+' customer'+(ps.length===1?'':'s')+' · sorted by last name</div>')+ps.map(function(p,i){var fs=fsum(p);return '<div class="card pool cc" data-a="prof" data-id="'+p.id+'"><div class="num">'+(i+1)+'</div><div style="min-width:0;flex:1"><b>'+esc(lf(p.name))+'</b><div class="mu">'+(p.day==null?"No route day":DN[p.day].slice(0,3))+(p.addr?' · '+esc(p.addr):'')+(fs[1]==="hi"||fs[1]==="lo"?' · <span class="t-'+fs[1]+'">'+fs[0]+'</span>':'')+'</div></div><span class="mu" style="font-size:20px">›</span></div>'}).join("")}
+ if(!ps.length)return '<div class="card mu">'+(S.pools.length?'No matches.':'No clients yet. Tap + Add.')+'</div>';
+ return (q?'':'<div class="mu" style="margin:0 0 6px">'+ps.length+' client'+(ps.length===1?'':'s')+' · sorted by last name</div>')+ps.map(function(p,i){var fs=fsum(p);return '<div class="card pool cc" data-a="prof" data-id="'+p.id+'"><div class="num">'+(i+1)+'</div><div style="min-width:0;flex:1"><b>'+esc(lf(p.name))+'</b><div class="mu">'+(p.day==null?"No route day":DN[p.day].slice(0,3))+(p.addr?' · '+esc(p.addr):'')+(fs[1]==="hi"||fs[1]==="lo"?' · <span class="t-'+fs[1]+'">'+fs[0]+'</span>':'')+'</div></div><span class="mu" style="font-size:20px">›</span></div>'}).join("")}
 function hist(b){var T=today(),all=S.readings.filter(function(r){return r.pid===pid&&bd(r)===b}).sort(function(x,y){return y.t-x.t}),rs=showAll?all:(selDate===T?all.slice(0,4):all.filter(function(r){return dkey(new Date(r.t))===selDate}));
  var o='<div class="hist"><div class="row" style="justify-content:space-between"><b>'+(showAll?'All history':selDate===T?'Recent visits':sd(pd(selDate)))+'</b><button class="g" data-a="showall" style="font-size:14px">'+(showAll?'Show less':'Show all')+'</button></div><div class="mu">Photos kept for latest '+KEEP+' visits</div>';
  if(!rs.length)o+='<div class="mu" style="margin-top:6px">No readings'+(selDate===T||showAll?' yet.':' on this day.')+'</div>';
@@ -343,7 +343,7 @@ function hist(b){var T=today(),all=S.readings.filter(function(r){return r.pid===
  return o+'</div>'}
 function render(){
  var y=window.scrollY,h=document.getElementById("hd"),a=document.getElementById("app"),o="",T=today();navHtml="";var nv0=document.getElementById("nav");if(nv0&&(locked||gate)){nv0.innerHTML="";document.body.classList.remove("hasnav")}
- if(locked&&!gate){h.innerHTML='';a.innerHTML=lockHtml();var sv2=document.getElementById("sv");if(sv2)sv2.style.display="none";return}
+ if(locked&&!gate){h.innerHTML='';a.innerHTML=lockHtml();if(!autoTried){autoTried=true;setTimeout(function(){if(locked)unlock(true)},350)}var sv2=document.getElementById("sv");if(sv2)sv2.style.display="none";return}
  if(gate){h.innerHTML='';a.innerHTML=gateHtml();var sv0=document.getElementById("sv");if(sv0)sv0.style.display="none";return}
  var sv1=document.getElementById("sv");if(sv1)sv1.style.display="";
  if(!admin&&(view==="cust"||view==="prof"||view==="filters"||view==="crew"))view="days";if(view==="map"&&!mapDate)mapDate=today();
@@ -389,7 +389,7 @@ function render(){
   o+=tabs("cust");
   if(addingC){o+='<div class="card">';[["name","Name"],["phone","Phone"],["email","Email"],["addr","Address"]].forEach(function(x){o+='<div style="margin-bottom:8px"><label>'+x[1]+'</label><input data-nc="'+x[0]+'" value="'+esc(nc[x[0]]||"")+'"></div>'});
    o+='<div style="margin-bottom:8px"><label>Notes (gate code, pets…)</label><textarea data-nc="notes" rows="2">'+esc(nc.notes||"")+'</textarea></div><div class="mu" style="margin-bottom:6px">Water features</div><div class="wf">'+B.map(function(b){var on=(nc.bodies||["pool"]).indexOf(b[0])>-1;return '<button class="wfb'+(on?' on':'')+'" data-a="ncb" data-b="'+b[0]+'"><span>'+b[2]+'</span><span class="n">'+b[1]+'</span><span class="c">'+(on?'✓':'+')+'</span></button>'}).join("")+'</div><div class="row"><span class="mu">Route day</span><button class="tg" data-a="ncday">'+(newDay==null?"Not set":DN[newDay])+' ›</button></div><div class="row" style="margin-top:12px"><button data-a="savec">Save customer</button><button class="g" data-a="cancelc">Cancel</button></div></div>'}
-  o+='<input id="q" placeholder="Search customers" value="'+esc(query)+'"><div id="cl" style="margin-top:10px">'+clist(query)+'</div>';
+  o+='<input id="q" placeholder="Search clients" value="'+esc(query)+'"><div id="cl" style="margin-top:10px">'+clist(query)+'</div>';
  }else if(view==="prof"){
   var p=S.pools.find(function(x){return x.id===pid}),bs=p.bodies||["pool"],fs=fsum(p);
   h.innerHTML='<button class="bk" data-a="cust">‹ Customers</button><h1>'+esc(p.name)+'</h1>';
@@ -616,15 +616,18 @@ function rnd(n){var b=new Uint8Array(n);crypto.getRandomValues(b);return b}
 try{if(window.PublicKeyCredential&&PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable)PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(function(v){fidOK=!!v;if(view==="days"&&!gate)render()}).catch(function(){})}catch(e){}
 async function fidOn(){var cm=cachedMe()||{};
  try{var c=await navigator.credentials.create({publicKey:{rp:{name:"Swimmer"},user:{id:rnd(16),name:cm.email||"swimmer",displayName:cm.name||cm.email||"Swimmer"},challenge:rnd(32),pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}],authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required",residentKey:"preferred"},timeout:60000}});
-  try{localStorage.setItem("poolfid",b64u(c.rawId));localStorage.setItem("poolfidask","1")}catch(e){}toast("Face ID is on — Swimmer will ask for it when you open the app");render()}
+  try{localStorage.setItem("poolfid",b64u(c.rawId));localStorage.setItem("poolfidask","1")}catch(e){}markUnlocked();toast("Face ID is on — Swimmer will ask for it when you open the app");render()}
  catch(e){toast(e&&e.name==="NotAllowedError"?"Face ID setup cancelled":"Couldn't turn on Face ID: "+((e&&e.message)||e))}}
 function fidOff(){ask("Turn off Face ID for Swimmer on this phone?",function(){try{localStorage.removeItem("poolfid")}catch(e){}locked=false;toast("Face ID is off");render()},"Turn off")}
-async function unlock(){var id=fidId();if(!id){locked=false;render();return}
- try{await navigator.credentials.get({publicKey:{challenge:rnd(32),allowCredentials:[{type:"public-key",id:unb64u(id)}],userVerification:"required",timeout:60000}});locked=false;render()}
- catch(e){if(e&&e.name==="NotAllowedError")toast("Face ID didn't go through — tap to try again");else{toast("Face ID isn't working on this phone — sign in with your password");try{localStorage.removeItem("poolfid")}catch(x){}locked=false;signOutNow()}}}
+var autoTried=false,unlBusy=false;
+async function unlock(auto){if(unlBusy)return;var id=fidId();if(!id){locked=false;render();return}
+ unlBusy=true;try{await navigator.credentials.get({publicKey:{challenge:rnd(32),allowCredentials:[{type:"public-key",id:unb64u(id)}],userVerification:"required",timeout:60000}});unlBusy=false;locked=false;markUnlocked();render()}
+ catch(e){unlBusy=false;if(auto)return;if(e&&e.name==="NotAllowedError")toast("Face ID didn't go through — tap to try again");else{toast("Face ID isn't working on this phone — sign in with your password");try{localStorage.removeItem("poolfid")}catch(x){}locked=false;signOutNow()}}}
 function lockHtml(){var cm=cachedMe()||{};return '<div style="max-width:380px;margin:0 auto;text-align:center"><img src="icons/icon-192.png" alt="" style="width:96px;height:96px;border-radius:22px;display:block;margin:64px auto 18px;box-shadow:0 2px 10px rgba(0,0,0,.18)"><h2 style="margin:0 0 4px">Swimmer</h2><div class="mu" style="margin-bottom:28px">'+esc(cm.email||"")+'</div><button data-a="unlock" style="width:100%;min-height:54px;font-size:17px">Unlock with Face ID</button><button class="g" data-a="unlockpw" style="width:100%;margin-top:10px;font-size:14px">Use password instead</button></div>'}
 function signOutNow(){wipeLocal();setMe(null);fauth&&fauth.signOut()}
-document.addEventListener("visibilitychange",function(){if(document.hidden){hidAt=Date.now()}else if(fidId()&&!gate&&cachedMe()&&hidAt&&Date.now()-hidAt>LOCKMIN*60000){locked=true;render()}});
+function needDaily(){try{return localStorage.getItem("poolunlk")!==today()}catch(e){return true}}
+function markUnlocked(){try{localStorage.setItem("poolunlk",today())}catch(e){}}
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&fidId()&&!gate&&cachedMe()&&needDaily()&&!locked){locked=true;autoTried=false;render()}});
 var mapDate=null,LM=null,lmap=null,geoQ=[],geoBusy=false,geoFail={},rtCache={};
 function loadLeaflet(){if(LM)return LM;LM=new Promise(function(res,rej){var c=document.createElement("link");c.rel="stylesheet";c.href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";document.head.appendChild(c);var j=document.createElement("script");j.src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";j.onload=function(){res(window.L)};j.onerror=function(){LM=null;rej()};document.head.appendChild(j)});return LM}
 function stopColor(p,k){return done(p,k)?(skipped(p,k)?"var(--lo)":"var(--ok)"):"var(--ac)"}
@@ -666,7 +669,7 @@ function setMe(o){try{if(o)localStorage.setItem("poolme",JSON.stringify(o));else
 function initCloud(){
  setTimeout(function(){if(dbOK&&!ready){sv.slow=true;setSv()}},8000);
  var cm=cachedMe();gate=cm?null:"loading";
- if(cm&&fidId())locked=true;
+ if(cm&&fidId()&&needDaily())locked=true;
  if(cm){uid=cm.uid;canAdmin=cm.role==="admin";isOwner=!!cm.owner;admin=canAdmin&&!empView}
  if(!window.firebase||!window.FB_CONFIG||!FB_CONFIG.apiKey){gate=cm?null:"cfg";dbOK=false;setSv();render();return}
  try{firebase.initializeApp(FB_CONFIG);fauth=firebase.auth();try{fauth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function(){})}catch(e){}fdb=firebase.firestore();try{fdb.enablePersistence({synchronizeTabs:true}).catch(function(){})}catch(e){}}
@@ -695,7 +698,7 @@ async function startMember(u){
  catch(e){
   if(cm&&cm.uid===u.uid){goMember(u,cm.role);return}
   gate=e&&e.code==="permission-denied"?"rules":"neterr";render()}}
-function goMember(u,role){stopListeners();canAdmin=role==="admin";admin=canAdmin&&!empView;setMe({uid:u.uid,role:role,owner:isOwner,email:u.email,name:u.displayName||""});try{localStorage.setItem("poolrole",canAdmin?"1":"0")}catch(e){}
+function goMember(u,role){stopListeners();if(!locked)markUnlocked();canAdmin=role==="admin";admin=canAdmin&&!empView;setMe({uid:u.uid,role:role,owner:isOwner,email:u.email,name:u.displayName||""});try{localStorage.setItem("poolrole",canAdmin?"1":"0")}catch(e){}
  gate=null;base=fdb.doc("data/route");cust=base.collection("customers");phc=base.collection("photos");bk=base.collection("backups");
  dbOK=true;sv.fatal="";setSv();
  unsubs.push(cust.onSnapshot({includeMetadataChanges:true},onSnap,function(e){dbOK=false;if(e&&e.code==="permission-denied"){sv.fatal="your access was removed — ask the owner";stopListeners();setMe(null);startMember(u)}setSv()}));
