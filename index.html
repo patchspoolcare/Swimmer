@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Swimmer</title>
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Swimmer"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="Patch's Pool Care route log"><meta name="theme-color" content="#0a84c6"><link rel="apple-touch-icon" href="icons/icon-180.png"><link rel="icon" type="image/png" href="icons/icon-192.png"><link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Swimmer"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="Patch's Pool Care route log"><meta name="theme-color" content="#0a84c6"><link rel="apple-touch-icon" href="icons/icon-180.png"><link rel="icon" type="image/png" href="icons/icon-192.png"><link rel="manifest" href="manifest.webmanifest"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -104,7 +104,10 @@ html,body{touch-action:pan-y}
 button.addf{display:flex;align-items:center;gap:12px;width:100%;margin:0 0 12px;padding:12px 14px;text-align:left;background:color-mix(in srgb,var(--ac) 8%,var(--card));color:var(--tx);border:2px dashed var(--ac);border-radius:14px;font-weight:500}button.addf .pl{flex:none;width:32px;height:32px;border-radius:50%;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700}button.addf b{display:block;font-size:16px;color:var(--ac)}button.addf small{display:block;font-size:13px;color:var(--mu);margin-top:1px}
 .pg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.pc{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--bd)}.pim{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}.pim:not([src]){visibility:hidden}.px{position:absolute;top:4px;right:4px;width:28px;height:28px;padding:0;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:18px;line-height:28px;font-weight:700}
 .padd{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:transparent;color:var(--ac);border:2px dashed var(--ac);border-radius:10px;font-size:13px;padding:4px}.padd span{font-size:26px;line-height:1}
-h1.brand{display:flex;align-items:center;gap:8px;font-size:22px;letter-spacing:-.01em}h1.brand img{width:26px;height:26px;object-fit:contain}
+h1.brand{display:flex;align-items:center;margin:0;flex:1}.brandbtn{display:flex;align-items:center;gap:7px;padding:0;background:none;border:0;color:var(--tx);font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.brandbtn img{width:30px;height:30px;object-fit:contain}.brandbtn span{font-family:"Pacifico","Snell Roundhand",cursive;font-weight:400;font-size:33px;line-height:1;display:block;margin-top:-7px;color:var(--tx)}
+.brandbtn:active{opacity:.6}
+.subhd{display:flex;align-items:center;gap:10px;margin:2px 0 12px}.subhd h2{margin:0;font-size:20px;line-height:1.2;min-width:0;overflow:hidden;text-overflow:ellipsis}
 .seg.tabs{overflow-x:auto;scrollbar-width:none}.seg.tabs::-webkit-scrollbar{display:none}.seg.tabs button{flex:1 0 auto;padding:8px 9px;font-size:14px;position:relative;white-space:nowrap}
 .bdg{display:inline-block;min-width:17px;height:17px;line-height:17px;padding:0 4px;margin-left:4px;border-radius:99px;font-size:11px;font-style:normal;font-weight:700;color:#fff;vertical-align:1px}.b-hi{background:var(--hi)}.b-lo{background:var(--lo)}
 .mapbox{height:52vh;min-height:300px;border-radius:14px;overflow:hidden;border:1px solid var(--bd);margin-bottom:10px;background:var(--bd)}
@@ -355,7 +358,7 @@ function render(){
  if(!admin&&(view==="cust"||view==="prof"||view==="filters"||view==="crew"))view="days";if(view==="map"&&!mapDate)mapDate=today();
  if(view==="days"){
   var b0=new Date();b0.setHours(0,0,0,0);b0.setDate(b0.getDate()-((b0.getDay()+6)%7)+wk*7);var e0=new Date(b0);e0.setDate(e0.getDate()+6);
-  h.innerHTML='<h1 class="brand"><img src="icons/drop.png" alt="">Swimmer</h1>'+(canAdmin?'<button class="mdp'+(admin?'':' emp')+'" data-a="mode">'+(admin?'👑 Admin':'👷 Employee')+' <i>⇄</i></button>':'')+(wk||(rmode!=="week")?'<button class="tg" data-a="wk0">Today</button>':'');
+  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt=""><span>Swimmer</span></button></h1>'+(canAdmin?'<button class="mdp'+(admin?'':' emp')+'" data-a="mode">'+(admin?'👑 Admin':'👷 Employee')+' <i>⇄</i></button>':'')+(wk||(rmode!=="week")?'<button class="tg" data-a="wk0">Today</button>':'');
   o+=tabs("days");o+='<div class="rm">'+[["week","Week"],["month","Month"],["year","Year"]].map(function(m){return '<button class="'+(rmode===m[0]?'on':'')+'" data-a="rm" data-m="'+m[0]+'">'+m[1]+'</button>'}).join("")+'</div>';
   if(rmode==="month")o+=monthView();else if(rmode==="year")o+=yearView();else{
   o+='<div class="row" style="justify-content:space-between;margin-bottom:10px"><button class="bk" data-a="wk" data-n="-1">‹ Prev</button><b>'+sd(b0)+' – '+sd(e0)+'</b><button class="bk" data-a="wk" data-n="1">Next ›</button></div>';
@@ -370,7 +373,7 @@ function render(){
   o+='<div class="mu" style="text-align:center;font-size:13px;margin-top:14px">Signed in as '+esc((me&&me.email)||cmx.email||"")+' · <a href="#" data-a="signout">Sign out</a></div>'+(fidOK?'<div class="mu" style="text-align:center;font-size:13px;margin-top:6px">Face ID: '+(fidId()?'<b class="t-ok">On</b> · <a href="#" data-a="fidoff">Turn off</a>':'Off · <a href="#" data-a="fidon">Turn on</a>')+'</div>':'');
  }else if(view==="day"){
   var dd=pd(selDate),wd=dd.getDay();
-  h.innerHTML='<button class="bk" data-a="days">‹ Days</button><h1>'+DN[wd]+', '+sd(dd)+'</h1>'+(admin?'<button data-a="add">+ Add</button>':'');
+  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt=""><span>Swimmer</span></button></h1>'+(admin?'<button data-a="add">+ Add</button>':'');o+='<div class="subhd"><button class="bk" data-a="days">‹ Days</button><h2>'+DN[wd]+', '+sd(dd)+'</h2></div>';
   if(adding)o+='<div class="card"><input id="pn" placeholder="Customer name"><div style="height:8px"></div><input id="pa" placeholder="Address (optional)"><div class="row" style="margin-top:10px"><button data-a="savepool">Save</button><button class="g" data-a="cancel">Cancel</button></div></div>';
   ET={};var row=function(p,n,tot,tag,from){var rs=onDate(p.id,selDate),fs=fsum(p),dn=done(p,selDate),sk=skipped(p,selDate),
    wc=rs.length&&!sk?rs.map(worst).reduce(function(m,x){return x==="hi"||m==="hi"?"hi":x==="lo"||m==="lo"?"lo":"ok"},"ok"):"",
@@ -391,14 +394,14 @@ function render(){
   var un=admin?S.pools.filter(function(p){return p.day==null}):[];
   if(un.length){o+='<h3 style="margin:18px 0 8px">Unassigned</h3><div class="mu" style="margin-bottom:8px">Open one and set its route day.</div>';un.forEach(function(p){o+=row(p)})}
  }else if(view==="cust"){
-  h.innerHTML='<h1 class="brand"><img src="icons/drop.png" alt="">Swimmer</h1>'+'<button data-a="addc">+ Add</button>';
+  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt=""><span>Swimmer</span></button></h1>'+'<button data-a="addc">+ Add</button>';
   o+=tabs("cust");
   if(addingC){o+='<div class="card">';[["name","Name"],["phone","Phone"],["email","Email"],["addr","Address"]].forEach(function(x){o+='<div style="margin-bottom:8px"><label>'+x[1]+'</label><input data-nc="'+x[0]+'" value="'+esc(nc[x[0]]||"")+'"></div>'});
    o+='<div style="margin-bottom:8px"><label>Notes (gate code, pets…)</label><textarea data-nc="notes" rows="2">'+esc(nc.notes||"")+'</textarea></div><div class="mu" style="margin-bottom:6px">Water features</div><div class="wf">'+B.map(function(b){var on=(nc.bodies||["pool"]).indexOf(b[0])>-1;return '<button class="wfb'+(on?' on':'')+'" data-a="ncb" data-b="'+b[0]+'"><span>'+b[2]+'</span><span class="n">'+b[1]+'</span><span class="c">'+(on?'✓':'+')+'</span></button>'}).join("")+'</div><div class="row"><span class="mu">Route day</span><button class="tg" data-a="ncday">'+(newDay==null?"Not set":DN[newDay])+' ›</button></div><div class="row" style="margin-top:12px"><button data-a="savec">Save customer</button><button class="g" data-a="cancelc">Cancel</button></div></div>'}
   o+='<input id="q" placeholder="Search clients" value="'+esc(query)+'"><div id="cl" style="margin-top:10px">'+clist(query)+'</div>';
  }else if(view==="prof"){
   var p=S.pools.find(function(x){return x.id===pid}),bs=p.bodies||["pool"],fs=fsum(p);
-  h.innerHTML='<button class="bk" data-a="cust">‹ Customers</button><h1>'+esc(p.name)+'</h1>';
+  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt=""><span>Swimmer</span></button></h1>';o+='<div class="subhd"><button class="bk" data-a="cust">‹ Clients</button><h2>'+esc(p.name)+'</h2></div>';
   var fld=function(k,l,t){return '<div style="margin-bottom:8px"><label>'+l+'</label><input data-pf="'+k+'" type="'+(t||"text")+'" value="'+esc(p[k]||"")+'"></div>'};
   o+='<div class="card">'+fld("name","Name")+fld("phone","Phone","tel")+fld("email","Email","email")+fld("addr","Address")+'<label>Notes (gate code, pets…)</label><textarea data-pf="notes" rows="2">'+esc(p.notes||"")+'</textarea>';
   var ln='';if(p.phone)ln+='<a class="lk" href="tel:'+esc(p.phone)+'">Call</a><a class="lk" href="sms:'+esc(p.phone)+'">Text</a>';if(p.email)ln+='<a class="lk" href="mailto:'+esc(p.email)+'">Email</a>';ln+='<a id="ml" class="lk" target="_blank" rel="noopener" style="'+(p.addr?'':'display:none')+'" href="'+mapUrl(p.addr)+'">Directions</a>';
@@ -417,11 +420,11 @@ function render(){
   o+='<h3 style="margin:16px 0 4px">Service history <span class="mu" style="font-weight:400">('+rs.length+' visits)</span></h3><div class="card">'+(rs.length?rs.map(function(r){var bb=B.find(function(x){return x[0]===bd(r)});return rrow(r,bb[2]+" "+bb[1])}).join(""):'<div class="mu">No readings yet.</div>')+'</div>';
   o+='<button class="d" data-a="delpool">Remove this customer &amp; all readings</button>';
  }else if(view==="map"){
-  h.innerHTML='<h1 class="brand"><img src="icons/drop.png" alt="">Swimmer</h1>';o+=tabs("map")+mapHtml();
+  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt=""><span>Swimmer</span></button></h1>';o+=tabs("map")+mapHtml();
  }else if(view==="crew"){
-  h.innerHTML='<h1 class="brand"><img src="icons/drop.png" alt="">Swimmer</h1>';o+=tabs("crew")+crewHtml();
+  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt=""><span>Swimmer</span></button></h1>';o+=tabs("crew")+crewHtml();
  }else if(view==="filters"){
-  h.innerHTML='<h1 class="brand"><img src="icons/drop.png" alt="">Swimmer</h1>';o+=tabs("filters");
+  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt=""><span>Swimmer</span></button></h1>';o+=tabs("filters");
   var fa=[];S.pools.forEach(function(p){var us=funits(p);us.forEach(function(x){var a=fattn(x.u);if(a)fa.push({p:p,u:x.u,k:x.k,b:x.b,multi:us.length>1,a:a})})});
   if(!fa.length)o+='<div class="card t-ok" style="text-align:center"><b>✓ All filters are up to date</b></div>';
   [["due","Needs attention","t-hi"],["soon","Coming up · next 14 days","t-lo"],["none","No date set","t-n"]].forEach(function(g){var it=fa.filter(function(x){return x.a.g===g[0]}).sort(function(x,y){return g[0]==="none"?(x.p.name||"").localeCompare(y.p.name||""):x.a.n-y.a.n});if(!it.length)return;
@@ -429,7 +432,7 @@ function render(){
    it.forEach(function(x){var sand=x.u.ftype==="sand";o+='<div class="card pool" data-a="prof" data-id="'+x.p.id+'"><div><b>'+esc(x.p.name)+'</b>'+(x.multi?' <span class="mu" style="font-weight:400">· '+bname(x.b)+'</span>':'')+'<div class="mu">'+esc(x.p.addr||"")+'</div><div class="mu"><span class="'+g[2]+'">'+x.a.l+'</span> · '+tname(x.u.ftype)+'</div></div>'+(g[0]==="none"?'<span class="mu" style="font-size:22px">›</span>':x.u.ftype==="de"?'<div style="display:flex;flex-direction:column;gap:6px;flex:none">'+x.a.w.map(function(w){return '<button class="tg" data-a="fdone" data-w="'+w+'" data-id="'+x.p.id+'" data-k="'+x.k+'">✓ '+(w==="backwash"?"Backwashed":"Cleaned")+'</button>'}).join("")+'</div>':'<button class="tg" data-a="fdone" data-id="'+x.p.id+'" data-k="'+x.k+'">✓ '+(sand?"Backwashed":"Cleaned")+' today</button>')+'</div>'})});
  }else{
   var p=S.pools.find(function(x){return x.id===pid}),bs=p.bodies||["pool"],fs=fsum(p);
-  h.innerHTML='<button class="bk" data-a="day" data-d="'+selDate+'">‹ Back</button><h1>'+esc(p.name)+'</h1>'+(admin?'<button class="tg" data-a="prof" data-id="'+p.id+'">Profile</button>':'');
+  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt=""><span>Swimmer</span></button></h1>'+(admin?'<button class="tg" data-a="prof" data-id="'+p.id+'">Profile</button>':'');o+='<div class="subhd"><button class="bk" data-a="day" data-d="'+selDate+'">‹ Back</button><h2>'+esc(p.name)+'</h2></div>';
   var vn=p.notes?'<div class="nt">📝 '+esc(p.notes)+'</div>':'',vl='';if(p.phone)vl+='<a class="lk" href="tel:'+esc(p.phone)+'">Call</a><a class="lk" href="sms:'+esc(p.phone)+'">Text</a>';if(p.addr)vl+='<a class="lk" target="_blank" rel="noopener" href="'+mapUrl(p.addr)+'">Directions</a>';
   var fus=funits(p),cells=[];if(vn)cells.push(vn);
   if(admin){if(fus.length>1)fus.forEach(function(x){cells.push('<div>'+fbtn(x.u,x.k,bname(x.b)+' filter')+'</div>')});else cells.push('<div>'+fbtn(p,"")+'</div>')}
@@ -478,10 +481,11 @@ document.addEventListener("input",function(e){var t=e.target,ds=t.dataset||{};if
 document.addEventListener("toggle",function(e){if(e.target.dataset&&e.target.dataset.b)open[e.target.dataset.b]=e.target.open},true);
 document.addEventListener("click",function(e){
  var el=e.target.closest("[data-a]");if(!el)return;if(window.__nc&&window.__nc())return;var a=el.dataset.a,id=el.dataset.id,b=el.dataset.b;
- if(!admin){var EA={plan:1,dir:1,day:1,days:1,wk:1,wk0:1,rm:1,mo:1,yr:1,ymo:1,open:1,photo:1,rmphoto:1,pick:1,more:1,saveread:1,skip:1,edit:1,saveedit:1,canceledit:1,del:1,repeat:1,qn:1,rb:1,showall:1,zoom:1,visit:1,map:1,mapd:1,mapdir:1,mode:1,auth:1,reset:1,authmode:1,claim:1,signout:1,fidon:1,fidoff:1,fidno:1,unlock:1,unlockpw:1};if(!EA[a])return;if(a==="del"){var dr=S.readings.find(function(r){return r.id===id});if(!dr||!dr.skip)return}}
+ if(!admin){var EA={plan:1,dir:1,day:1,days:1,wk:1,wk0:1,rm:1,mo:1,yr:1,ymo:1,open:1,photo:1,rmphoto:1,pick:1,more:1,saveread:1,skip:1,edit:1,saveedit:1,canceledit:1,del:1,repeat:1,qn:1,rb:1,showall:1,zoom:1,visit:1,home:1,map:1,mapd:1,mapdir:1,mode:1,auth:1,reset:1,authmode:1,claim:1,signout:1,fidon:1,fidoff:1,fidno:1,unlock:1,unlockpw:1};if(!EA[a])return;if(a==="del"){var dr=S.readings.find(function(r){return r.id===id});if(!dr||!dr.skip)return}}
  if(a==="dir"){}
  else if(a==="add")addFlow()
  else if(a==="mode"){if(!canAdmin)return;var toEmp=admin;ask(toEmp?"Switch to Employee view? You'll see the app exactly as your crew does — no Customers, Filters or profile editing.":"Switch back to Admin view?",function(){empView=toEmp;admin=canAdmin&&!empView;try{localStorage.setItem("poolview",empView?"emp":"admin")}catch(e){}go("days");toast(empView?"Now in Employee view":"Back in Admin view")},toEmp?"Employee view":"Admin view")}
+ else if(a==="home"){mk=null;yk=null;rmode="week";go("days",{wk:0})}
  else if(a==="filters")go("filters")
  else if(a==="map"){if(!mapDate)mapDate=today();go("map")}
  else if(a==="mapd"){var md=pd(mapDate||today());md.setDate(md.getDate()+(+el.dataset.n));mapDate=el.dataset.n==="0"?today():dkey(md);render()}
@@ -778,7 +782,7 @@ function snapLine(){var i=snapInfo();if(!i)return "Automatic daily backup is on 
  return "Automatic daily backup is on · last: "+(i.date===today()?"today":DN[d.getDay()].slice(0,3)+" "+(d.getMonth()+1)+"/"+d.getDate())+" "+tm+" ("+i.pools+" customers). Last 14 days are kept."}
 (function(){var sx=0,sy=0,st=0,ok=false;
  document.addEventListener("touchstart",function(e){ok=false;if(e.touches.length!==1||document.querySelector(".ws")||document.querySelector(".dragging"))return;var t=e.touches[0],el=e.target;if(el.closest&&el.closest("input,textarea,select,.wh,[data-drag],svg"))return;if(t.clientX>Math.max(80,innerWidth*.35))return;sx=t.clientX;sy=t.clientY;st=Date.now();ok=true},{passive:true});
- function go2(){ok=false;var b=document.querySelector("#hd .bk");if(b)b.click()}
+ function go2(){ok=false;var b=document.querySelector(".subhd .bk");if(b)b.click()}
  document.addEventListener("touchmove",function(e){if(!ok)return;var t=e.touches[0],dx=t.clientX-sx,dy=Math.abs(t.clientY-sy);if(dx>60&&dx>dy*1.5&&dy<90&&Date.now()-st<1000)go2();else if(dy>dx&&dy>40)ok=false},{passive:true});
  document.addEventListener("touchend",function(e){if(!ok)return;ok=false;var t=e.changedTouches[0],dx=t.clientX-sx,dy=Math.abs(t.clientY-sy);if(dx>60&&dx>dy*1.5&&dy<90)go2()},{passive:true})})();
 (function(){var dr=null,hold=null,px=0,py=0,pid2=null,NC=0;window.__nc=function(){return Date.now()<NC};
