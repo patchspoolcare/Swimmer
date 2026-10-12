@@ -109,11 +109,11 @@ h1.brand{display:flex;align-items:center;gap:8px;font-size:22px;letter-spacing:-
 .bdg{display:inline-block;min-width:17px;height:17px;line-height:17px;padding:0 4px;margin-left:4px;border-radius:99px;font-size:11px;font-style:normal;font-weight:700;color:#fff;vertical-align:1px}.b-hi{background:var(--hi)}.b-lo{background:var(--lo)}
 .mapbox{height:52vh;min-height:300px;border-radius:14px;overflow:hidden;border:1px solid var(--bd);margin-bottom:10px;background:var(--bd)}
 .mpin{width:30px;height:30px;border-radius:50%;color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;border:2.5px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.35)}
-.leaflet-popup-content a{color:var(--ac);font-weight:600}
-.mapbox{box-shadow:0 2px 12px rgba(0,0,0,.12);border:0}.leaflet-container{font:inherit;background:#f2efe9}
+.maplibregl-popup-content a{color:var(--ac);font-weight:600}
+.mapbox{box-shadow:0 2px 12px rgba(0,0,0,.12);border:0}.maplibregl-map{font:inherit}
 .mpin{border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3),0 0 0 1px rgba(0,0,0,.06)}
-.leaflet-popup-content-wrapper{border-radius:14px;box-shadow:0 4px 18px rgba(0,0,0,.18)}.leaflet-popup-content{margin:12px 14px;line-height:1.45}
-.leaflet-control-attribution{font-size:9px;background:rgba(255,255,255,.6)!important;border-radius:6px 0 0 0}
+.maplibregl-popup-content{border-radius:14px;box-shadow:0 4px 18px rgba(0,0,0,.18);padding:12px 14px;line-height:1.45;font:inherit;font-size:14px;color:#12303f}
+.maplibregl-ctrl-attrib{font-size:10px}
 a.nextbtn{display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:10px;border-radius:14px;background:var(--card);border:1px solid var(--bd);color:var(--tx);text-decoration:none;box-shadow:0 1px 4px rgba(0,0,0,.06)}a.nextbtn small{display:block;color:var(--mu);font-size:12px}a.nextbtn b{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 a.nextbtn .na{flex:none;width:34px;height:34px;border-radius:50%;background:var(--ac);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}a.nextbtn .go{flex:none;background:#2f93ff;color:#fff;font-weight:700;border-radius:99px;padding:8px 18px}
 .bnav{position:fixed;left:0;right:0;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:14;display:flex;justify-content:center;pointer-events:none;transition:transform .22s ease,opacity .22s ease}
@@ -629,7 +629,7 @@ function needDaily(){try{return localStorage.getItem("poolunlk")!==today()}catch
 function markUnlocked(){try{localStorage.setItem("poolunlk",today())}catch(e){}}
 document.addEventListener("visibilitychange",function(){if(!document.hidden&&fidId()&&!gate&&cachedMe()&&needDaily()&&!locked){locked=true;autoTried=false;render()}});
 var mapDate=null,LM=null,lmap=null,geoQ=[],geoBusy=false,geoFail={},rtCache={};
-function loadLeaflet(){if(LM)return LM;LM=new Promise(function(res,rej){var c=document.createElement("link");c.rel="stylesheet";c.href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";document.head.appendChild(c);var j=document.createElement("script");j.src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";j.onload=function(){res(window.L)};j.onerror=function(){LM=null;rej()};document.head.appendChild(j)});return LM}
+function loadLeaflet(){if(LM)return LM;LM=new Promise(function(res,rej){var c=document.createElement("link");c.rel="stylesheet";c.href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css";document.head.appendChild(c);var j=document.createElement("script");j.src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js";j.onload=function(){res(window.maplibregl)};j.onerror=function(){LM=null;rej()};document.head.appendChild(j)});return LM}
 function stopColor(p,k){return done(p,k)?(skipped(p,k)?"var(--lo)":"var(--ok)"):"var(--ac)"}
 function mapHtml(){var k=mapDate||today(),dd=pd(k),cs=routeFor(k),T=today(),nog=cs.filter(function(p){return !p.addr||(p.geo&&p.geo.none&&p.geo.a===p.addr)}),pend2=cs.filter(function(p){return p.addr&&!(p.geo&&p.geo.a===p.addr)}).length;
  var o='<div class="row" style="justify-content:space-between;margin-bottom:10px"><button class="bk" data-a="mapd" data-n="-1">‹</button><b style="text-align:center">'+DN[dd.getDay()]+', '+sd(dd)+(k===T?' <span class="tday">TODAY</span>':'')+'</b><button class="bk" data-a="mapd" data-n="1">›</button></div>';
@@ -647,22 +647,27 @@ function unmountMap(){if(lmap){try{lmap.remove()}catch(e){}lmap=null}}
 function geocode(cs){cs.forEach(function(p){if(p.addr&&!(p.geo&&p.geo.a===p.addr)&&!geoFail[p.addr]&&geoQ.indexOf(p)<0)geoQ.push(p)});if(geoBusy||!geoQ.length)return;geoBusy=true;
  (function next(){var p=geoQ.shift();if(!p){geoBusy=false;return}var ad=p.addr;
   fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q="+encodeURIComponent(ad),{headers:{"Accept":"application/json"}}).then(function(r){return r.json()}).then(function(j){if(p.addr!==ad)return;p.geo=j&&j[0]?{a:ad,lat:+j[0].lat,lon:+j[0].lon}:{a:ad,none:1};save();if(view==="map")render()}).catch(function(){geoFail[ad]=1}).then(function(){setTimeout(next,1100)})})()}
+var OSMSTYLE={version:8,sources:{osm:{type:"raster",tiles:["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],tileSize:256,maxzoom:19,attribution:"&copy; OpenStreetMap"}},layers:[{id:"osm",type:"raster",source:"osm"}]};
 function mountMap(){unmountMap();var box=document.getElementById("map");if(!box)return;var k=mapDate||today(),cs=routeFor(k);geocode(cs);
- loadLeaflet().then(function(L){if(!document.getElementById("map")||view!=="map")return;unmountMap();box=document.getElementById("map");
-  var dk=matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches;lmap=L.map(box,{zoomControl:false,attributionControl:true});lmap.attributionControl.setPrefix(false);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/"+(dk?"dark_all":"voyager")+"/{z}/{x}/{y}{r}.png",{maxZoom:20,subdomains:"abcd",attribution:'&copy; OpenStreetMap &copy; CARTO'}).addTo(lmap);
-  var pts=[];cs.forEach(function(p,i){if(!(p.geo&&p.geo.a===p.addr&&p.geo.lat!=null))return;var ll=[p.geo.lat,p.geo.lon];pts.push(ll);
-   var ic=L.divIcon({className:"",html:'<div class="mpin" style="background:'+stopColor(p,k)+'">'+(i+1)+'</div>',iconSize:[30,30],iconAnchor:[15,15]});
-   L.marker(ll,{icon:ic}).addTo(lmap).bindPopup('<b>'+esc(p.name)+'</b><br>'+esc(p.addr)+'<br><a href="#" onclick="openStop(\''+p.id+'\');return false">Open visit ›</a> &nbsp; <a target="_blank" rel="noopener" href="'+mapUrl(p.addr)+'">Directions</a>')});
-  if(!pts.length){lmap.setView([33.45,-112.07],10);return}
-  if(pts.length===1)lmap.setView(pts[0],14);else lmap.fitBounds(pts,{padding:[30,30]});
-  if(pts.length>1){var key=pts.map(function(x){return x[0].toFixed(5)+","+x[1].toFixed(5)}).join(";"),line=function(c){if(lmap){L.polyline(c,{color:"#0b5fbf",weight:9,opacity:.9,lineCap:"round",lineJoin:"round"}).addTo(lmap);L.polyline(c,{color:"#2f93ff",weight:6,opacity:1,lineCap:"round",lineJoin:"round"}).addTo(lmap)}};
-   if(rtCache[key])line(rtCache[key]);
-   else fetch("https://router.project-osrm.org/route/v1/driving/"+pts.map(function(x){return x[1]+","+x[0]}).join(";")+"?overview=full&geometries=geojson").then(function(r){return r.json()}).then(function(j){var c=j.routes[0].geometry.coordinates.map(function(q){return[q[1],q[0]]});rtCache[key]=c;line(c)}).catch(function(){rtCache[key]=pts;line(pts)})}
-  setTimeout(function(){lmap&&lmap.invalidateSize()},50)}).catch(function(){box.innerHTML='<div class="mu" style="padding:30px;text-align:center">The map needs signal to load.</div>'})}
-(function(){var ly=window.scrollY||0;window.addEventListener("scroll",function(){var y=window.scrollY,nv=document.getElementById("nav");if(!nv)return;var dy=y-ly;ly=y;
- if(y<=8||innerHeight+y>=document.documentElement.scrollHeight-8){nv.classList.remove("hid");return}
- if(dy<-2)nv.classList.add("hid");else if(dy>0)nv.classList.remove("hid")},{passive:true})})();
+ loadLeaflet().then(function(ML){if(!document.getElementById("map")||view!=="map")return;unmountMap();box=document.getElementById("map");
+  var dk=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches,fell=false,routeLL=null;
+  lmap=new ML.Map({container:box,style:"https://tiles.openfreemap.org/styles/"+(dk?"dark":"liberty"),center:[-111.93,33.5],zoom:10,attributionControl:{compact:true},pitchWithRotate:false,dragRotate:false});
+  lmap.on("error",function(e){if(fell||!lmap)return;var m=String((e&&e.error&&e.error.message)||"");if(!lmap.isStyleLoaded()||/style|sprite|glyph/i.test(m)){fell=true;lmap.setStyle(dk?"https://tiles.openfreemap.org/styles/liberty":OSMSTYLE)}});
+  function addRoute(){if(!lmap||!routeLL||!lmap.isStyleLoaded())return;var g={type:"Feature",geometry:{type:"LineString",coordinates:routeLL}};
+   if(lmap.getSource("rt")){lmap.getSource("rt").setData(g);return}
+   lmap.addSource("rt",{type:"geojson",data:g});
+   lmap.addLayer({id:"rt-case",type:"line",source:"rt",layout:{"line-cap":"round","line-join":"round"},paint:{"line-color":"#0b5fbf","line-width":9,"line-opacity":.9}});
+   lmap.addLayer({id:"rt",type:"line",source:"rt",layout:{"line-cap":"round","line-join":"round"},paint:{"line-color":"#2f93ff","line-width":6}})}
+  lmap.on("style.load",addRoute);
+  var pts=[];cs.forEach(function(p,i){if(!(p.geo&&p.geo.a===p.addr&&p.geo.lat!=null))return;var ll=[p.geo.lon,p.geo.lat];pts.push(ll);
+   var el=document.createElement("div");el.className="mpin";el.style.background=stopColor(p,k);el.textContent=i+1;
+   new ML.Marker({element:el}).setLngLat(ll).setPopup(new ML.Popup({offset:18,closeButton:false}).setHTML('<b>'+esc(p.name)+'</b><br>'+esc(p.addr)+'<br><a href="#" onclick="openStop(\''+p.id+'\');return false">Open visit ›</a> &nbsp; <a target="_blank" rel="noopener" href="'+mapUrl(p.addr)+'">Directions</a>')).addTo(lmap)});
+  if(pts.length===1)lmap.jumpTo({center:pts[0],zoom:14});
+  else if(pts.length>1){var bb=new ML.LngLatBounds(pts[0],pts[0]);pts.forEach(function(x){bb.extend(x)});lmap.fitBounds(bb,{padding:44,duration:0,maxZoom:15})}
+  if(pts.length>1){var key=pts.map(function(x){return x[1].toFixed(5)+","+x[0].toFixed(5)}).join(";"),use=function(c){routeLL=c;addRoute()};
+   if(rtCache[key])use(rtCache[key]);
+   else fetch("https://router.project-osrm.org/route/v1/driving/"+pts.map(function(x){return x[0]+","+x[1]}).join(";")+"?overview=full&geometries=geojson").then(function(r){return r.json()}).then(function(j){var c=j.routes[0].geometry.coordinates;rtCache[key]=c;use(c)}).catch(function(){rtCache[key]=pts;use(pts)})}
+ }).catch(function(){box.innerHTML='<div class="mu" style="padding:30px;text-align:center">The map needs signal to load.</div>'})}
 function stopListeners(){unsubs.forEach(function(u){try{u()}catch(e){}});unsubs=[]}
 function cachedMe(){try{return JSON.parse(localStorage.getItem("poolme")||"null")}catch(e){return null}}
 function setMe(o){try{if(o)localStorage.setItem("poolme",JSON.stringify(o));else localStorage.removeItem("poolme")}catch(e){}}
