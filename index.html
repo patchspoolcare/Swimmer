@@ -116,8 +116,16 @@ h1.brand{display:flex;align-items:center;gap:8px;font-size:22px;letter-spacing:-
 .leaflet-control-attribution{font-size:9px;background:rgba(255,255,255,.6)!important;border-radius:6px 0 0 0}
 a.nextbtn{display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:10px;border-radius:14px;background:var(--card);border:1px solid var(--bd);color:var(--tx);text-decoration:none;box-shadow:0 1px 4px rgba(0,0,0,.06)}a.nextbtn small{display:block;color:var(--mu);font-size:12px}a.nextbtn b{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 a.nextbtn .na{flex:none;width:34px;height:34px;border-radius:50%;background:var(--ac);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}a.nextbtn .go{flex:none;background:#2f93ff;color:#fff;font-weight:700;border-radius:99px;padding:8px 18px}
+.bnav{position:fixed;left:0;right:0;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:14;display:flex;justify-content:center;pointer-events:none;transition:transform .22s ease,opacity .22s ease}
+.bnav.hid{transform:translateY(130%);opacity:0}
+.bn-in{pointer-events:auto;display:flex;gap:2px;padding:6px;margin:0 12px;max-width:520px;width:auto;border-radius:24px;background:color-mix(in srgb,var(--card) 82%,transparent);-webkit-backdrop-filter:blur(18px) saturate(1.6);backdrop-filter:blur(18px) saturate(1.6);border:1px solid color-mix(in srgb,var(--bd) 80%,transparent);box-shadow:0 6px 24px rgba(0,0,0,.16)}
+.bn-in button{flex:1 1 0;min-width:62px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 6px 5px;border-radius:18px;background:transparent;color:var(--mu);font-weight:600}
+.bn-in button.on{background:color-mix(in srgb,var(--ac) 14%,transparent);color:var(--ac)}
+.bn-in .bi{position:relative;width:24px;height:24px}.bn-in svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.bn-in .bl{font-size:11px;letter-spacing:.01em}.bn-in .bdg{position:absolute;top:-5px;left:15px;margin:0}
+body.hasnav main{padding-bottom:110px}body.hasnav .sv{bottom:calc(84px + env(safe-area-inset-bottom,0px))}body.hasnav .toast{bottom:calc(90px + env(safe-area-inset-bottom,0px))}
 </style></head><body>
-<input type="file" id="rf" accept=".json,application/json" style="display:none"><input type="file" id="fi" accept="image/*" style="display:none"><input type="file" id="pfi" accept="image/*" multiple style="display:none"><header id="hd"></header><main id="app"></main><div id="sv" class="sv"></div>
+<input type="file" id="rf" accept=".json,application/json" style="display:none"><input type="file" id="fi" accept="image/*" style="display:none"><input type="file" id="pfi" accept="image/*" multiple style="display:none"><header id="hd"></header><main id="app"></main><nav id="nav" class="bnav"></nav><div id="sv" class="sv"></div>
 <script>
 var F=[["fc","Free Cl","ppm",3,5],["tc","Total Cl","ppm",3,5],["ph","pH","",7.2,7.8],["ta","Alkalinity","ppm",70,120],["cya","CYA","ppm",30,50],["ch","Calcium H.","ppm",200,400],["salt","Salt","ppm",2700,3400],["bo","Borates","ppm",30,50]];
 var B=[["pool","Pool","🏊"],["spa","Spa","♨️"],["agspa","Above Ground Spa","🛁"],["plunge","Cold Plunge","🧊"],["fountain","Fountain","⛲"]];
@@ -299,8 +307,9 @@ function planSheet(){var o=document.createElement("div");o.className="ws";var ov
  o.innerHTML='<div class="sh"><div style="padding:8px 0 2px;font-weight:700">Route timing</div><div class="mu" style="margin-bottom:10px">Start times for the rest of the route are estimated from this.</div><label>First stop starts at</label><input type="time" id="pt" value="'+(PL.days[selDate]||PL.start)+'"><label style="margin-top:8px">Minutes per stop</label><input type="number" id="ps" min="5" max="120" value="'+(+PL.svc||15)+'"><label style="display:flex;gap:8px;align-items:center;margin:12px 0"><input type="checkbox" id="po" style="width:auto"'+(ov?' checked':'')+'> Only for '+DN[pd(selDate).getDay()]+', '+sd(pd(selDate))+'</label><div class="row"><button class="g" id="px" style="flex:1">Cancel</button><button id="pv" style="flex:1">Save</button></div></div>';
  document.body.appendChild(o);o.addEventListener("click",function(e){if(e.target===o)o.remove()});o.querySelector("#px").onclick=function(){o.remove()};
  o.querySelector("#pv").onclick=function(){var t=o.querySelector("#pt").value||"08:00",sv=Math.max(5,Math.min(120,+o.querySelector("#ps").value||15));PL.svc=sv;if(o.querySelector("#po").checked)PL.days[selDate]=t;else{PL.start=t;delete PL.days[selDate]}plsave();o.remove();render()}}
+var NAVI={"days": "<svg viewBox=\"0 0 24 24\"><circle cx=\"6\" cy=\"18\" r=\"2.2\"/><circle cx=\"18\" cy=\"6\" r=\"2.2\"/><path d=\"M8.2 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.8\"/></svg>", "map": "<svg viewBox=\"0 0 24 24\"><path d=\"M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z\"/><circle cx=\"12\" cy=\"10\" r=\"2.4\"/></svg>", "cust": "<svg viewBox=\"0 0 24 24\"><rect x=\"4\" y=\"3.5\" width=\"16\" height=\"17\" rx=\"2.5\"/><path d=\"M8 8.5h8M8 12.5h8M8 16.5h5\"/></svg>", "filters": "<svg viewBox=\"0 0 24 24\"><path d=\"M4 5h16l-6 7.5V19l-4 1.5v-8z\"/></svg>", "crew": "<svg viewBox=\"0 0 24 24\"><circle cx=\"9\" cy=\"8.5\" r=\"3.2\"/><path d=\"M3 19.5c.6-3.3 3-5 6-5s5.4 1.7 6 5\"/><circle cx=\"17\" cy=\"9.5\" r=\"2.4\"/><path d=\"M16.5 14.6c2.3.2 4 1.7 4.5 4.4\"/></svg>"},navHtml="";
 function tabs(a){var T=[["days","Route"],["map","Map"]];if(admin){var fcn=fcount(),nreq=Object.keys(reqs).filter(function(k){return !team[k]}).length;T.push(["cust","Customers"],["filters","Filters",fcn,"hi"],["crew","Crew",nreq,"lo"])}
- return '<div class="seg tabs">'+T.map(function(t){return '<button class="'+(a===t[0]?"on":"")+'" data-a="'+t[0]+'">'+t[1]+(t[2]?'<i class="bdg b-'+t[3]+'">'+t[2]+'</i>':'')+'</button>'}).join("")+'</div>'}
+ navHtml='<div class="bn-in">'+T.map(function(t){return '<button class="'+(a===t[0]?"on":"")+'" data-a="'+t[0]+'" aria-label="'+t[1]+'"><span class="bi">'+NAVI[t[0]]+(t[2]?'<i class="bdg b-'+t[3]+'">'+t[2]+'</i>':'')+'</span><span class="bl">'+t[1]+'</span></button>'}).join("")+'</div>';return ''}
 function rrow(r,lab){var cur=dkey(new Date(r.t))===selDate,o='<div class="'+(cur?'rtd':'')+'" style="'+(cur?'':'padding:10px 0;')+'border-bottom:1px solid var(--bd)"><div class="row" style="justify-content:space-between"><b>'+(cur?'<span class="rbg">'+(r.skip?'SKIPPED ':'✓ COMPLETED ')+(selDate===today()?'TODAY':DN[pd(selDate).getDay()].slice(0,3).toUpperCase())+'</span>':'')+fmt(r.t)+(lab?' <span class="mu" style="font-weight:400">· '+lab+'</span>':'')+'</b>'+(r.skip?'<button class="d" data-a="del" data-id="'+r.id+'">Undo skip</button>':'<button class="tg" data-a="edit" data-id="'+r.id+'">Edit</button>')+'</div><div class="chips">';
  if(r.skip)o+='<span class="chip s-lo t-lo">Skipped'+(r.reason?' · '+esc(r.reason):'')+'</span>';
  F.forEach(function(f){var v=r.v[f[0]];if(v===""||v==null)return;var s=st(f,v);o+='<span class="chip '+(s?"s-"+s+" t-"+s:"")+'">'+L(f,bd(r))+' '+esc(v)+'</span>'});
@@ -333,7 +342,7 @@ function hist(b){var T=today(),all=S.readings.filter(function(r){return r.pid===
  rs.forEach(function(r){o+=ed[b]&&ed[b].id===r.id?'<div class="edt"><b>Editing '+fmt(r.t)+'</b><div style="margin-top:10px">'+form(b)+'</div></div>':rrow(r)});
  return o+'</div>'}
 function render(){
- var y=window.scrollY,h=document.getElementById("hd"),a=document.getElementById("app"),o="",T=today();
+ var y=window.scrollY,h=document.getElementById("hd"),a=document.getElementById("app"),o="",T=today();navHtml="";var nv0=document.getElementById("nav");if(nv0&&(locked||gate)){nv0.innerHTML="";document.body.classList.remove("hasnav")}
  if(locked&&!gate){h.innerHTML='';a.innerHTML=lockHtml();var sv2=document.getElementById("sv");if(sv2)sv2.style.display="none";return}
  if(gate){h.innerHTML='';a.innerHTML=gateHtml();var sv0=document.getElementById("sv");if(sv0)sv0.style.display="none";return}
  var sv1=document.getElementById("sv");if(sv1)sv1.style.display="";
@@ -429,7 +438,7 @@ function render(){
   
  }
  if(canAdmin&&!admin)o='<button class="empbar" data-a="mode"><span>👷 You\'re seeing the <b>Employee view</b></span><u>Back to Admin</u></button>'+o;
- a.innerHTML=o;window.scrollTo(0,y);if(view==="map")mountMap();else unmountMap();
+ a.innerHTML=o;var nv=document.getElementById("nav");nv.innerHTML=navHtml;document.body.classList.toggle("hasnav",!!navHtml);if(!navHtml)nv.classList.remove("hid");window.scrollTo(0,y);if(view==="map")mountMap();else unmountMap();
  document.querySelectorAll("img[data-ph]").forEach(function(im){pget(im.dataset.ph).then(function(d){if(d)im.src=d})});
  var pn=document.getElementById("pn");if(pn)pn.focus();
  loadNames()}
@@ -648,6 +657,9 @@ function mountMap(){unmountMap();var box=document.getElementById("map");if(!box)
    if(rtCache[key])line(rtCache[key]);
    else fetch("https://router.project-osrm.org/route/v1/driving/"+pts.map(function(x){return x[1]+","+x[0]}).join(";")+"?overview=full&geometries=geojson").then(function(r){return r.json()}).then(function(j){var c=j.routes[0].geometry.coordinates.map(function(q){return[q[1],q[0]]});rtCache[key]=c;line(c)}).catch(function(){rtCache[key]=pts;line(pts)})}
   setTimeout(function(){lmap&&lmap.invalidateSize()},50)}).catch(function(){box.innerHTML='<div class="mu" style="padding:30px;text-align:center">The map needs signal to load.</div>'})}
+(function(){var ly=window.scrollY||0;window.addEventListener("scroll",function(){var y=window.scrollY,nv=document.getElementById("nav");if(!nv)return;var dy=y-ly;ly=y;
+ if(y<=8||innerHeight+y>=document.documentElement.scrollHeight-8){nv.classList.remove("hid");return}
+ if(dy<-2)nv.classList.add("hid");else if(dy>0)nv.classList.remove("hid")},{passive:true})})();
 function stopListeners(){unsubs.forEach(function(u){try{u()}catch(e){}});unsubs=[]}
 function cachedMe(){try{return JSON.parse(localStorage.getItem("poolme")||"null")}catch(e){return null}}
 function setMe(o){try{if(o)localStorage.setItem("poolme",JSON.stringify(o));else localStorage.removeItem("poolme")}catch(e){}}
