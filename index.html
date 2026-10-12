@@ -104,9 +104,9 @@ html,body{touch-action:pan-y}
 button.addf{display:flex;align-items:center;gap:12px;width:100%;margin:0 0 12px;padding:12px 14px;text-align:left;background:color-mix(in srgb,var(--ac) 8%,var(--card));color:var(--tx);border:2px dashed var(--ac);border-radius:14px;font-weight:500}button.addf .pl{flex:none;width:32px;height:32px;border-radius:50%;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700}button.addf b{display:block;font-size:16px;color:var(--ac)}button.addf small{display:block;font-size:13px;color:var(--mu);margin-top:1px}
 .pg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.pc{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--bd)}.pim{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}.pim:not([src]){visibility:hidden}.px{position:absolute;top:4px;right:4px;width:28px;height:28px;padding:0;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:18px;line-height:28px;font-weight:700}
 .padd{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:transparent;color:var(--ac);border:2px dashed var(--ac);border-radius:10px;font-size:13px;padding:4px}.padd span{font-size:26px;line-height:1}
-h1.brand{display:flex;align-items:center;margin:0;flex:1}.brandbtn{display:flex;align-items:center;gap:7px;padding:0;background:none;border:0;color:var(--tx);font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.brandbtn img{width:30px;height:30px;object-fit:contain}.brandbtn span{font-family:"Pacifico","Snell Roundhand",cursive;font-weight:400;font-size:33px;line-height:1;display:block;margin-top:-7px;color:var(--tx)}
-.brandbtn:active{opacity:.6}.brandbtn img.wm{height:30px;width:auto;margin-left:2px}
+h1.brand{display:flex;align-items:center;margin:0;flex:1}.brandbtn{display:flex;align-items:center;gap:3px;padding:0;background:none;border:0;color:var(--tx);font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.brandbtn img{width:auto;height:30px;object-fit:contain}.brandbtn span{font-family:"Pacifico","Snell Roundhand",cursive;font-weight:400;font-size:33px;line-height:1;display:block;margin-top:-7px;color:var(--tx)}
+.brandbtn:active{opacity:.6}.brandbtn img.wm{height:30px;width:auto;margin-left:0}
 .subhd{display:flex;align-items:center;gap:10px;margin:2px 0 12px}.subhd h2{margin:0;font-size:20px;line-height:1.2;min-width:0;overflow:hidden;text-overflow:ellipsis}
 .seg.tabs{overflow-x:auto;scrollbar-width:none}.seg.tabs::-webkit-scrollbar{display:none}.seg.tabs button{flex:1 0 auto;padding:8px 9px;font-size:14px;position:relative;white-space:nowrap}
 .bdg{display:inline-block;min-width:17px;height:17px;line-height:17px;padding:0 4px;margin-left:4px;border-radius:99px;font-size:11px;font-style:normal;font-weight:700;color:#fff;vertical-align:1px}.b-hi{background:var(--hi)}.b-lo{background:var(--lo)}
@@ -685,16 +685,17 @@ function mountMap(){unmountMap();var box=document.getElementById("map");if(!box)
    if(rtCache[key])use(rtCache[key]);
    else fetch("https://router.project-osrm.org/route/v1/driving/"+pts.map(function(x){return x[0]+","+x[1]}).join(";")+"?overview=full&geometries=geojson").then(function(r){return r.json()}).then(function(j){var c=j.routes[0].geometry.coordinates;rtCache[key]=c;use(c)}).catch(function(){rtCache[key]=pts;use(pts)})}
  }).catch(function(){box.innerHTML='<div class="mu" style="padding:30px;text-align:center">The map needs signal to load.</div>'})}
-var WM=null,DROPO=null;
+var WM=null,DROPO=null,LOGO_OUTLINE=false;
 function wmHtml(){return WM?'<img class="wm" src="'+WM+'" alt="Swimmer">':'<span>Swimmer</span>'}
 function makeWM(){try{if(!document.fonts)return;document.fonts.load('80px "Pacifico"').then(function(){if(!document.fonts.check('80px "Pacifico"'))return;
  var c=document.createElement("canvas"),x=c.getContext("2d");x.font='80px "Pacifico"';var tw=Math.ceil(x.measureText("Swimmer").width);
  c.width=tw+120;c.height=260;x=c.getContext("2d");x.font='80px "Pacifico"';x.textBaseline="alphabetic";var g=x.createLinearGradient(0,100,0,182);g.addColorStop(0,"#8ccbff");g.addColorStop(.45,"#4aa9f6");g.addColorStop(1,"#1a84e2");
- x.lineJoin="round";x.miterLimit=2;x.lineWidth=7;x.strokeStyle=getComputedStyle(document.body).color||"#12303f";x.strokeText("Swimmer",60,170);x.fillStyle=g;x.fillText("Swimmer",60,170);
+ if(LOGO_OUTLINE){x.lineJoin="round";x.miterLimit=2;x.lineWidth=7;x.strokeStyle=getComputedStyle(document.body).color||"#12303f";x.strokeText("Swimmer",60,170)}x.fillStyle=g;x.fillText("Swimmer",60,170);
  var d=x.getImageData(0,0,c.width,c.height).data,W=c.width,H=c.height,t=H,bo=-1,l=W,r=-1;
  for(var yy=0;yy<H;yy++)for(var xx=0;xx<W;xx++)if(d[(yy*W+xx)*4+3]>40){if(yy<t)t=yy;if(yy>bo)bo=yy;if(xx<l)l=xx;if(xx>r)r=xx}
  if(bo<0)return;var o2=document.createElement("canvas");o2.width=r-l+1;o2.height=bo-t+1;o2.getContext("2d").drawImage(c,l,t,o2.width,o2.height,0,0,o2.width,o2.height);c=o2;
  WM=c.toDataURL("image/png");
+ if(!LOGO_OUTLINE){render();return}
  var sw=7/2*96/c.height,col=getComputedStyle(document.body).color||"#12303f",di=new Image();di.onload=function(){var r=Math.max(1,Math.round(sw)),W2=di.width+2*r,H2=di.height+2*r,sil=document.createElement("canvas");sil.width=di.width;sil.height=di.height;var sx=sil.getContext("2d");sx.drawImage(di,0,0);sx.globalCompositeOperation="source-in";sx.fillStyle=col;sx.fillRect(0,0,sil.width,sil.height);
   var o3=document.createElement("canvas");o3.width=W2;o3.height=H2;var ox=o3.getContext("2d");for(var a2=0;a2<360;a2+=10){var rad=a2*Math.PI/180;ox.drawImage(sil,r+Math.cos(rad)*r,r+Math.sin(rad)*r)}ox.drawImage(di,r,r);DROPO=o3.toDataURL("image/png");render()};di.src="icons/drop.png";
  render()}).catch(function(){})}catch(e){}}
