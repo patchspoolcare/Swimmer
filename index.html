@@ -106,7 +106,7 @@ button.addf{display:flex;align-items:center;gap:12px;width:100%;margin:0 0 12px;
 .padd{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:transparent;color:var(--ac);border:2px dashed var(--ac);border-radius:10px;font-size:13px;padding:4px}.padd span{font-size:26px;line-height:1}
 h1.brand{display:flex;align-items:center;margin:0;flex:1}.brandbtn{display:flex;align-items:center;gap:7px;padding:0;background:none;border:0;color:var(--tx);font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .brandbtn img{width:30px;height:30px;object-fit:contain}.brandbtn span{font-family:"Pacifico","Snell Roundhand",cursive;font-weight:400;font-size:33px;line-height:1;display:block;margin-top:-7px;color:var(--tx)}
-.brandbtn:active{opacity:.6}
+.brandbtn:active{opacity:.6}.brandbtn img.wm{height:30px;width:auto;margin-left:2px}
 .subhd{display:flex;align-items:center;gap:10px;margin:2px 0 12px}.subhd h2{margin:0;font-size:20px;line-height:1.2;min-width:0;overflow:hidden;text-overflow:ellipsis}
 .seg.tabs{overflow-x:auto;scrollbar-width:none}.seg.tabs::-webkit-scrollbar{display:none}.seg.tabs button{flex:1 0 auto;padding:8px 9px;font-size:14px;position:relative;white-space:nowrap}
 .bdg{display:inline-block;min-width:17px;height:17px;line-height:17px;padding:0 4px;margin-left:4px;border-radius:99px;font-size:11px;font-style:normal;font-weight:700;color:#fff;vertical-align:1px}.b-hi{background:var(--hi)}.b-lo{background:var(--lo)}
@@ -358,7 +358,7 @@ function render(){
  if(!admin&&(view==="cust"||view==="prof"||view==="filters"||view==="crew"))view="days";if(view==="map"&&!mapDate)mapDate=today();
  if(view==="days"){
   var b0=new Date();b0.setHours(0,0,0,0);b0.setDate(b0.getDate()-((b0.getDay()+6)%7)+wk*7);var e0=new Date(b0);e0.setDate(e0.getDate()+6);
-  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt=""><span>Swimmer</span></button></h1>'+(canAdmin?'<button class="mdp'+(admin?'':' emp')+'" data-a="mode">'+(admin?'👑 Admin':'👷 Employee')+' <i>⇄</i></button>':'')+(wk||(rmode!=="week")?'<button class="tg" data-a="wk0">Today</button>':'');
+  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt="">'+wmHtml()+'</button></h1>'+(canAdmin?'<button class="mdp'+(admin?'':' emp')+'" data-a="mode">'+(admin?'👑 Admin':'👷 Employee')+' <i>⇄</i></button>':'')+(wk||(rmode!=="week")?'<button class="tg" data-a="wk0">Today</button>':'');
   o+=tabs("days");o+='<div class="rm">'+[["week","Week"],["month","Month"],["year","Year"]].map(function(m){return '<button class="'+(rmode===m[0]?'on':'')+'" data-a="rm" data-m="'+m[0]+'">'+m[1]+'</button>'}).join("")+'</div>';
   if(rmode==="month")o+=monthView();else if(rmode==="year")o+=yearView();else{
   o+='<div class="row" style="justify-content:space-between;margin-bottom:10px"><button class="bk" data-a="wk" data-n="-1">‹ Prev</button><b>'+sd(b0)+' – '+sd(e0)+'</b><button class="bk" data-a="wk" data-n="1">Next ›</button></div>';
@@ -373,7 +373,7 @@ function render(){
   o+='<div class="mu" style="text-align:center;font-size:13px;margin-top:14px">Signed in as '+esc((me&&me.email)||cmx.email||"")+' · <a href="#" data-a="signout">Sign out</a></div>'+(fidOK?'<div class="mu" style="text-align:center;font-size:13px;margin-top:6px">Face ID: '+(fidId()?'<b class="t-ok">On</b> · <a href="#" data-a="fidoff">Turn off</a>':'Off · <a href="#" data-a="fidon">Turn on</a>')+'</div>':'');
  }else if(view==="day"){
   var dd=pd(selDate),wd=dd.getDay();
-  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt=""><span>Swimmer</span></button></h1>'+(admin?'<button data-a="add">+ Add</button>':'');o+='<div class="subhd"><button class="bk" data-a="days">‹ Days</button><h2>'+DN[wd]+', '+sd(dd)+'</h2></div>';
+  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt="">'+wmHtml()+'</button></h1>'+(admin?'<button data-a="add">+ Add</button>':'');o+='<div class="subhd"><button class="bk" data-a="days">‹ Days</button><h2>'+DN[wd]+', '+sd(dd)+'</h2></div>';
   if(adding)o+='<div class="card"><input id="pn" placeholder="Customer name"><div style="height:8px"></div><input id="pa" placeholder="Address (optional)"><div class="row" style="margin-top:10px"><button data-a="savepool">Save</button><button class="g" data-a="cancel">Cancel</button></div></div>';
   ET={};var row=function(p,n,tot,tag,from){var rs=onDate(p.id,selDate),fs=fsum(p),dn=done(p,selDate),sk=skipped(p,selDate),
    wc=rs.length&&!sk?rs.map(worst).reduce(function(m,x){return x==="hi"||m==="hi"?"hi":x==="lo"||m==="lo"?"lo":"ok"},"ok"):"",
@@ -394,14 +394,14 @@ function render(){
   var un=admin?S.pools.filter(function(p){return p.day==null}):[];
   if(un.length){o+='<h3 style="margin:18px 0 8px">Unassigned</h3><div class="mu" style="margin-bottom:8px">Open one and set its route day.</div>';un.forEach(function(p){o+=row(p)})}
  }else if(view==="cust"){
-  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt=""><span>Swimmer</span></button></h1>'+'<button data-a="addc">+ Add</button>';
+  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt="">'+wmHtml()+'</button></h1>'+'<button data-a="addc">+ Add</button>';
   o+=tabs("cust");
   if(addingC){o+='<div class="card">';[["name","Name"],["phone","Phone"],["email","Email"],["addr","Address"]].forEach(function(x){o+='<div style="margin-bottom:8px"><label>'+x[1]+'</label><input data-nc="'+x[0]+'" value="'+esc(nc[x[0]]||"")+'"></div>'});
    o+='<div style="margin-bottom:8px"><label>Notes (gate code, pets…)</label><textarea data-nc="notes" rows="2">'+esc(nc.notes||"")+'</textarea></div><div class="mu" style="margin-bottom:6px">Water features</div><div class="wf">'+B.map(function(b){var on=(nc.bodies||["pool"]).indexOf(b[0])>-1;return '<button class="wfb'+(on?' on':'')+'" data-a="ncb" data-b="'+b[0]+'"><span>'+b[2]+'</span><span class="n">'+b[1]+'</span><span class="c">'+(on?'✓':'+')+'</span></button>'}).join("")+'</div><div class="row"><span class="mu">Route day</span><button class="tg" data-a="ncday">'+(newDay==null?"Not set":DN[newDay])+' ›</button></div><div class="row" style="margin-top:12px"><button data-a="savec">Save customer</button><button class="g" data-a="cancelc">Cancel</button></div></div>'}
   o+='<input id="q" placeholder="Search clients" value="'+esc(query)+'"><div id="cl" style="margin-top:10px">'+clist(query)+'</div>';
  }else if(view==="prof"){
   var p=S.pools.find(function(x){return x.id===pid}),bs=p.bodies||["pool"],fs=fsum(p);
-  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt=""><span>Swimmer</span></button></h1>';o+='<div class="subhd"><button class="bk" data-a="cust">‹ Clients</button><h2>'+esc(p.name)+'</h2></div>';
+  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt="">'+wmHtml()+'</button></h1>';o+='<div class="subhd"><button class="bk" data-a="cust">‹ Clients</button><h2>'+esc(p.name)+'</h2></div>';
   var fld=function(k,l,t){return '<div style="margin-bottom:8px"><label>'+l+'</label><input data-pf="'+k+'" type="'+(t||"text")+'" value="'+esc(p[k]||"")+'"></div>'};
   o+='<div class="card">'+fld("name","Name")+fld("phone","Phone","tel")+fld("email","Email","email")+fld("addr","Address")+'<label>Notes (gate code, pets…)</label><textarea data-pf="notes" rows="2">'+esc(p.notes||"")+'</textarea>';
   var ln='';if(p.phone)ln+='<a class="lk" href="tel:'+esc(p.phone)+'">Call</a><a class="lk" href="sms:'+esc(p.phone)+'">Text</a>';if(p.email)ln+='<a class="lk" href="mailto:'+esc(p.email)+'">Email</a>';ln+='<a id="ml" class="lk" target="_blank" rel="noopener" style="'+(p.addr?'':'display:none')+'" href="'+mapUrl(p.addr)+'">Directions</a>';
@@ -420,11 +420,11 @@ function render(){
   o+='<h3 style="margin:16px 0 4px">Service history <span class="mu" style="font-weight:400">('+rs.length+' visits)</span></h3><div class="card">'+(rs.length?rs.map(function(r){var bb=B.find(function(x){return x[0]===bd(r)});return rrow(r,bb[2]+" "+bb[1])}).join(""):'<div class="mu">No readings yet.</div>')+'</div>';
   o+='<button class="d" data-a="delpool">Remove this customer &amp; all readings</button>';
  }else if(view==="map"){
-  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt=""><span>Swimmer</span></button></h1>';o+=tabs("map")+mapHtml();
+  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt="">'+wmHtml()+'</button></h1>';o+=tabs("map")+mapHtml();
  }else if(view==="crew"){
-  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt=""><span>Swimmer</span></button></h1>';o+=tabs("crew")+crewHtml();
+  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt="">'+wmHtml()+'</button></h1>';o+=tabs("crew")+crewHtml();
  }else if(view==="filters"){
-  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt=""><span>Swimmer</span></button></h1>';o+=tabs("filters");
+  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt="">'+wmHtml()+'</button></h1>';o+=tabs("filters");
   var fa=[];S.pools.forEach(function(p){var us=funits(p);us.forEach(function(x){var a=fattn(x.u);if(a)fa.push({p:p,u:x.u,k:x.k,b:x.b,multi:us.length>1,a:a})})});
   if(!fa.length)o+='<div class="card t-ok" style="text-align:center"><b>✓ All filters are up to date</b></div>';
   [["due","Needs attention","t-hi"],["soon","Coming up · next 14 days","t-lo"],["none","No date set","t-n"]].forEach(function(g){var it=fa.filter(function(x){return x.a.g===g[0]}).sort(function(x,y){return g[0]==="none"?(x.p.name||"").localeCompare(y.p.name||""):x.a.n-y.a.n});if(!it.length)return;
@@ -432,7 +432,7 @@ function render(){
    it.forEach(function(x){var sand=x.u.ftype==="sand";o+='<div class="card pool" data-a="prof" data-id="'+x.p.id+'"><div><b>'+esc(x.p.name)+'</b>'+(x.multi?' <span class="mu" style="font-weight:400">· '+bname(x.b)+'</span>':'')+'<div class="mu">'+esc(x.p.addr||"")+'</div><div class="mu"><span class="'+g[2]+'">'+x.a.l+'</span> · '+tname(x.u.ftype)+'</div></div>'+(g[0]==="none"?'<span class="mu" style="font-size:22px">›</span>':x.u.ftype==="de"?'<div style="display:flex;flex-direction:column;gap:6px;flex:none">'+x.a.w.map(function(w){return '<button class="tg" data-a="fdone" data-w="'+w+'" data-id="'+x.p.id+'" data-k="'+x.k+'">✓ '+(w==="backwash"?"Backwashed":"Cleaned")+'</button>'}).join("")+'</div>':'<button class="tg" data-a="fdone" data-id="'+x.p.id+'" data-k="'+x.k+'">✓ '+(sand?"Backwashed":"Cleaned")+' today</button>')+'</div>'})});
  }else{
   var p=S.pools.find(function(x){return x.id===pid}),bs=p.bodies||["pool"],fs=fsum(p);
-  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt=""><span>Swimmer</span></button></h1>'+(admin?'<button class="tg" data-a="prof" data-id="'+p.id+'">Profile</button>':'');o+='<div class="subhd"><button class="bk" data-a="day" data-d="'+selDate+'">‹ Back</button><h2>'+esc(p.name)+'</h2></div>';
+  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="icons/drop.png" alt="">'+wmHtml()+'</button></h1>'+(admin?'<button class="tg" data-a="prof" data-id="'+p.id+'">Profile</button>':'');o+='<div class="subhd"><button class="bk" data-a="day" data-d="'+selDate+'">‹ Back</button><h2>'+esc(p.name)+'</h2></div>';
   var vn=p.notes?'<div class="nt">📝 '+esc(p.notes)+'</div>':'',vl='';if(p.phone)vl+='<a class="lk" href="tel:'+esc(p.phone)+'">Call</a><a class="lk" href="sms:'+esc(p.phone)+'">Text</a>';if(p.addr)vl+='<a class="lk" target="_blank" rel="noopener" href="'+mapUrl(p.addr)+'">Directions</a>';
   var fus=funits(p),cells=[];if(vn)cells.push(vn);
   if(admin){if(fus.length>1)fus.forEach(function(x){cells.push('<div>'+fbtn(x.u,x.k,bname(x.b)+' filter')+'</div>')});else cells.push('<div>'+fbtn(p,"")+'</div>')}
@@ -679,6 +679,14 @@ function mountMap(){unmountMap();var box=document.getElementById("map");if(!box)
    if(rtCache[key])use(rtCache[key]);
    else fetch("https://router.project-osrm.org/route/v1/driving/"+pts.map(function(x){return x[0]+","+x[1]}).join(";")+"?overview=full&geometries=geojson").then(function(r){return r.json()}).then(function(j){var c=j.routes[0].geometry.coordinates;rtCache[key]=c;use(c)}).catch(function(){rtCache[key]=pts;use(pts)})}
  }).catch(function(){box.innerHTML='<div class="mu" style="padding:30px;text-align:center">The map needs signal to load.</div>'})}
+var WM=null;
+function wmHtml(){return WM?'<img class="wm" src="'+WM+'" alt="Swimmer">':'<span>Swimmer</span>'}
+function makeWM(){try{if(!document.fonts)return;document.fonts.load('80px "Pacifico"').then(function(){if(!document.fonts.check('80px "Pacifico"'))return;
+ var c=document.createElement("canvas"),x=c.getContext("2d");x.font='80px "Pacifico"';var m=x.measureText("Swimmer"),L=m.actualBoundingBoxLeft||0,R=m.actualBoundingBoxRight,A=m.actualBoundingBoxAscent,D=m.actualBoundingBoxDescent;
+ c.width=Math.ceil(L+R)+2;c.height=Math.ceil(A+D)+2;x=c.getContext("2d");x.font='80px "Pacifico"';x.fillStyle=getComputedStyle(document.body).color||"#12303f";x.fillText("Swimmer",L+1,A+1);
+ WM=c.toDataURL("image/png");render()}).catch(function(){})}catch(e){}}
+if(window.matchMedia)try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",function(){WM=null;makeWM()})}catch(e){}
+setTimeout(makeWM,0);
 function stopListeners(){unsubs.forEach(function(u){try{u()}catch(e){}});unsubs=[]}
 function cachedMe(){try{return JSON.parse(localStorage.getItem("poolme")||"null")}catch(e){return null}}
 function setMe(o){try{if(o)localStorage.setItem("poolme",JSON.stringify(o));else localStorage.removeItem("poolme")}catch(e){}}
