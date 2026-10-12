@@ -321,6 +321,7 @@ function hist(b){var T=today(),all=S.readings.filter(function(r){return r.pid===
  return o+'</div>'}
 function render(){
  var y=window.scrollY,h=document.getElementById("hd"),a=document.getElementById("app"),o="",T=today();
+ if(locked&&!gate){h.innerHTML='';a.innerHTML=lockHtml();var sv2=document.getElementById("sv");if(sv2)sv2.style.display="none";return}
  if(gate){h.innerHTML='';a.innerHTML=gateHtml();var sv0=document.getElementById("sv");if(sv0)sv0.style.display="none";return}
  var sv1=document.getElementById("sv");if(sv1)sv1.style.display="";
  if(!admin&&(view==="cust"||view==="prof"||view==="filters"||view==="crew"))view="days";
@@ -337,7 +338,9 @@ function render(){
   if(admin){var fcn=fcount();o+='<div class="card pool" data-a="filters"'+(fcn?' style="border-color:var(--hi)"':'')+'><div><b>🧽 Filters</b><div class="mu">'+(fcn?'<b class="t-hi">'+fcn+' need'+(fcn===1?'s':'')+' attention</b>':'All up to date')+'</div></div><span class="mu" style="font-size:22px">›</span></div>';
   o+='<div class="row" style="justify-content:center;flex-wrap:wrap;margin-top:8px">'+(S.readings.length?'<button class="g" data-a="csv">Export CSV</button>':'')+'<button class="g" data-a="backup">Back up data</button><button class="g" data-a="restore">Restore backup</button></div>';
   o+='<div class="mu" style="text-align:center;font-size:12px;margin-top:8px">'+esc(snapLine())+'</div>'}
-  var cmx=cachedMe()||{};o+='<div class="mu" style="text-align:center;font-size:13px;margin-top:14px">Signed in as '+esc((me&&me.email)||cmx.email||"")+' · <a href="#" data-a="signout">Sign out</a></div>';
+  var cmx=cachedMe()||{},askd=false;try{askd=localStorage.getItem("poolfidask")==="1"}catch(e){}
+  if(fidOK&&!fidId()&&!askd)o='<div class="card" style="border:2px solid var(--ac)"><b>Open Swimmer with Face ID?</b><div class="mu" style="margin-top:4px">You\'ll stay signed in, and Face ID keeps the app locked when you\'re not using it.</div><div class="row" style="margin-top:10px"><button data-a="fidon" style="flex:1">Turn on Face ID</button><button class="g" data-a="fidno">Not now</button></div></div>'+o;
+  o+='<div class="mu" style="text-align:center;font-size:13px;margin-top:14px">Signed in as '+esc((me&&me.email)||cmx.email||"")+' · <a href="#" data-a="signout">Sign out</a></div>'+(fidOK?'<div class="mu" style="text-align:center;font-size:13px;margin-top:6px">Face ID: '+(fidId()?'<b class="t-ok">On</b> · <a href="#" data-a="fidoff">Turn off</a>':'Off · <a href="#" data-a="fidon">Turn on</a>')+'</div>':'');
  }else if(view==="day"){
   var dd=pd(selDate),wd=dd.getDay();
   h.innerHTML='<button class="bk" data-a="days">‹ Days</button><h1>'+DN[wd]+', '+sd(dd)+'</h1>'+(admin?'<button data-a="add">+ Add</button>':'');
@@ -445,7 +448,7 @@ document.addEventListener("input",function(e){var t=e.target,ds=t.dataset||{};if
 document.addEventListener("toggle",function(e){if(e.target.dataset&&e.target.dataset.b)open[e.target.dataset.b]=e.target.open},true);
 document.addEventListener("click",function(e){
  var el=e.target.closest("[data-a]");if(!el)return;if(window.__nc&&window.__nc())return;var a=el.dataset.a,id=el.dataset.id,b=el.dataset.b;
- if(!admin){var EA={plan:1,dir:1,day:1,days:1,wk:1,wk0:1,rm:1,mo:1,yr:1,ymo:1,open:1,photo:1,rmphoto:1,pick:1,more:1,saveread:1,skip:1,edit:1,saveedit:1,canceledit:1,del:1,repeat:1,qn:1,rb:1,showall:1,zoom:1,visit:1,mode:1,auth:1,reset:1,authmode:1,claim:1,signout:1};if(!EA[a])return;if(a==="del"){var dr=S.readings.find(function(r){return r.id===id});if(!dr||!dr.skip)return}}
+ if(!admin){var EA={plan:1,dir:1,day:1,days:1,wk:1,wk0:1,rm:1,mo:1,yr:1,ymo:1,open:1,photo:1,rmphoto:1,pick:1,more:1,saveread:1,skip:1,edit:1,saveedit:1,canceledit:1,del:1,repeat:1,qn:1,rb:1,showall:1,zoom:1,visit:1,mode:1,auth:1,reset:1,authmode:1,claim:1,signout:1,fidon:1,fidoff:1,fidno:1,unlock:1,unlockpw:1};if(!EA[a])return;if(a==="del"){var dr=S.readings.find(function(r){return r.id===id});if(!dr||!dr.skip)return}}
  if(a==="dir"){}
  else if(a==="add")addFlow()
  else if(a==="mode"){if(!canAdmin)return;var toEmp=admin;ask(toEmp?"Switch to Employee view? You'll see the app exactly as your crew does — no Customers, Filters or profile editing.":"Switch back to Admin view?",function(){empView=toEmp;admin=canAdmin&&!empView;try{localStorage.setItem("poolview",empView?"emp":"admin")}catch(e){}go("days");toast(empView?"Now in Employee view":"Back in Admin view")},toEmp?"Employee view":"Admin view")}
@@ -455,6 +458,11 @@ document.addEventListener("click",function(e){
  else if(a==="reset")doReset()
  else if(a==="authmode"){authMode=authMode==="up"?"in":"up";authErr="";render()}
  else if(a==="claim")claimOwner()
+ else if(a==="fidon"){e.preventDefault();fidOn()}
+ else if(a==="fidoff"){e.preventDefault();fidOff()}
+ else if(a==="fidno"){try{localStorage.setItem("poolfidask","1")}catch(x){}render()}
+ else if(a==="unlock")unlock()
+ else if(a==="unlockpw"){locked=false;signOutNow()}
  else if(a==="signout"){e.preventDefault();signOut()}
  else if(a==="copylink"){var lk=location.origin+location.pathname;(navigator.clipboard?navigator.clipboard.writeText(lk):Promise.reject()).then(function(){toast("Link copied")}).catch(function(){prompt("Copy this link:",lk)})}
  else if(a==="approve"){var rq=reqs[id]||{},rr=el.dataset.r;fdb.doc("team/"+id).set({name:rq.name||"",email:rq.email||"",role:rr,at:Date.now()}).then(function(){return fdb.doc("requests/"+id).delete()}).then(function(){toast((rq.name||rq.email)+" approved")}).catch(function(x){toast("Couldn't approve: "+((x&&x.message)||x))})}
@@ -574,19 +582,37 @@ function onSnap(snap){
  S={pools:P,readings:R};P.forEach(function(p){sent[p.id]=hsh(ser(p.id))});Object.keys(sent).forEach(function(id){if(!P.some(function(p){return p.id===id}))delete sent[id]});psave();
  try{localStorage.setItem("poollog",JSON.stringify(S))}catch(e){}
  fixView();var ae=document.activeElement;if(!(ae&&/INPUT|TEXTAREA/.test(ae.tagName)))render()}
+var fidOK=false,locked=false,hidAt=0,LOCKMIN=5;
+function fidId(){try{return localStorage.getItem("poolfid")||""}catch(e){return ""}}
+function b64u(buf){var s="",b=new Uint8Array(buf);for(var i=0;i<b.length;i++)s+=String.fromCharCode(b[i]);return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
+function unb64u(t){t=t.replace(/-/g,"+").replace(/_/g,"/");while(t.length%4)t+="=";var s=atob(t),b=new Uint8Array(s.length);for(var i=0;i<s.length;i++)b[i]=s.charCodeAt(i);return b}
+function rnd(n){var b=new Uint8Array(n);crypto.getRandomValues(b);return b}
+try{if(window.PublicKeyCredential&&PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable)PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(function(v){fidOK=!!v;if(view==="days"&&!gate)render()}).catch(function(){})}catch(e){}
+async function fidOn(){var cm=cachedMe()||{};
+ try{var c=await navigator.credentials.create({publicKey:{rp:{name:"Swimmer"},user:{id:rnd(16),name:cm.email||"swimmer",displayName:cm.name||cm.email||"Swimmer"},challenge:rnd(32),pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}],authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required",residentKey:"preferred"},timeout:60000}});
+  try{localStorage.setItem("poolfid",b64u(c.rawId));localStorage.setItem("poolfidask","1")}catch(e){}toast("Face ID is on — Swimmer will ask for it when you open the app");render()}
+ catch(e){toast(e&&e.name==="NotAllowedError"?"Face ID setup cancelled":"Couldn't turn on Face ID: "+((e&&e.message)||e))}}
+function fidOff(){ask("Turn off Face ID for Swimmer on this phone?",function(){try{localStorage.removeItem("poolfid")}catch(e){}locked=false;toast("Face ID is off");render()},"Turn off")}
+async function unlock(){var id=fidId();if(!id){locked=false;render();return}
+ try{await navigator.credentials.get({publicKey:{challenge:rnd(32),allowCredentials:[{type:"public-key",id:unb64u(id)}],userVerification:"required",timeout:60000}});locked=false;render()}
+ catch(e){if(e&&e.name==="NotAllowedError")toast("Face ID didn't go through — tap to try again");else{toast("Face ID isn't working on this phone — sign in with your password");try{localStorage.removeItem("poolfid")}catch(x){}locked=false;signOutNow()}}}
+function lockHtml(){var cm=cachedMe()||{};return '<div style="max-width:380px;margin:0 auto;text-align:center"><img src="icons/icon-192.png" alt="" style="width:96px;height:96px;border-radius:22px;display:block;margin:64px auto 18px;box-shadow:0 2px 10px rgba(0,0,0,.18)"><h2 style="margin:0 0 4px">Swimmer</h2><div class="mu" style="margin-bottom:28px">'+esc(cm.email||"")+'</div><button data-a="unlock" style="width:100%;min-height:54px;font-size:17px">Unlock with Face ID</button><button class="g" data-a="unlockpw" style="width:100%;margin-top:10px;font-size:14px">Use password instead</button></div>'}
+function signOutNow(){wipeLocal();setMe(null);fauth&&fauth.signOut()}
+document.addEventListener("visibilitychange",function(){if(document.hidden){hidAt=Date.now()}else if(fidId()&&!gate&&cachedMe()&&hidAt&&Date.now()-hidAt>LOCKMIN*60000){locked=true;render()}});
 function stopListeners(){unsubs.forEach(function(u){try{u()}catch(e){}});unsubs=[]}
 function cachedMe(){try{return JSON.parse(localStorage.getItem("poolme")||"null")}catch(e){return null}}
 function setMe(o){try{if(o)localStorage.setItem("poolme",JSON.stringify(o));else localStorage.removeItem("poolme")}catch(e){}}
 function initCloud(){
  setTimeout(function(){if(dbOK&&!ready){sv.slow=true;setSv()}},8000);
  var cm=cachedMe();gate=cm?null:"loading";
+ if(cm&&fidId())locked=true;
  if(cm){uid=cm.uid;canAdmin=cm.role==="admin";isOwner=!!cm.owner;admin=canAdmin&&!empView}
  if(!window.firebase||!window.FB_CONFIG||!FB_CONFIG.apiKey){gate=cm?null:"cfg";dbOK=false;setSv();render();return}
- try{firebase.initializeApp(FB_CONFIG);fauth=firebase.auth();fdb=firebase.firestore();try{fdb.enablePersistence({synchronizeTabs:true}).catch(function(){})}catch(e){}}
+ try{firebase.initializeApp(FB_CONFIG);fauth=firebase.auth();try{fauth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function(){})}catch(e){}fdb=firebase.firestore();try{fdb.enablePersistence({synchronizeTabs:true}).catch(function(){})}catch(e){}}
  catch(e){gate=cm?null:"cfg";dbOK=false;setSv();render();return}
  fauth.onAuthStateChanged(function(u){me=u;stopListeners();
   if(!u){var had=cachedMe();setMe(null);uid=null;canAdmin=false;admin=false;isOwner=false;dbOK=null;ready=false;
-   if(had)wipeLocal();gate="login";render();setSv();return}
+   if(had)wipeLocal();locked=false;gate="login";render();setSv();return}
   uid=u.uid;startMember(u)});
  render()}
 function wipeLocal(){S={pools:[],readings:[]};sent={};phq=[];["poollog","poolsent2","poolphq","poolsnap","poolnav","poolrole","poolph2"].forEach(function(k){try{localStorage.removeItem(k)}catch(e){}});try{indexedDB.deleteDatabase("poollog")}catch(e){}view="days"}
@@ -638,7 +664,7 @@ function gateHtml(){var lg='<img src="icons/icon-192.png" alt="" style="width:96
  if(gate==="setup")return o+'<div class="card" style="margin-top:16px"><b>Set up your business</b><div class="mu" style="margin-top:6px">You\'re the first person here. Tap below to become the owner — you\'ll be the admin and approve your crew.</div>'+(authErr?'<div class="t-hi" style="margin-top:8px">'+esc(authErr)+'</div>':'')+'<button data-a="claim" style="width:100%;margin-top:12px"'+(authBusy?' disabled':'')+'>'+(authBusy?'Setting up…':'Make me the owner')+'</button></div><div class="mu" style="text-align:center">Signed in as '+esc(me&&me.email)+' · <a href="#" data-a="signout">Sign out</a></div></div>';
  if(gate==="wait")return o+'<div class="card" style="margin-top:16px"><b>Waiting for approval</b><div class="mu" style="margin-top:6px">Your account is set up. The owner needs to approve you — once they do, this screen opens automatically.</div></div><div class="mu" style="text-align:center">Signed in as '+esc(me&&me.email)+' · <a href="#" data-a="signout">Sign out</a></div></div>';
  var up=authMode==="up";
- return o+'<div class="mu" style="text-align:center;margin-bottom:16px">'+(up?'Create your account':'Sign in to continue')+'</div><div class="card">'+(up?'<label>Your name</label><input id="an" autocomplete="name" style="margin-bottom:10px">':'')+'<label>Email</label><input id="ae" type="email" autocomplete="email" autocapitalize="off" style="margin-bottom:10px"><label>Password</label><input id="ap" type="password" autocomplete="'+(up?'new-password':'current-password')+'">'+(authErr?'<div class="t-hi" style="margin-top:10px;font-size:14px">'+esc(authErr)+'</div>':'')+'<button data-a="auth" style="width:100%;margin-top:14px"'+(authBusy?' disabled':'')+'>'+(authBusy?'Please wait…':up?'Create account':'Sign in')+'</button>'+(up?'':'<button class="g" data-a="reset" style="width:100%;margin-top:4px;font-size:14px">Forgot password?</button>')+'</div><button class="g" data-a="authmode" style="width:100%">'+(up?'Already have an account? Sign in':'New to the crew? Create account')+'</button></div>'}
+ return o+'<div class="mu" style="text-align:center;margin-bottom:16px">'+(up?'Create your account':'Sign in to continue')+'</div><div class="card">'+(up?'<label>Your name</label><input id="an" autocomplete="name" style="margin-bottom:10px">':'')+'<label>Email</label><input id="ae" type="email" autocomplete="username" autocapitalize="off" style="margin-bottom:10px"><label>Password</label><input id="ap" type="password" autocomplete="'+(up?'new-password':'current-password')+'">'+(authErr?'<div class="t-hi" style="margin-top:10px;font-size:14px">'+esc(authErr)+'</div>':'')+'<button data-a="auth" style="width:100%;margin-top:14px"'+(authBusy?' disabled':'')+'>'+(authBusy?'Please wait…':up?'Create account':'Sign in')+'</button>'+(up?'':'<button class="g" data-a="reset" style="width:100%;margin-top:4px;font-size:14px">Forgot password?</button>')+'</div><button class="g" data-a="authmode" style="width:100%">'+(up?'Already have an account? Sign in':'New to the crew? Create account')+'</button></div>'}
 function crewHtml(){var o='',rk=Object.keys(reqs).filter(function(k){return !team[k]}),tk=Object.keys(team).sort(function(a,b){return (team[a].name||team[a].email||"").localeCompare(team[b].name||team[b].email||"")}),ow=(cachedMe()||{});
  o+='<div class="card"><b>Adding someone</b><div class="mu" style="margin-top:4px">Send them this app\'s link. They tap <b>Create account</b>, then show up here for you to approve.</div><button class="tg" data-a="copylink" style="margin-top:10px">Copy app link</button></div>';
  if(rk.length){o+='<h3 class="t-lo" style="margin:16px 0 8px">Waiting for approval ('+rk.length+')</h3>';rk.forEach(function(k){var r=reqs[k];o+='<div class="card"><b>'+esc(r.name||"(no name)")+'</b><div class="mu">'+esc(r.email||"")+'</div><div class="row" style="margin-top:10px;flex-wrap:wrap;gap:6px"><button data-a="approve" data-id="'+k+'" data-r="employee" style="flex:1">Approve</button><button class="tg" data-a="approve" data-id="'+k+'" data-r="admin">As admin</button><button class="d" data-a="decline" data-id="'+k+'">Decline</button></div></div>'})}
