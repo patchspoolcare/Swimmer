@@ -146,6 +146,9 @@ body.hasnav .sv.w,body.hasnav .sv.o{bottom:calc(84px + env(safe-area-inset-botto
 .hbods{display:flex;gap:4px;flex:none}.hbody{font-size:17px;line-height:1}.hbody.sk{opacity:.4}
 .hday .chev{color:var(--mu);font-size:20px;transition:transform .15s}.hday.open .chev{transform:rotate(90deg)}
 .hdb{padding:0 14px 6px;border-top:1px solid var(--bd)}.hdb>div:last-child{border-bottom:0!important}
+.hrow{padding:10px 0;border-bottom:1px solid var(--bd)}.hdb>.hrow:last-child{border-bottom:0}
+.hnote{margin:6px 0 4px;padding:8px 10px;border-radius:10px;background:var(--bg);font-size:14px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--tx)}
+img.th.thl{display:block;width:100%;max-width:340px;height:auto;max-height:420px;object-fit:contain;background:var(--bg);margin:8px 0 6px;border-radius:12px;cursor:zoom-in}img.th.thl:not([src]){display:none}
 </style></head><body>
 <input type="file" id="rf" accept=".json,application/json" style="display:none"><input type="file" id="fi" accept="image/*" style="display:none"><input type="file" id="pfi" accept="image/*" multiple style="display:none"><header id="hd"></header><main id="app"></main><div id="sv" class="sv"></div><nav id="nav" class="bnav"></nav>
 <script>
@@ -341,13 +344,23 @@ function rrow(r,lab,short){var cur=!short&&dkey(new Date(r.t))===selDate,o='<div
  F.forEach(function(f){var v=r.v[f[0]];if(v===""||v==null)return;var s=st(f,v);o+='<span class="chip '+(s?"s-"+s+" t-"+s:"")+'">'+L(f,bd(r))+' '+esc(v)+'</span>'});
  if(r.v&&r.v.temp)o+='<span class="chip">Water Temp '+esc(r.v.temp)+'</span>';DF.forEach(function(f){var x=(r.ds||{})[f[0]];if(x)o+='<span class="chip ds">'+L(f,bd(r))+' '+esc(x)+'</span>'});
  return o+'</div>'+(r.notes?'<div class="mu">'+esc(r.notes)+'</div>':'')+(r.ph?'<img class="th" data-ph="'+r.id+'" data-a="zoom">':'')+'</div>'}
+function hrow(r,lab){var b=bd(r),key="h"+r.id,ex=more[key],chips="",extra=false,tm=new Date(r.t).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
+ if(r.skip)chips+='<span class="chip s-lo t-lo">Skipped'+(r.reason?' · '+esc(r.reason):'')+'</span>';
+ else{F.forEach(function(f){var v=r.v&&r.v[f[0]];if(v===""||v==null)return;var s2=st(f,v);if(F.indexOf(f)<4||s2==="lo"||s2==="hi"||ex)chips+='<span class="chip '+(s2?"s-"+s2+" t-"+s2:"")+'">'+L(f,b)+' '+esc(v)+'</span>';else extra=true});
+  if(r.v&&r.v.temp){if(ex)chips+='<span class="chip">Water Temp '+esc(r.v.temp)+'</span>';else extra=true}
+  DF.forEach(function(f){var x=(r.ds||{})[f[0]];if(!x)return;if(ex)chips+='<span class="chip ds">'+L(f,b)+' '+esc(x)+'</span>';else extra=true});
+  if(r.notes||r.ph)extra=true}
+ var hint=!ex&&!r.skip?[r.ph?'📷 Photo':'',r.notes?'Notes':''].filter(Boolean).join(' · '):'';
+ return '<div class="hrow"><div class="row" style="justify-content:space-between"><b>'+lab+' <span class="mu" style="font-weight:400">· '+tm+(admin&&r.by&&r.by!==uid?' · '+esc(whoName(r.by)):'')+'</span></b>'+(r.skip?'<button class="d" data-a="del" data-id="'+r.id+'">Undo skip</button>':'<button class="tg" data-a="edit" data-id="'+r.id+'">Edit</button>')+'</div><div class="chips">'+chips+'</div>'
+  +(ex&&!r.skip?(r.notes?'<div class="hnote">'+esc(r.notes)+'</div>':'')+(r.ph?'<img class="th thl" data-ph="'+r.id+'" data-a="zoom" alt="Test strip photo">':''):'')
+  +(extra?'<button class="g'+(ex?' rv-less':'')+'" data-a="more" data-k="'+key+'" style="padding:2px 0;font-size:14px">'+(ex?"See less":"See more")+(hint?' <span class="mu" style="font-weight:400">· '+hint+'</span>':'')+'</button>':'')+'</div>'}
 function rv(r){var b=bd(r),cur=dkey(new Date(r.t))===selDate,key="v"+r.id,ex=more[key],editing=ed[b]&&ed[b].id===r.id,chips="",extra=false;
  if(r.skip)chips+='<span class="chip s-lo t-lo">Skipped'+(r.reason?' · '+esc(r.reason):'')+'</span>';
  else{F.forEach(function(f){var v=r.v&&r.v[f[0]];if(v===""||v==null)return;var s=st(f,v);if(F.indexOf(f)<4||s==="lo"||s==="hi"||ex)chips+='<span class="chip '+(s?"s-"+s+" t-"+s:"")+'">'+L(f,b)+' '+esc(v)+'</span>';else extra=true});
   if(r.v&&r.v.temp){if(ex)chips+='<span class="chip">Water Temp '+esc(r.v.temp)+'</span>';else extra=true}
   DF.forEach(function(f){var x=(r.ds||{})[f[0]];if(!x)return;if(ex)chips+='<span class="chip ds">'+L(f,b)+' '+esc(x)+'</span>';else extra=true});
   if(r.notes||r.ph)extra=true}
- return '<div class="'+(cur?'rtd':'rvr')+'"><div class="row" style="justify-content:space-between"><b>'+(cur?'<span class="rbg">'+(r.skip?'SKIPPED ':'✓ COMPLETED ')+(selDate===today()?'TODAY':DN[pd(selDate).getDay()].slice(0,3).toUpperCase())+'</span>':'')+fmt(r.t)+(admin&&r.by&&r.by!==uid?' <span class="mu" style="font-weight:400">· '+esc(whoName(r.by))+'</span>':'')+'</b>'+(editing?'<span class="mu">Editing below ↓</span>':r.skip?'<button class="d" data-a="del" data-id="'+r.id+'">Undo skip</button>':'<button class="tg" data-a="edit" data-id="'+r.id+'">Edit</button>')+'</div><div class="chips">'+chips+'</div>'+(ex&&!r.skip?(r.notes?'<div class="mu">'+esc(r.notes)+'</div>':'')+(r.ph?'<img class="th" data-ph="'+r.id+'" data-a="zoom">':''):'')+(extra?'<button class="g'+(ex?' rv-less':'')+'" data-a="more" data-k="'+key+'" style="padding:2px 0;font-size:14px">'+(ex?"See less":"See more")+'</button>':'')+'</div>'}
+ return '<div class="'+(cur?'rtd':'rvr')+'"><div class="row" style="justify-content:space-between"><b>'+(cur?'<span class="rbg">'+(r.skip?'SKIPPED ':'✓ COMPLETED ')+(selDate===today()?'TODAY':DN[pd(selDate).getDay()].slice(0,3).toUpperCase())+'</span>':'')+fmt(r.t)+(admin&&r.by&&r.by!==uid?' <span class="mu" style="font-weight:400">· '+esc(whoName(r.by))+'</span>':'')+'</b>'+(editing?'<span class="mu">Editing below ↓</span>':r.skip?'<button class="d" data-a="del" data-id="'+r.id+'">Undo skip</button>':'<button class="tg" data-a="edit" data-id="'+r.id+'">Edit</button>')+'</div><div class="chips">'+chips+'</div>'+(ex&&!r.skip?(r.notes?'<div class="hnote">'+esc(r.notes)+'</div>':'')+(r.ph?'<img class="th thl" data-ph="'+r.id+'" data-a="zoom" alt="Test strip photo">':''):'')+(extra?'<button class="g'+(ex?' rv-less':'')+'" data-a="more" data-k="'+key+'" style="padding:2px 0;font-size:14px">'+(ex?"See less":"See more")+'</button>':'')+'</div>'}
 function rvCard(bs){var T=today(),tbs=B.filter(function(b){return bs.indexOf(b[0])>=0});if(!tbs.length)return"";
  var rb=tbs.some(function(b){return b[0]===rvB})?rvB:tbs[0][0],all=S.readings.filter(function(r){return r.pid===pid&&bd(r)===rb}).sort(function(x,y){return y.t-x.t}),
  rs=showAll?all:(selDate===T?all.slice(0,4):all.filter(function(r){return dkey(new Date(r.t))===selDate})),
@@ -448,7 +461,7 @@ function render(){
   dk.forEach(function(k){var list=days[k].slice().sort(function(x,y){var ia=bs.indexOf(bd(x)),ib=bs.indexOf(bd(y));return (ia<0?99:ia)-(ib<0?99:ib)||x.t-y.t}),isO=!!hopen[k],dd=pd(k),allSkip=list.every(function(r){return r.skip}),
     w=list.filter(function(r){return !r.skip&&r.v}).map(worst).reduce(function(m,x){return x==="hi"||m==="hi"?"hi":x==="lo"||m==="lo"?"lo":m},"ok"),
     seen={},bod=list.map(function(r){var b=bd(r);if(seen[b])return "";seen[b]=1;var bb=B.find(function(x){return x[0]===b})||["","",""];return '<span class="hbody'+(r.skip?' sk':'')+'" title="'+bb[1]+'">'+bb[2]+'</span>'}).join("");
-   o+='<div class="card hday'+(isO?' open':'')+'"><button class="hdh" data-a="hday" data-d="'+k+'"><span class="hdate"><b>'+DN[dd.getDay()].slice(0,3)+', '+sd(dd)+'</b><small>'+dd.getFullYear()+'</small></span><span class="hbods">'+bod+'</span>'+(allSkip?'<span class="chip s-lo t-lo" style="flex:none">Skipped</span>':'<span class="dot bg-'+w+'" style="flex:none"></span>')+'<span class="chev">›</span></button>'+(isO?'<div class="hdb">'+list.map(function(r){var bb=B.find(function(x){return x[0]===bd(r)})||["","",""];return rrow(r,bb[2]+" "+bb[1],true)}).join("")+'</div>':'')+'</div>'});
+   o+='<div class="card hday'+(isO?' open':'')+'"><button class="hdh" data-a="hday" data-d="'+k+'"><span class="hdate"><b>'+DN[dd.getDay()].slice(0,3)+', '+sd(dd)+'</b><small>'+dd.getFullYear()+'</small></span><span class="hbods">'+bod+'</span>'+(allSkip?'<span class="chip s-lo t-lo" style="flex:none">Skipped</span>':'<span class="dot bg-'+w+'" style="flex:none"></span>')+'<span class="chev">›</span></button>'+(isO?'<div class="hdb">'+list.map(function(r){var bb=B.find(function(x){return x[0]===bd(r)})||["","",""];return hrow(r,bb[2]+" "+bb[1])}).join("")+'</div>':'')+'</div>'});
   o+='<button class="d" data-a="delpool">Remove this customer &amp; all readings</button>';
  }else if(view==="map"){
   h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="'+(DROPO||"icons/drop.png")+'" alt="">'+wmHtml()+'</button></h1>';o+=tabs("map")+mapHtml();
