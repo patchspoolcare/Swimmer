@@ -134,6 +134,13 @@ body.hasnav .sv.w,body.hasnav .sv.o{bottom:calc(84px + env(safe-area-inset-botto
 .selfsw{display:flex;align-items:center;gap:10px;width:100%;margin:-4px 0 10px;padding:8px 2px;background:transparent;color:var(--tx);font-weight:500;font-size:15px;text-align:left}
 .selfsw .sw{flex:none;width:44px;height:26px;border-radius:99px;background:var(--bd);position:relative;transition:background .15s}.selfsw .sw i{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .15s}
 .selfsw.on .sw{background:var(--ok)}.selfsw.on .sw i{left:21px}
+.rdaybtn{display:flex;justify-content:space-between;align-items:center;font-size:16px}
+.fcard{padding:12px 12px 8px}.frow{border-top:1px solid var(--bd)}.frow:first-of-type{border-top:0}
+.fhead{display:flex;align-items:center;gap:10px;width:100%;padding:10px 2px;background:transparent;color:var(--tx);text-align:left;font-weight:400;border-radius:0}
+.fmain{flex:1;min-width:0}.fmain b{display:block;font-size:15px}.fmain small{display:block;font-size:13px;color:var(--mu)}
+.fdot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--mu)}.fd-ok{background:var(--ok)}.fd-hi{background:var(--hi)}.fd-b{background:var(--ac)}.fd-n,.fd-self{background:var(--bd)}
+.chev{color:var(--mu);font-size:20px;transition:transform .15s}.frow.open .chev{transform:rotate(90deg)}.fbody{padding:2px 0 8px}
+.faddrow{display:flex;flex-wrap:wrap;gap:6px;padding:8px 0 4px;border-top:1px solid var(--bd)}.faddrow .tg{min-height:34px;padding:4px 12px;font-size:13px}
 </style></head><body>
 <input type="file" id="rf" accept=".json,application/json" style="display:none"><input type="file" id="fi" accept="image/*" style="display:none"><input type="file" id="pfi" accept="image/*" multiple style="display:none"><header id="hd"></header><main id="app"></main><div id="sv" class="sv"></div><nav id="nav" class="bnav"></nav>
 <script>
@@ -207,7 +214,7 @@ function fmt(t){return new Date(t).toLocaleString([],{month:"short",day:"numeric
 function prune(id,b){var n=0;S.readings.filter(function(r){return r.pid===id&&bd(r)===b&&r.ph}).sort(function(x,y){return y.t-x.t}).slice(KEEP).forEach(function(r){pdel(r.id);r.ph=false;n++});if(n)save()}
 function pruneAll(){S.pools.forEach(function(p){B.forEach(function(b){prune(p.id,b[0])})})}
 function go(v,o){o=o||{};view=v;if(o.pid!==undefined)pid=o.pid;if(o.date)selDate=o.date;if(o.wk!==undefined)wk=o.wk;adding=false;reord=false;more={};addingC=false;nc={};newDay=null;showAll=false;draft={};ed={};stash={};open={pool:true};navSave();render();window.scrollTo(0,0)}
-var MAXP=10,pcache={};
+var MAXP=10,pcache={},fopen=null;
 var QN=["Emptied baskets","Brushed","Vacuumed","Skimmed","Low water","Equipment issue"],SR=["Gate locked","Rain / weather","Customer cancelled","Customer not home","Other"],BW=30,BWM=3;
 function lastDs(b){return S.readings.filter(function(r){return r.pid===pid&&!r.skip&&bd(r)===b&&r.ds&&DF.some(function(f){return r.ds[f[0]]})}).sort(function(x,y){return y.t-x.t})[0]}
 function cattn(p,t){if(!p.filter)return{g:"none",n:0,l:"No cleaning date",w:"filter"};var dd=Math.round((pd(dkey(due(p)))-t)/864e5);if(dd<0)return{g:"due",n:dd,l:"Cleaning overdue by "+(-dd)+" day"+(dd===-1?"":"s"),w:"filter"};if(dd===0)return{g:"due",n:0,l:"Cleaning due today",w:"filter"};if(dd<=14)return{g:"soon",n:dd,l:"Cleaning due in "+dd+" day"+(dd===1?"":"s"),w:"filter"};return null}
@@ -410,13 +417,20 @@ function render(){
   var fld=function(k,l,t){return '<div style="margin-bottom:8px"><label>'+l+'</label><input data-pf="'+k+'" type="'+(t||"text")+'" value="'+esc(p[k]||"")+'"></div>'};
   o+='<div class="card">'+fld("name","Name")+fld("phone","Phone","tel")+fld("email","Email","email")+fld("addr","Address")+'<label>Notes (gate code, pets…)</label><textarea data-pf="notes" rows="2">'+esc(p.notes||"")+'</textarea>';
   var ln='';if(p.phone)ln+='<a class="lk" href="tel:'+esc(p.phone)+'">Call</a><a class="lk" href="sms:'+esc(p.phone)+'">Text</a>';if(p.email)ln+='<a class="lk" href="mailto:'+esc(p.email)+'">Email</a>';ln+='<a id="ml" class="lk" target="_blank" rel="noopener" style="'+(p.addr?'':'display:none')+'" href="'+mapUrl(p.addr)+'">Directions</a>';
+  o+='<label style="margin-top:8px">Route day</label><button class="pk rdaybtn" data-a="rday"><span>'+(p.day==null?"Not set":DN[p.day])+'</span><span class="mu">›</span></button>';
   o+='<div style="margin-top:10px">'+ln+'</div></div>';
-  o+='<div class="row" style="margin-bottom:10px"><span class="mu">Route day</span><button class="tg" data-a="rday">'+(p.day==null?"Not set":DN[p.day])+' ›</button></div>';
   var fo=fown(p),fseg=function(u,k){return '<div class="seg"><button class="'+(u.ftype==="sand"||u.ftype==="de"?"":"on")+'" data-a="ftype" data-k="'+k+'" data-t="cart">Cartridge</button><button class="'+(u.ftype==="de"?"on":"")+'" data-a="ftype" data-k="'+k+'" data-t="de">DE</button><button class="'+(u.ftype==="sand"?"on":"")+'" data-a="ftype" data-k="'+k+'" data-t="sand">Sand</button></div>'};
-  o+='<div class="mu" style="margin-bottom:4px;font-weight:600">'+(bs.length>1?bname(fo)+' filter · type':'Filter type')+'</div>'+fseg(p,"")+fself(p,"")+fbtn(p,"");
-  bs.forEach(function(b){if(b===fo)return;var u=p.fx&&p.fx[b];
-   if(u)o+='<div class="card" style="padding:10px;margin-bottom:10px"><div class="mu" style="margin-bottom:4px;font-weight:600">'+bname(b)+' filter · type</div>'+fseg(u,b)+fself(u,b)+fbtn(u,b)+'<button class="g" data-a="rmf" data-b="'+b+'" style="padding:2px 0;font-size:14px">Remove · '+bname(b).replace(/^\S+ /,"")+' shares the '+bname(fo).replace(/^\S+ /,"").toLowerCase()+' filter</button></div>';
-   else o+='<button class="addf" data-a="addf" data-b="'+b+'"><span class="pl">+</span><span><b>Add separate filter for '+bname(b).replace(/^\S+ /,"")+'</b><small>Right now it shares the '+bname(fo).replace(/^\S+ /,"").toLowerCase()+' filter</small></span></button>'});
+  var fus=funits(p),selfAll=fus.every(function(x){return x.u.self});
+  o+='<div class="card fcard"><div class="row" style="justify-content:space-between;margin-bottom:6px"><b>Filters</b>'+(selfAll?'':'<span class="mu" style="font-size:13px">'+fus.length+' filter'+(fus.length===1?'':'s')+'</span>')+'</div>';
+  o+='<button class="selfsw'+(selfAll?' on':'')+'" data-a="fselfall" role="switch" aria-checked="'+selfAll+'" style="margin:0 0 4px"><span class="sw"><i></i></span><span>Client cleans their own filters</span></button>';
+  if(selfAll)o+='<div class="mu" style="font-size:13px">No cleaning or backwash reminders for this client.</div>';
+  else{fus.forEach(function(x){var u=x.u,k=x.k,st=fstate(u),key=k||"_main",isOpen=fopen===p.id+":"+key,lab=fus.length>1?bname(x.b).replace(/^\S+ /,""):"Filter";
+    o+='<div class="frow'+(isOpen?' open':'')+'"><button class="fhead" data-a="fexp" data-k="'+key+'"><span class="fdot fd-'+st[1]+'"></span><span class="fmain"><b>'+esc(lab)+'</b><small>'+tname(u.ftype)+' · <span class="t-'+st[1]+'">'+esc(st[0])+'</span></small></span><span class="chev">›</span></button>';
+    if(isOpen)o+='<div class="fbody">'+fseg(u,k)+fbtn(u,k)+(k?'<button class="g" data-a="rmf" data-b="'+x.b+'" style="padding:2px 0;font-size:14px">Remove · '+bname(x.b).replace(/^\S+ /,"")+' shares the '+bname(fo).replace(/^\S+ /,"").toLowerCase()+' filter</button>':'')+'</div>';
+    o+='</div>'});
+   var add=bs.filter(function(b2){return b2!==fo&&!(p.fx&&p.fx[b2])});
+   if(add.length)o+='<div class="faddrow">'+add.map(function(b2){return '<button class="tg" data-a="addf" data-b="'+b2+'">+ Separate '+bname(b2).replace(/^\S+ /,"").toLowerCase()+' filter</button>'}).join("")+'</div>'}
+  o+='</div>';
   var lv=last(p.id,null)||S.readings.filter(function(r){return r.pid===p.id}).sort(function(x,y){return y.t-x.t})[0];
   o+='<button data-a="visit" style="width:100%;margin-bottom:10px">'+(lv?'Open most recent visit · '+sd(new Date(lv.t))+' ›':'Open today\'s visit ›')+'</button>';
   o+='<div class="mu" style="margin-bottom:6px">Water features at this stop</div><div class="wf">'+B.map(function(b){var on=bs.indexOf(b[0])>-1;return '<button class="wfb'+(on?' on':'')+'" data-a="tog" data-b="'+b[0]+'"><span>'+b[2]+'</span><span class="n">'+b[1]+'</span><span class="c">'+(on?'✓':'+')+'</span></button>'}).join("")+'</div>';
@@ -512,7 +526,7 @@ document.addEventListener("click",function(e){
  else if(a==="setrole"){var tr=el.dataset.r;fdb.doc("team/"+id).update({role:tr}).then(function(){toast("Updated")}).catch(function(x){toast("Couldn't update: "+((x&&x.message)||x))})}
  else if(a==="rmcrew"){var tm2=team[id]||{};ask("Remove "+(tm2.name||tm2.email)+" from the crew? They'll lose access right away.",function(){fdb.doc("team/"+id).delete().then(function(){toast("Removed")}).catch(function(x){toast("Couldn't remove: "+((x&&x.message)||x))})},"Remove")}
  else if(a==="fdone"){var fq=S.pools.find(function(x){return x.id===id}),fk=el.dataset.k||"",fqu=fu(fq,fk),fsand=el.dataset.w?el.dataset.w==="backwash":fqu.ftype==="sand";ask("Mark "+fq.name+(fk?" "+bname(fk).replace(/^\S+ /,""):"")+(fsand?" backwashed":" filter cleaned")+" today?",function(){fqu[fsand?"backwash":"filter"]=today();save();render();toast(fq.name+" updated")},"Yes, done","var(--ok)")}
- else if(a==="addf"){var ap=S.pools.find(function(x){return x.id===pid});ap.fx=ap.fx||{};ap.fx[b]={ftype:"cart",filter:"",backwash:""};save();render()}
+ else if(a==="addf"){var ap=S.pools.find(function(x){return x.id===pid});ap.fx=ap.fx||{};ap.fx[b]={ftype:"cart",filter:"",backwash:""};if(ap.self)ap.fx[b].self=true;fopen=pid+":"+b;save();render()}
  else if(a==="rmf"){var rp=S.pools.find(function(x){return x.id===pid}),rb=b;ask("Remove the separate "+bname(rb).replace(/^\S+ /,"")+" filter?",function(){delete rp.fx[rb];save();render()},"Remove")}
  else if(a==="repeat"){var lr=lastDs(b);if(!lr)return;var dr=D(b);DF.forEach(function(f){if(lr.ds[f[0]])dr[f[0]]=lr.ds[f[0]];else delete dr[f[0]]});if(lr.ds.de||lr.ds.bor)more[b+"d"]=true;render();toast("Dosage copied from "+sd(new Date(lr.t)))}
  else if(a==="qn"){var dq=D(b),pq=(dq.notes||"").split(/\s*,\s*/).filter(Boolean),qq=el.dataset.q,iq=pq.indexOf(qq);if(iq>-1)pq.splice(iq,1);else pq.push(qq);dq.notes=pq.join(", ");render()}
@@ -546,6 +560,8 @@ document.addEventListener("click",function(e){
  else if(a==="showall"){showAll=!showAll;render()}
  else if(a==="filter"){var fp=fu(S.pools.find(function(x){return x.id===pid}),el.dataset.k||"");var ky=el.dataset.f||(fp.ftype==="sand"?"backwash":"filter"),sd2=ky==="backwash";dateWheel(sd2?"Last backwashed":"Filter last cleaned",fp[ky],function(k){fp[ky]=k;save();render()},fp[ky]?function(){fp[ky]="";save();render()}:null)}
  else if(a==="bwtoday"){var bp=fu(S.pools.find(function(x){return x.id===pid}),el.dataset.k||"");bp.backwash=today();save();render();toast("Backwash recorded for today")}
+ else if(a==="fexp"){var fk2=pid+":"+el.dataset.k;fopen=fopen===fk2?null:fk2;render()}
+ else if(a==="fselfall"){var pp3=S.pools.find(function(x){return x.id===pid}),us3=funits(pp3),on3=!us3.every(function(x){return x.u.self});us3.forEach(function(x){if(on3)x.u.self=true;else delete x.u.self});save();render()}
  else if(a==="fself"){var sp2=fu(S.pools.find(function(x){return x.id===pid}),el.dataset.k||"");if(sp2.self)delete sp2.self;else sp2.self=true;save();render()}
  else if(a==="ftype"){var tp=fu(S.pools.find(function(x){return x.id===pid}),el.dataset.k||"");tp.ftype=el.dataset.t;save();render()}
  else if(a==="rday"){var rp=S.pools.find(function(x){return x.id===pid});wheelN("Route day",[{items:DN.map(function(n,i){return[n,i]}),sel:rp.day==null?(selDate?pd(selDate).getDay():new Date().getDay()):rp.day}],function(v){rp.day=v[0];delete rp.ord;save();render()})}
