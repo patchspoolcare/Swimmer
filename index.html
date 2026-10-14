@@ -316,10 +316,14 @@ function tmin(x){var a=String(x||"08:00").split(":");return(+a[0]||0)*60+(+a[1]|
 function akey(a){return String(a||"").toLowerCase().replace(/\s+/g," ").trim()}
 function pk(a,b){return akey(a)+" > "+akey(b)}
 function driveMin(a,b){var v=a&&b&&a.addr&&b.addr?drv[pk(a.addr,b.addr)]:null;return v==null?10:v}
-function etaPlan(cs){var T=today(),t0=tmin(PL.days[selDate]||PL.start),svc=+PL.svc||15,out={},prevEnd=null,fin=0,n=new Date(),nowM=n.getHours()*60+n.getMinutes(),floor=selDate===T&&nowM<20*60,first=true;
- cs.forEach(function(p,i){var rs=onDate(p.id,selDate),dn=done(p,selDate);
-  if(dn){var lt=Math.min.apply(null,rs.map(function(r){return r.t})),d=new Date(lt),m=d.getHours()*60+d.getMinutes();out[p.id]={t:m,done:true};prevEnd=m;fin=Math.max(fin,m)}
-  else{var st=prevEnd==null?t0:prevEnd+driveMin(cs[i-1],p);if(first&&floor&&st<nowM)st=nowM;first=false;out[p.id]={t:st};prevEnd=st+svc;fin=Math.max(fin,prevEnd)}});
+function tmm(t){var d=new Date(t);return d.getHours()*60+d.getMinutes()}
+function etaChain(cs){var dn=cs.filter(function(p){return done(p,selDate)}),last=null,lt=-1;
+ dn.forEach(function(p){var m=Math.max.apply(null,onDate(p.id,selDate).map(function(r){return r.t}));if(m>lt){lt=m;last=p}});
+ return {last:last,lastT:lt,pending:cs.filter(function(p){return !done(p,selDate)})}}
+function etaPlan(cs){var T=today(),t0=tmin(PL.days[selDate]||PL.start),svc=+PL.svc||15,out={},fin=0,n=new Date(),nowM=n.getHours()*60+n.getMinutes(),floor=selDate===T&&nowM<20*60;
+ cs.forEach(function(p){if(done(p,selDate)){var ts=onDate(p.id,selDate).map(function(r){return r.t}),m=tmm(Math.min.apply(null,ts));out[p.id]={t:m,done:true};fin=Math.max(fin,tmm(Math.max.apply(null,ts)))}});
+ var ch=etaChain(cs),prev=ch.last,end=ch.last?tmm(ch.lastT):null;
+ ch.pending.forEach(function(p,i){var st=prev==null||end==null?t0:end+driveMin(prev,p);if(i===0&&floor&&st<nowM)st=nowM;out[p.id]={t:st};end=st+svc;prev=p;fin=Math.max(fin,end)});
  ETfin=fin;return out}
 function missingPairs(cs){var need=[],seen={};for(var i=1;i<cs.length;i++){var a=cs[i-1],b=cs[i];if(a.addr&&b.addr){var k=pk(a.addr,b.addr);if(drv[k]==null&&!seen[k]){seen[k]=1;need.push({k:k,from:a.addr,to:b.addr})}}}return need}
 async function fetchDrives(cs){geocode(cs);if(drvBusy)return;
@@ -434,7 +438,7 @@ function render(){if(view==="pool"&&pid&&selDate)drLoad();
    return '<div class="card pool cp'+(dn?(sk?' sk':' dn'):'')+'"'+(' data-a="open" data-id="'+p.id+'"'+(n!=null&&admin?' data-rid="'+p.id+'"':''))+'><div class="num'+(n==null&&!dn?' n0':'')+'">'+(dn&&!sk?'✓':(n!=null?n+1:(sk?'–':'•')))+'</div><div class="cm"><b>'+esc(p.name)+'</b><div class="mu">'+[(ET[p.id]?'<span class="eta'+(ET[p.id].done?' ed':'')+'">'+(ET[p.id].done?'':'~')+hm(ET[p.id].t)+'</span>':''),(tag?'↪ '+tag.replace("Moved from ","From "):''),(stx&&stx!=="Not logged"?stx:''),(admin?'<span class="t-'+fs[1]+'">'+fs[0]+'</span>':esc(p.addr||""))].filter(Boolean).join(' · ')+'</div></div>'+right+'</div>'};
   var reg=regFor(selDate),inc=incFor(selDate),cs2=reg.concat(inc.map(function(x){return x.p}));
   if(!cs2.length&&!adding)o+='<div class="card mu">No customers on '+DN[wd]+'s'+(admin?' yet. Tap + Add to put a customer here.':'.')+'</div>';
-  if(cs2.length){ET=etaPlan(cs2);fetchDrives(cs2);var nd=cs2.filter(function(p){return done(p,selDate)}).length,nk=cs2.filter(function(p){return skipped(p,selDate)}).length;o+='<div class="row" style="justify-content:space-between"><b>'+nd+' of '+cs2.length+' completed'+(nk?' · '+nk+' skipped':'')+'</b>'+'</div><div class="pb"><i style="width:'+Math.round(nd/cs2.length*100)+'%"></i></div>'+whoLine(cs2)+(admin&&reg.length>1?'<div class="mu" style="font-size:12px;margin:0 0 8px;text-align:center">Press and hold a customer, then drag to reorder</div>':'')}
+  if(cs2.length){ET=etaPlan(cs2);var ech=etaChain(cs2);fetchDrives((ech.last?[ech.last]:[]).concat(ech.pending));var nd=cs2.filter(function(p){return done(p,selDate)}).length,nk=cs2.filter(function(p){return skipped(p,selDate)}).length;o+='<div class="row" style="justify-content:space-between"><b>'+nd+' of '+cs2.length+' completed'+(nk?' · '+nk+' skipped':'')+'</b>'+'</div><div class="pb"><i style="width:'+Math.round(nd/cs2.length*100)+'%"></i></div>'+whoLine(cs2)+(admin&&reg.length>1?'<div class="mu" style="font-size:12px;margin:0 0 8px;text-align:center">Press and hold a customer, then drag to reorder</div>':'')}
   if(cs2.length&&cs2.every(function(p){return done(p,selDate)}))o+='<div class="card t-ok" style="text-align:center"><b>✓ Day completed</b></div>';
   reg.forEach(function(p,i){o+=row(p,i,reg.length)});
   inc.forEach(function(x){o+=row(x.p,null,0,"Moved from "+DN[pd(x.from).getDay()],x.from)});
