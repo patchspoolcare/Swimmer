@@ -454,7 +454,7 @@ function render(){if(view==="pool"&&pid&&selDate)drLoad();
   h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="'+(DROPO||"icons/drop.png")+'" alt="">'+wmHtml()+'</button></h1>'+'<button data-a="addc">+ Add</button>';
   o+=tabs("cust");
   if(addingC){o+='<div class="card">';[["name","Name"],["phone","Phone"],["email","Email"],["addr","Address"]].forEach(function(x){o+='<div style="margin-bottom:8px"><label>'+x[1]+'</label><input data-nc="'+x[0]+'" value="'+esc(nc[x[0]]||"")+'"></div>'});
-   o+='<div style="margin-bottom:8px"><label>Notes (gate code, pets…)</label><textarea data-nc="notes" rows="2">'+esc(nc.notes||"")+'</textarea></div><div class="mu" style="margin-bottom:6px">Water features</div><div class="wf">'+B.map(function(b){var on=(nc.bodies||["pool"]).indexOf(b[0])>-1;return '<button class="wfb'+(on?' on':'')+'" data-a="ncb" data-b="'+b[0]+'"><span>'+b[2]+'</span><span class="n">'+b[1]+'</span><span class="c">'+(on?'✓':'+')+'</span></button>'}).join("")+'</div><div class="row"><span class="mu">Route day</span><button class="tg" data-a="ncday">'+(newDay==null?"Not set":DN[newDay])+' ›</button></div><div class="row" style="margin-top:12px"><button data-a="savec">Save customer</button><button class="g" data-a="cancelc">Cancel</button></div></div>'}
+   o+='<div style="margin-bottom:8px"><label>Notes (gate code, pets…)</label><textarea data-nc="notes" rows="2">'+esc(nc.notes||"")+'</textarea></div><div class="mu" style="margin-bottom:6px">Water features</div><div class="wf">'+B.map(function(b){var on=(nc.bodies||["pool"]).indexOf(b[0])>-1;return '<button class="wfb'+(on?' on':'')+'" data-a="ncb" data-b="'+b[0]+'"><span>'+b[2]+'</span><span class="n">'+b[1]+'</span><span class="c">'+(on?'✓':'+')+'</span></button>'}).join("")+'</div><div class="row"><span class="mu">Route day</span><button class="tg" data-a="ncday">'+(newDay==null?"Unassigned":DN[newDay])+' ›</button></div><div class="row" style="margin-top:12px"><button data-a="savec">Save customer</button><button class="g" data-a="cancelc">Cancel</button></div></div>'}
   o+='<input id="q" placeholder="Search clients" value="'+esc(query)+'"><div id="cl" style="margin-top:10px">'+clist(query)+'</div>';
  }else if(view==="prof"){
   var p=S.pools.find(function(x){return x.id===pid}),bs=p.bodies||["pool"],fs=fsum(p);
@@ -462,7 +462,7 @@ function render(){if(view==="pool"&&pid&&selDate)drLoad();
   var fld=function(k,l,t){return '<div style="margin-bottom:8px"><label>'+l+'</label><input data-pf="'+k+'" type="'+(t||"text")+'" value="'+esc(p[k]||"")+'"></div>'};
   o+='<div class="card">'+fld("name","Name")+fld("phone","Phone","tel")+fld("email","Email","email")+fld("addr","Address")+'<label>Notes (gate code, pets…)</label><textarea data-pf="notes" rows="2">'+esc(p.notes||"")+'</textarea>';
   var ln='';if(p.phone)ln+='<a class="lk" href="tel:'+esc(p.phone)+'">Call</a><a class="lk" href="sms:'+esc(p.phone)+'">Text</a>';if(p.email)ln+='<a class="lk" href="mailto:'+esc(p.email)+'">Email</a>';ln+='<a id="ml" class="lk" target="_blank" rel="noopener" style="'+(p.addr?'':'display:none')+'" href="'+mapUrl(p.addr)+'">Directions</a>';
-  o+='<label style="margin-top:8px">Route day</label><button class="pk rdaybtn" data-a="rday"><span>'+(p.day==null?"Not set":DN[p.day])+'</span><span class="mu">›</span></button>';
+  o+='<label style="margin-top:8px">Route day</label><button class="pk rdaybtn" data-a="rday"><span>'+(p.day==null?"Unassigned":DN[p.day])+'</span><span class="mu">›</span></button>';
   o+='<div style="margin-top:10px">'+ln+'</div></div>';
   var fo=fown(p),fseg=function(u,k){return '<div class="seg"><button class="'+(u.ftype==="sand"||u.ftype==="de"?"":"on")+'" data-a="ftype" data-k="'+k+'" data-t="cart">Cartridge</button><button class="'+(u.ftype==="de"?"on":"")+'" data-a="ftype" data-k="'+k+'" data-t="de">DE</button><button class="'+(u.ftype==="sand"?"on":"")+'" data-a="ftype" data-k="'+k+'" data-t="sand">Sand</button></div>'};
   var fus=funits(p),selfAll=fus.every(function(x){return x.u.self});
@@ -513,7 +513,7 @@ function render(){if(view==="pool"&&pid&&selDate)drLoad();
   if(!bs.length)o+='<div class="card mu">No water features set up for this customer yet.'+(admin?' Add one in this customer\'s <span class="lk" data-a="prof" data-id="'+p.id+'" style="margin:0;cursor:pointer">Profile</span>.':'')+'</div>';
   B.forEach(function(b){if(bs.indexOf(b[0])<0)return;var l=last(pid,b[0]),dn=onDate(pid,selDate,b[0]).length>0,sb=onDate(pid,selDate,b[0]).every(function(r){return r.skip});if(dn&&!ed[b[0]])return;
    o+='<details data-b="'+b[0]+'"'+(open[b[0]]?' open':'')+'><summary><span>'+b[2]+' '+b[1]+(dn?(sb?' <span class="t-lo" style="font-size:13px">Skipped</span>':' <span class="t-ok" style="font-size:13px">✓ Completed</span>'):(l?' <span class="mu" style="font-weight:400;font-size:13px">· '+fmt(l.t)+'</span>':''))+'</span><span class="dot '+(l?"bg-"+worst(l):"")+'" style="margin-left:auto;margin-right:10px"></span></summary><div class="bd">'+(selDate>T?'<div class="mu">New readings can be added on the day of service.</div>':ed[b[0]]?(function(){var er=S.readings.find(function(r){return r.id===ed[b[0]].id});return '<div class="edt"><b>Editing '+(er?fmt(er.t):'')+'</b><div style="margin-top:10px">'+form(b[0])+'</div></div>'})():dn?'':form(b[0]))+'</div></details>'});
-  if(admin){o+='<div class="row" style="margin:14px 0 10px"><span class="mu">Route day</span><button class="tg" data-a="rday">'+(p.day==null?"Not set":DN[p.day])+' ›</button></div>';
+  if(admin){o+='<div class="row" style="margin:14px 0 10px"><span class="mu">Route day</span><button class="tg" data-a="rday">'+(p.day==null?"Unassigned":DN[p.day])+' ›</button></div>';
   o+='<div class="mu" style="margin:14px 0">Need another water feature here? Add it in this customer\'s <span class="lk" data-a="prof" data-id="'+p.id+'" style="margin:0;cursor:pointer">Profile</span>.</div>'}
   
  }
@@ -600,7 +600,7 @@ document.addEventListener("click",function(e){
  else if(a==="addc"){addingC=true;nc={};newDay=null;render()}
  else if(a==="cancelc"){addingC=false;render()}
  else if(a==="ncb"){var nb=nc.bodies||["pool"],ix=nb.indexOf(b);if(ix>-1)nb.splice(ix,1);else nb.push(b);nc.bodies=nb;render()}
- else if(a==="ncday")wheelN("Route day",[{items:DN.map(function(n,i){return[n,i]}),sel:newDay==null?1:newDay}],function(v){newDay=v[0];render()});
+ else if(a==="ncday")wheelN("Route day",[{items:[["Unassigned",-1]].concat(DN.map(function(n,i){return[n,i]})),sel:newDay==null?0:newDay+1}],function(v){newDay=v[0]===-1?null:v[0];render()});
  else if(a==="savec"){if(!(nc.name||"").trim()){toast("Enter a name");return}var np={id:"p"+Date.now(),name:nc.name.trim(),phone:nc.phone||"",email:nc.email||"",addr:nc.addr||"",notes:nc.notes||"",bodies:(nc.bodies||["pool"]).slice()};if(newDay!=null)np.day=newDay;S.pools.push(np);save();addingC=false;nc={};newDay=null;render();toast("Customer added")}
  else if(a==="mv")moveFlow(S.pools.find(function(x){return x.id===id}),el.dataset.d);
  else if(a==="undo"){var up=S.pools.find(function(x){return x.id===id});if(up&&up.once){delete up.once[el.dataset.d];save();render();toast("Move undone")}}
@@ -620,7 +620,7 @@ document.addEventListener("click",function(e){
  else if(a==="fselfall"){var pp3=S.pools.find(function(x){return x.id===pid}),us3=funits(pp3),on3=!us3.every(function(x){return x.u.self});us3.forEach(function(x){if(on3)x.u.self=true;else delete x.u.self});save();render()}
  else if(a==="fself"){var sp2=fu(S.pools.find(function(x){return x.id===pid}),el.dataset.k||"");if(sp2.self)delete sp2.self;else sp2.self=true;save();render()}
  else if(a==="ftype"){var tp=fu(S.pools.find(function(x){return x.id===pid}),el.dataset.k||"");tp.ftype=el.dataset.t;save();render()}
- else if(a==="rday"){var rp=S.pools.find(function(x){return x.id===pid});wheelN("Route day",[{items:DN.map(function(n,i){return[n,i]}),sel:rp.day==null?(selDate?pd(selDate).getDay():new Date().getDay()):rp.day}],function(v){rp.day=v[0];delete rp.ord;save();render()})}
+ else if(a==="rday"){var rp=S.pools.find(function(x){return x.id===pid});wheelN("Route day",[{items:[["Unassigned",-1]].concat(DN.map(function(n,i){return[n,i]})),sel:rp.day==null?0:rp.day+1}],function(v){if(v[0]===-1){if(rp.day!=null){delete rp.day;delete rp.ord;delete rp.once;toast(rp.name+" is now unassigned")}}else{rp.day=v[0];delete rp.ord}save();render()})}
  else if(a==="cancel"){adding=false;render()}
  else if(a==="savepool"){var n=document.getElementById("pn").value.trim();if(!n)return;S.pools.push({id:"p"+Date.now(),name:n,addr:document.getElementById("pa").value.trim(),bodies:["pool"],day:pd(selDate).getDay()});save();adding=false;render()}
  else if(a==="open"){if(view==="map")selDate=mapDate||today();go("pool",{pid:id})}
@@ -927,7 +927,7 @@ function pget(k){return lget(k).then(function(v){if(v||!dbOK)return v;return phc
 function pdel(k){phq=phq.filter(function(x){return x!==k});phsave();db().then(function(d){d.transaction("p","readwrite").objectStore("p").delete(k)}).catch(function(){});if(dbOK)job(function(){return phc.doc(k).delete()})}
 document.getElementById("fi").addEventListener("change",function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);var q=.6,u=c.toDataURL("image/jpeg",q);while(u.length>230000&&q>.3){q-=.1;u=c.toDataURL("image/jpeg",q)}D(photoB).photo=u;e.target.value="";render()};im.src=rd.result};rd.readAsDataURL(f)});
 
-var BUILD="20261019153350";
+var BUILD="20261019221316";
 function checkUpdate(){if(location.protocol!=="https:")return;fetch("index.html?u="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var BUILD="(\d+)"/);if(m&&m[1]!==BUILD){var go2=function(){var ae=document.activeElement;if(pend()===0&&!(ae&&/INPUT|TEXTAREA/.test(ae.tagName))&&!document.querySelector(".ws"))location.reload();else setTimeout(go2,4000)};go2()}}).catch(function(){})}
 document.addEventListener("visibilitychange",function(){if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,3000);
 pruneAll();navSave();initCloud();setSv();
