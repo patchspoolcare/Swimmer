@@ -12,7 +12,10 @@ Route and water-chemistry log for Patch's Pool Care. It's a web app hosted on Gi
 ## Who can do what
 - The first person to sign in and tap **Make me the owner** becomes the owner (admin).
 - Anyone else who creates an account waits on a "Waiting for approval" screen. The owner approves them under **Crew**.
-- Employees see the route and can log visits. Admins also see Customers, Filters, Crew and backups.
+- **Employee**: route, map, logging visits, and the client list (view only).
+- **Employee + Filters**: the same, plus the Filters tab and filter buttons on each visit.
+- **Admin**: everything, including Crew and backups, but can't change the owner or other admins.
+- **Owner**: everything, and the only one who can make or change admins.
 
 ## Moving data from the old Pool Log
 1. In the old Pool Log: Route → **Back up data**, and save the file.

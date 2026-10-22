@@ -13,10 +13,15 @@ service cloud.firestore {
       allow read: if signedIn();
       allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
     }
-    // Approved crew. Only admins add, change or remove people.
+    function ownerUid() { return get(ownerDoc()).data.uid; }
+    function crewRole(r) { return r in ['employee', 'filters']; }
+    // Approved crew. The owner manages everyone. Admins can add, change or remove
+    // employees, but can't touch the owner or other admins, or make anyone an admin.
     match /team/{uid} {
       allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
-      allow write: if isAdmin();
+      allow create: if isOwner() || (isAdmin() && uid != ownerUid() && crewRole(request.resource.data.role));
+      allow update: if isOwner() || (isAdmin() && uid != ownerUid() && resource.data.role != 'admin' && crewRole(request.resource.data.role));
+      allow delete: if isOwner() || (isAdmin() && uid != ownerUid() && resource.data.role != 'admin');
     }
     // New accounts ask to join here.
     match /requests/{uid} {
