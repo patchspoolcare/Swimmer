@@ -20,3 +20,6 @@ Route and water-chemistry log for Patch's Pool Care. It's a web app hosted on Gi
 ## Moving data from the old Pool Log
 1. In the old Pool Log: Route → **Back up data**, and save the file.
 2. In Swimmer, signed in as the owner: Route → **Restore backup**, and pick that file.
+
+## More than one business
+Each extra business gets its own folder (listed in `copies.txt`) with its own `config.js` pointing at that business's Firebase project, and its own web address: `https://patchspoolcare.github.io/Swimmer/<folder>/`. Run `./sync-copies.sh` after every change so all businesses stay on the same version.
