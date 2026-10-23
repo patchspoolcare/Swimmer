@@ -220,6 +220,13 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;border-radiu
 .rdb small{font-size:12px;color:var(--mu);font-weight:600}
 .rdb b{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .rdb i{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-style:normal;color:var(--mu);font-size:20px}
+
+/* low-profile route day / tech */
+.rdt{gap:6px;margin:12px 0 8px}
+.rdb{flex-direction:row;align-items:center;gap:6px;min-height:36px;padding:6px 26px 6px 10px;border:1px solid var(--bd);border-radius:10px;background:transparent;font-size:13px}
+.rdb small{font-size:12px;font-weight:500;flex:none}
+.rdb b{font-size:13px;font-weight:600;min-width:0}
+.rdb i{right:10px;font-size:16px}
 </style></head><body>
 <input type="file" id="rf" accept=".json,application/json" style="display:none"><input type="file" id="fi" accept="image/*" style="display:none"><input type="file" id="pfi" accept="image/*" multiple style="display:none"><header id="hd"></header><main id="app"></main><div id="sv" class="sv"></div><nav id="nav" class="bnav"></nav>
 <script>
@@ -663,7 +670,7 @@ if(!cs2.length&&!adding)o+='<div class="card mu">'+(!canAdmin?'No stops assigned
   if(!bs.length)o+='<div class="card mu">No water features set up for this customer yet.'+(admin?' Add one in this customer\'s <span class="lk" data-a="prof" data-id="'+p.id+'" style="margin:0;cursor:pointer">Profile</span>.':'')+'</div>';
   B.forEach(function(b){if(bs.indexOf(b[0])<0)return;var l=last(pid,b[0]),dn=onDate(pid,selDate,b[0]).length>0,sb=onDate(pid,selDate,b[0]).every(function(r){return r.skip});if(dn&&!ed[b[0]])return;
    o+='<details data-b="'+b[0]+'"'+(open[b[0]]?' open':'')+'><summary><span>'+b[2]+' '+b[1]+(dn?(sb?' <span class="t-lo" style="font-size:13px">Skipped</span>':' <span class="t-ok" style="font-size:13px">✓ Completed</span>'):(l?' <span class="mu" style="font-weight:400;font-size:13px">· '+fmt(l.t)+'</span>':''))+'</span><span class="dot '+(l?"bg-"+worst(l):"")+'" style="margin-left:auto;margin-right:10px"></span></summary><div class="bd">'+(selDate>T?'<div class="mu">New readings can be added on the day of service.</div>':ed[b[0]]?(function(){var er=S.readings.find(function(r){return r.id===ed[b[0]].id});return '<div class="edt"><b>Editing '+(er?fmt(er.t):'')+'</b><div style="margin-top:10px">'+form(b[0])+'</div></div>'})():dn?'':form(b[0]))+'</div></details>'});
-  if(admin){o+='<div class="rdt"><button class="rdb" data-a="rday"><small>Route day</small><b>'+(p.day==null?"Unassigned":DN[p.day])+'</b><i>›</i></button><button class="rdb" data-a="tech"><small>Assigned tech</small><b>'+(techName(p.tech)?esc(techName(p.tech)):'Unassigned')+'</b><i>›</i></button></div>'}
+  if(admin){o+='<div class="rdt"><button class="rdb" data-a="rday"><small>Day</small><b>'+(p.day==null?"Unassigned":DN[p.day])+'</b><i>›</i></button><button class="rdb" data-a="tech"><small>Tech</small><b>'+(techName(p.tech)?esc(techName(p.tech)):'Unassigned')+'</b><i>›</i></button></div>'}
   
  }
  if(canAdmin&&!admin)o='<button class="empbar" data-a="mode"><span>You\'re seeing the <b>'+(ftE?'Employee + Filters':'Employee')+' view</b></span><u>Back to Admin</u></button>'+o;
@@ -1116,7 +1123,7 @@ function pget(k){return lget(k).then(function(v){if(v||!dbOK)return v;return phc
 function pdel(k){phq=phq.filter(function(x){return x!==k});phsave();db().then(function(d){d.transaction("p","readwrite").objectStore("p").delete(k)}).catch(function(){});if(dbOK)job(function(){return phc.doc(k).delete()})}
 document.getElementById("fi").addEventListener("change",function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);var q=.6,u=c.toDataURL("image/jpeg",q);while(u.length>230000&&q>.3){q-=.1;u=c.toDataURL("image/jpeg",q)}D(photoB).photo=u;e.target.value="";render()};im.src=rd.result};rd.readAsDataURL(f)});
 
-var BUILD="20261023144910";
+var BUILD="20261023150824";
 function checkUpdate(){if(location.protocol!=="https:")return;fetch("index.html?u="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var BUILD="(\d+)"/);if(m&&m[1]!==BUILD){var go2=function(){var ae=document.activeElement;if(pend()===0&&!(ae&&/INPUT|TEXTAREA/.test(ae.tagName))&&!document.querySelector(".ws"))location.reload();else setTimeout(go2,4000)};go2()}}).catch(function(){})}
 document.addEventListener("visibilitychange",function(){if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,3000);
 pruneAll();navSave();initCloud();setSv();
