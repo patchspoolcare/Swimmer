@@ -185,6 +185,15 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;border-radiu
 .cp .cnote.open .ct{white-space:pre-wrap;overflow:visible}
 
 .pk.pfv{color:var(--mu);font-style:italic;border-style:dashed}
+
+/* skipped stops */
+.card.cp.sk{background:color-mix(in srgb,var(--lo) 7%,var(--card));border-color:color-mix(in srgb,var(--lo) 50%,var(--bd));box-shadow:inset 4px 0 0 var(--lo)}
+.card.cp.sk .num{background:color-mix(in srgb,var(--lo) 18%,var(--card));color:var(--lo)}
+.card.cp.sk .cn b{color:var(--mu);font-weight:600}
+.cp .skt{display:inline-block;padding:0 7px;border-radius:99px;background:var(--lo);color:#fff;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;line-height:18px;vertical-align:1px}
+.card.cp.sk .ci{color:var(--tx)}
+.cp .unskb{color:var(--mu)!important;border-color:var(--bd)!important;font-weight:500}
+.card.cp{min-height:72px}
 </style></head><body>
 <input type="file" id="rf" accept=".json,application/json" style="display:none"><input type="file" id="fi" accept="image/*" style="display:none"><input type="file" id="pfi" accept="image/*" multiple style="display:none"><header id="hd"></header><main id="app"></main><div id="sv" class="sv"></div><nav id="nav" class="bnav"></nav>
 <script>
@@ -523,8 +532,11 @@ function render(){if(view==="pool"&&pid&&selDate)drLoad();
    dirb=p.addr&&!ro?'<a class="lk dirb" data-a="dir" target="_blank" rel="noopener" aria-label="Directions" href="'+mapUrl(p.addr)+'"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg></a>':'',
    skb=!dn&&selDate<=T?'<button class="tg skb" data-a="rskip" data-id="'+p.id+'">Skip</button>':sk?'<button class="tg unskb" data-a="runskip" data-id="'+p.id+'">Unskip</button>':'',
    mvb=admin?'<button class="tg mr3" data-a="rmenu" data-id="'+p.id+'"'+(tag?' data-d="'+from+'"':'')+' aria-label="More options">⋯</button>':'',
-   right='<div class="row">'+dirb+(admin?'':skb)+mvb+dot+'</div>',gl=gateLine(p),cov=p.cover&&p.cover[selDate]&&techName(p.cover[selDate]);
-   return '<div class="card pool cp'+(dn?(sk?' sk':' dn'):'')+(p.id===NX?' nx':'')+'"'+(' data-a="open" data-id="'+p.id+'"'+(n!=null&&admin?' data-rid="'+p.id+'"':''))+'><div class="num'+(n==null&&!dn?' n0':'')+'">'+(dn&&!sk?'✓':(n!=null?n+1:(sk?'–':'•')))+'</div><div class="cm"><div class="cn"><b>'+esc(p.name)+'</b>'+(p.id===NX?'<span class="nxb">NEXT</span>':'')+'</div><div class="mu ci">'+[(ET[p.id]?'<span class="eta'+(ET[p.id].done?' ed':'')+'">'+(ET[p.id].done?'':'~')+hm(ET[p.id].t)+'</span>':''),(tag?'↪ '+tag.replace("Moved from ","From "):''),(stx&&stx!=="Not logged"?stx:''),(admin&&techName(effTech(p,selDate))?esc(techName(effTech(p,selDate)))+(cov?' (covering)':''):''),esc(p.addr||"")].filter(Boolean).join(' · ')+'</div></div>'+right+noteHtml(p)+'</div>'};
+   right='<div class="row">'+(sk?'':dirb)+(admin?'':skb)+mvb+(sk?'':dot)+'</div>',gl=gateLine(p),cov=p.cover&&p.cover[selDate]&&techName(p.cover[selDate]);
+   return '<div class="card pool cp'+(dn?(sk?' sk':' dn'):'')+(p.id===NX?' nx':'')+'"'+(' data-a="open" data-id="'+p.id+'"'+(n!=null&&admin?' data-rid="'+p.id+'"':''))+'><div class="num'+(n==null&&!dn?' n0':'')+'">'+(sk?'<svg viewBox="0 0 24 24" width="20" height="20" aria-label="Skipped"><path fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" d="M5 6l7 6-7 6M13 6l7 6-7 6"/></svg>':dn?'✓':(n!=null?n+1:'•'))+'</div><div class="cm"><div class="cn"><b>'+esc(p.name)+'</b>'+(p.id===NX?'<span class="nxb">NEXT</span>':'')+'</div><div class="mu ci">'+(function(){var tp=admin&&techName(effTech(p,selDate))?esc(techName(effTech(p,selDate)))+(cov?' (covering)':''):'';
+ if(dn&&!sk){var by9=rs[0]&&rs[0].by;return '<b class="t-ok">✓ Done</b>'+(ET[p.id]?' · '+hm(ET[p.id].t):'')+(admin&&by9&&by9!==uid?' · '+esc(whoName(by9)):'')}
+ if(sk)return '<span class="skt">Skipped</span>'+[(rs[0]&&rs[0].reason?esc(rs[0].reason):''),tp].filter(Boolean).map(function(x){return ' · '+x}).join('');
+ return [(ET[p.id]?'<span class="eta'+(ET[p.id].done?' ed':'')+'">'+(ET[p.id].done?'':'~')+hm(ET[p.id].t)+'</span>':''),(tag?'↪ '+tag.replace("Moved from ","From "):''),(stx&&stx!=="Not logged"?stx:''),(dn?'':tp),(dn?'':esc(p.addr||""))].filter(Boolean).join(' · ')})()+'</div></div>'+right+'</div>'};
   var reg=regFor(selDate),inc=incFor(selDate),cs2=reg.concat(inc.map(function(x){return x.p}));
   if(admin&&reg.length&&Object.keys(team).length)o+='<div class="row" style="justify-content:flex-end;margin-bottom:8px;gap:8px">'+(selDate>=T?'<button class="tg" data-a="covday">Cover…</button>':'')+'<button class="tg" data-a="dayt">Assign whole day…</button></div>';
   if(admin){var cvp={};routeFor(selDate).concat(reg).forEach(function(p){var c=p.cover&&p.cover[selDate];if(!c)return;var k2=(p.tech||"")+">"+c;cvp[k2]=cvp[k2]||{fr:p.tech,to:c,n:{}};cvp[k2].n[p.id]=1});
@@ -1059,7 +1071,7 @@ function pget(k){return lget(k).then(function(v){if(v||!dbOK)return v;return phc
 function pdel(k){phq=phq.filter(function(x){return x!==k});phsave();db().then(function(d){d.transaction("p","readwrite").objectStore("p").delete(k)}).catch(function(){});if(dbOK)job(function(){return phc.doc(k).delete()})}
 document.getElementById("fi").addEventListener("change",function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);var q=.6,u=c.toDataURL("image/jpeg",q);while(u.length>230000&&q>.3){q-=.1;u=c.toDataURL("image/jpeg",q)}D(photoB).photo=u;e.target.value="";render()};im.src=rd.result};rd.readAsDataURL(f)});
 
-var BUILD="20261023083729";
+var BUILD="20261023100053";
 function checkUpdate(){if(location.protocol!=="https:")return;fetch("index.html?u="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var BUILD="(\d+)"/);if(m&&m[1]!==BUILD){var go2=function(){var ae=document.activeElement;if(pend()===0&&!(ae&&/INPUT|TEXTAREA/.test(ae.tagName))&&!document.querySelector(".ws"))location.reload();else setTimeout(go2,4000)};go2()}}).catch(function(){})}
 document.addEventListener("visibilitychange",function(){if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,3000);
 pruneAll();navSave();initCloud();setSv();
