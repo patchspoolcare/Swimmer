@@ -202,6 +202,24 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;border-radiu
 .bk .car{font-size:11px;margin-left:2px;vertical-align:1px}
 
 .subhd.sym{grid-template-columns:88px minmax(0,1fr) 88px;gap:6px}.subhd.sym h2{font-size:17px}.subhd.sym>div{width:88px}.subhd.sym>div>.bk{width:88px;font-size:15px;display:inline-flex;align-items:center;justify-content:center;padding:8px 6px}
+
+/* slim filter status on the visit screen */
+.fstrips{display:flex;flex-direction:column;gap:6px;margin:0 0 10px}
+.fstrip{display:flex;align-items:center;gap:8px;width:100%;min-height:40px;padding:8px 12px;border-radius:12px;background:var(--card);border:1px solid var(--bd);color:var(--tx);font-weight:500;font-size:14px;text-align:left}
+.fstrip .fsd{flex:none;width:9px;height:9px;border-radius:50%;background:var(--ok)}
+.fstrip .fsl{flex:none;font-weight:700}
+.fstrip .fst{flex:1;min-width:0;color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fstrip .fsc{flex:none;color:var(--mu);font-size:18px;line-height:1}
+.fstrip.fs-n .fsd{background:var(--mu)}
+.fstrip.fs-self .fsd{background:transparent;border:1.5px dashed var(--mu)}
+.fstrip.fs-hi{background:color-mix(in srgb,var(--hi) 10%,var(--card));border-color:color-mix(in srgb,var(--hi) 55%,var(--bd))}
+.fstrip.fs-hi .fsd{background:var(--hi)}.fstrip.fs-hi .fst{color:var(--hi);font-weight:700}
+/* route day + tech tiles */
+.rdt{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0 10px}
+.rdb{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:58px;padding:9px 28px 9px 12px;background:var(--card);color:var(--tx);border:1.5px solid var(--bd);text-align:left;font-weight:500}
+.rdb small{font-size:12px;color:var(--mu);font-weight:600}
+.rdb b{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.rdb i{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-style:normal;color:var(--mu);font-size:20px}
 </style></head><body>
 <input type="file" id="rf" accept=".json,application/json" style="display:none"><input type="file" id="fi" accept="image/*" style="display:none"><input type="file" id="pfi" accept="image/*" multiple style="display:none"><header id="hd"></header><main id="app"></main><div id="sv" class="sv"></div><nav id="nav" class="bnav"></nav>
 <script>
@@ -295,6 +313,11 @@ function bstate(p){if(!p.backwash)return["Enter backwash date","n"];var n=Math.r
 function fstate(p){if(p.self)return["Client cleans their filter","self"];if(p.ftype==="de"){var c=cstate(p),w=bstate(p),rk={hi:3,n:2,ok:0};return rk[w[1]]>rk[c[1]]?w:c}if(p.ftype==="sand"){if(!p.backwash)return["Enter backwash date","n"];var n=Math.round((pd(today())-pd(p.backwash))/864e5);return["Backwashed "+(n<=0?"today":n===1?"yesterday":n+" days ago"),"b"]}
  if(!p.filter)return["Enter date","n"];return new Date()>due(p)?["Filter cleaning due","hi"]:["Filter's up-to-date","ok"]}
 function fself(p,k){return '<button class="selfsw'+(p.self?' on':'')+'" data-a="fself" data-k="'+(k||"")+'" role="switch" aria-checked="'+(p.self?'true':'false')+'"><span class="sw"><i></i></span><span>Client cleans their own filter</span></button>'}
+function fline(u){var t=u.ftype==="de"?"DE":u.ftype==="sand"?"Sand":"Cartridge";if(u.self)return{l:"self",t:"Client cleans it"};
+ var c=null,w=null;if(u.ftype!=="sand"){c=!u.filter?{l:"n",t:"No cleaning date"}:new Date()>due(u)?{l:"hi",t:"Cleaning overdue"}:{l:"ok",t:"Due "+fd(due(u))}}
+ if(u.ftype==="sand"||u.ftype==="de"){var n=u.backwash?Math.round((pd(today())-pd(u.backwash))/864e5):null;w=!u.backwash?{l:"n",t:"No backwash date"}:(u.ftype==="de"&&pd(today())>bwdue(u))?{l:"hi",t:"Backwash overdue"}:{l:"ok",t:"Backwashed "+(n<=0?"today":n===1?"yesterday":n+"d ago")}}
+ var ps=[c,w].filter(Boolean),rk={hi:2,n:1,ok:0},lv=ps.reduce(function(m,x){return rk[x.l]>rk[m]?x.l:m},"ok");return{l:lv,t:ps.map(function(x){return x.t}).join(" · "),ty:t}}
+function fstrip(u,k,lab){var f=fline(u);return '<button class="fstrip fs-'+f.l+'" data-a="fsheet" data-k="'+(k||"")+'"><span class="fsd"></span><span class="fsl">'+esc(lab)+'</span><span class="fst">'+esc(f.t)+'</span><span class="fsc">›</span></button>'}
 function fbtn(p,k,lab){if(p.self)return (lab?'<div class="mu" style="margin:2px 0 4px;font-weight:600">'+lab+'</div>':'')+'<div class="fl fl-self"><b>Client cleans their filter</b><span>No cleaning or backwash reminders for this filter</span></div>';if(p.ftype==="de"){var c=cstate(p),w=bstate(p);return (lab?'<div class="mu" style="margin:2px 0 4px;font-weight:600">'+lab+'</div>':'')+'<button class="fl fl-'+c[1]+'" data-a="filter" data-f="filter" data-k="'+(k||"")+'"><b>'+c[0]+'</b><span>'+(p.filter?"Cleaned "+fd(pd(p.filter))+" · due "+fd(due(p)):"Tap to set last cleaning date")+'</span></button><button class="fl fl-'+(w[1]==="ok"?"b":w[1])+'" data-a="filter" data-f="backwash" data-k="'+(k||"")+'"><b>'+w[0]+'</b><span>'+(p.backwash?fd(pd(p.backwash))+" · late after "+fd(bwdue(p)):"Tap to set last backwash date")+'</span></button><button class="tg" data-a="bwtoday" data-k="'+(k||"")+'" style="margin:-2px 0 10px">Backwashed today</button>'}var fs=fstate(p),sand=p.ftype==="sand",sub=sand?(p.backwash?fd(pd(p.backwash))+" · tap to change":"Tap to set last backwash date"):(p.filter?"Cleaned "+fd(pd(p.filter))+" · due "+fd(due(p)):"Tap to set last cleaning date");
  return (lab?'<div class="mu" style="margin:2px 0 4px;font-weight:600">'+lab+'</div>':'')+'<button class="fl fl-'+fs[1]+'" data-a="filter" data-k="'+(k||"")+'"><b>'+fs[0]+'</b><span>'+sub+'</span></button>'+(sand?'<button class="tg" data-a="bwtoday" data-k="'+(k||"")+'" style="margin:-2px 0 10px">Backwashed today</button>':'')}
 function bname(k){var x=B.find(function(b){return b[0]===k});return x?x[2]+" "+x[1]:k}
@@ -632,16 +655,15 @@ if(!cs2.length&&!adding)o+='<div class="card mu">'+(!canAdmin?'No stops assigned
   h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="'+(DROPO||"icons/drop.png")+'" alt="">'+wmHtml()+'</button></h1>'+(admin?'<button class="tg" data-a="prof" data-id="'+p.id+'">Profile</button>':'');o+='<div class="subhd"><button class="bk" data-a="day" data-d="'+selDate+'">‹ Back</button><h2>'+esc(p.name)+'</h2></div>';
   var vn=p.notes?'<div class="nt">📝 '+esc(p.notes)+'</div>':'',vl='';if(p.phone)vl+='<a class="lk" href="tel:'+esc(p.phone)+'">Call</a><a class="lk" href="sms:'+esc(p.phone)+'">Text</a>';if(p.addr)vl+='<a class="lk" target="_blank" rel="noopener" href="'+mapUrl(p.addr)+'">Directions</a>';
   var fus=funits(p),cells=[];if(vn)cells.push(vn);
-  if(admin||ftE){if(fus.length>1)fus.forEach(function(x){cells.push('<div>'+fbtn(x.u,x.k,bname(x.b)+' filter')+'</div>')});else cells.push('<div>'+fbtn(p,"")+'</div>')}
+  if(admin||ftE)o+='<div class="fstrips">'+fus.map(function(x){return fstrip(x.u,x.k,fus.length>1?bname(x.b).replace(/^\S+ /,"")+' filter':'Filter')}).join("")+'</div>';
   if(selDate===T&&done(p,T)){var nx2=nextStop(p,T);o+='<div class="card nxc"><div class="mu" style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em">'+(onDate(p.id,T).every(function(r){return r.skip})?'Stop skipped':'Visit complete')+'</div>'+(nx2?'<div style="margin:4px 0 2px"><span class="mu">Next stop</span></div><b style="font-size:18px">'+esc(nx2.name)+'</b>'+(nx2.addr?'<div class="mu">'+esc(nx2.addr)+'</div>':'')+(gateLine(nx2)?'<div class="cnote">'+esc(gateLine(nx2))+'</div>':'')+'<div class="row" style="margin-top:10px;gap:8px">'+(nx2.addr?'<a class="btn" target="_blank" rel="noopener" href="'+mapUrl(nx2.addr)+'" style="flex:1">Directions</a>':'')+'<button class="tg" data-a="open" data-id="'+nx2.id+'" style="flex:1">Open visit</button></div>':'<b style="font-size:17px;display:block;margin-top:4px">That was the last stop today</b><button class="tg" data-a="day" data-d="'+T+'" style="margin-top:10px;width:100%">Back to route</button>')+'</div>'}
-   if(cells.length)o+='<div class="topg">'+cells.join("")+'</div>';if(vl)o+='<div style="margin:0 0 10px">'+vl+'</div>';o+=rvCard(bs);
+   if(vn)o+=vn;if(vl)o+='<div style="margin:0 0 10px">'+vl+'</div>';o+=rvCard(bs);
   if(selDate===T&&!done(p,selDate))o+='<div class="card td" style="text-align:center;padding:10px"><span class="rbg">TODAY</span><b>'+DN[pd(selDate).getDay()]+', '+sd(pd(selDate))+'</b></div>';
   if(selDate<T&&!done(p,selDate))o+='<div class="card" style="text-align:center">📅 Logging for <b>'+DN[pd(selDate).getDay()]+' '+sd(pd(selDate))+'</b> (past day)</div>';
   if(!bs.length)o+='<div class="card mu">No water features set up for this customer yet.'+(admin?' Add one in this customer\'s <span class="lk" data-a="prof" data-id="'+p.id+'" style="margin:0;cursor:pointer">Profile</span>.':'')+'</div>';
   B.forEach(function(b){if(bs.indexOf(b[0])<0)return;var l=last(pid,b[0]),dn=onDate(pid,selDate,b[0]).length>0,sb=onDate(pid,selDate,b[0]).every(function(r){return r.skip});if(dn&&!ed[b[0]])return;
    o+='<details data-b="'+b[0]+'"'+(open[b[0]]?' open':'')+'><summary><span>'+b[2]+' '+b[1]+(dn?(sb?' <span class="t-lo" style="font-size:13px">Skipped</span>':' <span class="t-ok" style="font-size:13px">✓ Completed</span>'):(l?' <span class="mu" style="font-weight:400;font-size:13px">· '+fmt(l.t)+'</span>':''))+'</span><span class="dot '+(l?"bg-"+worst(l):"")+'" style="margin-left:auto;margin-right:10px"></span></summary><div class="bd">'+(selDate>T?'<div class="mu">New readings can be added on the day of service.</div>':ed[b[0]]?(function(){var er=S.readings.find(function(r){return r.id===ed[b[0]].id});return '<div class="edt"><b>Editing '+(er?fmt(er.t):'')+'</b><div style="margin-top:10px">'+form(b[0])+'</div></div>'})():dn?'':form(b[0]))+'</div></details>'});
-  if(admin){o+='<div class="row" style="margin:14px 0 10px"><span class="mu">Route day</span><button class="tg" data-a="rday">'+(p.day==null?"Unassigned":DN[p.day])+' ›</button></div><div class="row" style="margin:0 0 10px;justify-content:space-between"><span class="mu">Assigned tech</span><button class="tg" data-a="tech">'+(techName(p.tech)?esc(techName(p.tech)):'Unassigned')+' ›</button></div>';
-  o+='<div class="mu" style="margin:14px 0">Need another water feature here? Add it in this customer\'s <span class="lk" data-a="prof" data-id="'+p.id+'" style="margin:0;cursor:pointer">Profile</span>.</div>'}
+  if(admin){o+='<div class="rdt"><button class="rdb" data-a="rday"><small>Route day</small><b>'+(p.day==null?"Unassigned":DN[p.day])+'</b><i>›</i></button><button class="rdb" data-a="tech"><small>Assigned tech</small><b>'+(techName(p.tech)?esc(techName(p.tech)):'Unassigned')+'</b><i>›</i></button></div>'}
   
  }
  if(canAdmin&&!admin)o='<button class="empbar" data-a="mode"><span>You\'re seeing the <b>'+(ftE?'Employee + Filters':'Employee')+' view</b></span><u>Back to Admin</u></button>'+o;
@@ -680,7 +702,7 @@ document.addEventListener("input",function(e){var t=e.target,ds=t.dataset||{};if
 document.addEventListener("toggle",function(e){if(e.target.dataset&&e.target.dataset.b)open[e.target.dataset.b]=e.target.open},true);
 document.addEventListener("click",function(e){
  var el=e.target.closest("[data-a]");if(!el)return;if(window.__nc&&window.__nc())return;var a=el.dataset.a,id=el.dataset.id,b=el.dataset.b;
- if(!admin){var EA={plan:1,dir:1,day:1,days:1,wk:1,wk0:1,rm:1,mo:1,yr:1,ymo:1,open:1,photo:1,rmphoto:1,pick:1,more:1,saveread:1,skip:1,edit:1,saveedit:1,canceledit:1,del:1,repeat:1,qn:1,rb:1,showall:1,zoom:1,visit:1,home:1,rskip:1,runskip:1,map:1,mapd:1,mapdir:1,mode:1,auth:1,reset:1,authmode:1,claim:1,signout:1,fidon:1,fidoff:1,fidno:1,unlock:1,unlockpw:1,cust:1,einfo:1,eopen:1,prof:1,nmore:1,prclear:1,pfclear:1,hday:1,fexp:1,filters:1,fdone:1,filter:1,bwtoday:1};if(!EA[a])return;if(!ftE&&(a==="filters"||a==="fdone"||a==="filter"||a==="bwtoday"))return;if(a==="del"){var dr=S.readings.find(function(r){return r.id===id});if(!dr||!dr.skip)return}}
+ if(!admin){var EA={plan:1,dir:1,day:1,days:1,wk:1,wk0:1,rm:1,mo:1,yr:1,ymo:1,open:1,photo:1,rmphoto:1,pick:1,more:1,saveread:1,skip:1,edit:1,saveedit:1,canceledit:1,del:1,repeat:1,qn:1,rb:1,showall:1,zoom:1,visit:1,home:1,rskip:1,runskip:1,map:1,mapd:1,mapdir:1,mode:1,auth:1,reset:1,authmode:1,claim:1,signout:1,fidon:1,fidoff:1,fidno:1,unlock:1,unlockpw:1,cust:1,einfo:1,eopen:1,prof:1,nmore:1,fsheet:1,prclear:1,pfclear:1,hday:1,fexp:1,filters:1,fdone:1,filter:1,bwtoday:1};if(!EA[a])return;if(!ftE&&(a==="filters"||a==="fdone"||a==="filter"||a==="bwtoday"||a==="fsheet"))return;if(a==="del"){var dr=S.readings.find(function(r){return r.id===id});if(!dr||!dr.skip)return}}
  if(a==="dir"){}
  else if(a==="add")addFlow()
  else if(a==="mode"){if(!canAdmin)return;var toEmp=admin;if(toEmp){pickSheet("Preview as…","See the app exactly as that kind of employee does.",[["Employee","0","Route, map and view-only client profiles"],["Employee + Filters","1","Also the Filters tab and filter buttons"]],empF?"1":"0",function(v){empF=v==="1";try{localStorage.setItem("poolviewf",v);localStorage.setItem("poolview","emp")}catch(e){}empView=true;roleCalc();go("days");toast(empF?"Previewing Employee + Filters":"Previewing Employee view")});return}ask(toEmp?"Switch to Employee view? You'll see the app exactly as your crew does — no Customers, Filters or profile editing.":"Switch back to Admin view?",function(){empView=toEmp;admin=canAdmin&&!empView;try{localStorage.setItem("poolview",empView?"emp":"admin")}catch(e){}go("days");toast(empView?"Now in Employee view":"Back in Admin view")},toEmp?"Employee view":"Admin view")}
@@ -743,7 +765,13 @@ else if(a==="eopen"){selDate=today();go("pool",{pid:id,date:today()})}
  else if(a==="wk0"){mk=null;yk=null;go("days",{wk:0})}
  else if(a==="day")go("day",{date:el.dataset.d});
  else if(a==="showall"){showAll=!showAll;render()}
- else if(a==="filter"){var fp=fu(S.pools.find(function(x){return x.id===pid}),el.dataset.k||"");var ky=el.dataset.f||(fp.ftype==="sand"?"backwash":"filter"),sd2=ky==="backwash";dateWheel(sd2?"Last backwashed":"Filter last cleaned",fp[ky],function(k){fp[ky]=k;save();render()},fp[ky]?function(){fp[ky]="";save();render()}:null)}
+ else if(a==="fsheet"){var fk3=el.dataset.k||"",fp3=S.pools.find(function(x){return x.id===pid}),u3=fu(fp3,fk3);if(!u3)return;var ty=u3.ftype||"cart",lab3=(fk3?bname(fk3).replace(/^\S+ /,"")+" filter":funits(fp3).length>1?bname(fown(fp3)).replace(/^\S+ /,"")+" filter":"Filter")+" · "+(ty==="de"?"DE":ty==="sand"?"Sand":"Cartridge");
+ if(u3.self){pickSheet(lab3,"The client cleans this filter, so there are no reminders. Change it in the client's profile.",[],null,function(){});return}
+ var sub=[],it=[];if(ty!=="sand"){sub.push(u3.filter?"Cleaned "+fd(pd(u3.filter))+" · due "+fd(due(u3)):"No cleaning date yet");it.push(["Cleaned today","ct",""])}
+ if(ty!=="cart"){sub.push(u3.backwash?"Backwashed "+fd(pd(u3.backwash))+(ty==="de"?" · late after "+fd(bwdue(u3)):""):"No backwash date yet");it.push(["Backwashed today","bt",""])}
+ if(ty!=="sand")it.push(["Change cleaning date","cd","Pick the day it was last cleaned"]);if(ty!=="cart")it.push(["Change backwash date","bd","Pick the day it was last backwashed"]);
+ pickSheet(lab3,sub.join("  ·  "),it,null,function(v){if(v==="ct"){u3.filter=today();save();render();toast("Filter cleaning recorded for today")}else if(v==="bt"){u3.backwash=today();save();render();toast("Backwash recorded for today")}else fire("filter",{f:v==="cd"?"filter":"backwash",k:fk3})})}
+else if(a==="filter"){var fp=fu(S.pools.find(function(x){return x.id===pid}),el.dataset.k||"");var ky=el.dataset.f||(fp.ftype==="sand"?"backwash":"filter"),sd2=ky==="backwash";dateWheel(sd2?"Last backwashed":"Filter last cleaned",fp[ky],function(k){fp[ky]=k;save();render()},fp[ky]?function(){fp[ky]="";save();render()}:null)}
  else if(a==="bwtoday"){var bp=fu(S.pools.find(function(x){return x.id===pid}),el.dataset.k||"");bp.backwash=today();save();render();toast("Backwash recorded for today")}
  else if(a==="hday"){var hk=el.dataset.d;if(hopen[hk])delete hopen[hk];else hopen[hk]=1;render()}
  else if(a==="fexp"){var fk2=pid+":"+el.dataset.k;fopen=fopen===fk2?null:fk2;render()}
@@ -1088,7 +1116,7 @@ function pget(k){return lget(k).then(function(v){if(v||!dbOK)return v;return phc
 function pdel(k){phq=phq.filter(function(x){return x!==k});phsave();db().then(function(d){d.transaction("p","readwrite").objectStore("p").delete(k)}).catch(function(){});if(dbOK)job(function(){return phc.doc(k).delete()})}
 document.getElementById("fi").addEventListener("change",function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);var q=.6,u=c.toDataURL("image/jpeg",q);while(u.length>230000&&q>.3){q-=.1;u=c.toDataURL("image/jpeg",q)}D(photoB).photo=u;e.target.value="";render()};im.src=rd.result};rd.readAsDataURL(f)});
 
-var BUILD="20261023105530";
+var BUILD="20261023144910";
 function checkUpdate(){if(location.protocol!=="https:")return;fetch("index.html?u="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var BUILD="(\d+)"/);if(m&&m[1]!==BUILD){var go2=function(){var ae=document.activeElement;if(pend()===0&&!(ae&&/INPUT|TEXTAREA/.test(ae.tagName))&&!document.querySelector(".ws"))location.reload();else setTimeout(go2,4000)};go2()}}).catch(function(){})}
 document.addEventListener("visibilitychange",function(){if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,3000);
 pruneAll();navSave();initCloud();setSv();
