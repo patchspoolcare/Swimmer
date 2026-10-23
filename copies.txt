@@ -1,1 +1,2 @@
 # One folder name per line for each extra business (see CLAUDE.md)
+kjspoolcare

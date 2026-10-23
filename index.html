@@ -154,6 +154,15 @@ img.th.thl{display:block;width:100%;max-width:340px;height:auto;max-height:420px
 </style></head><body>
 <input type="file" id="rf" accept=".json,application/json" style="display:none"><input type="file" id="fi" accept="image/*" style="display:none"><input type="file" id="pfi" accept="image/*" multiple style="display:none"><header id="hd"></header><main id="app"></main><div id="sv" class="sv"></div><nav id="nav" class="bnav"></nav>
 <script>
+// Each business's copy lives in its own folder on the same website. Keep each
+// copy's saved data on the phone separate, so opening two businesses never mixes them.
+var APFX=(function(){var m=location.pathname.match(/\/swimmer\/([^\/]+)\//i);return m?m[1]+":":""})();
+(function(){if(!APFX)return;try{var SP=Storage.prototype,g=SP.getItem,st=SP.setItem,rm=SP.removeItem;
+ SP.getItem=function(k){return g.call(this,this===window.localStorage?APFX+k:k)};
+ SP.setItem=function(k,v){return st.call(this,this===window.localStorage?APFX+k:k,v)};
+ SP.removeItem=function(k){return rm.call(this,this===window.localStorage?APFX+k:k)}}catch(e){}})();
+</script>
+<script>
 var F=[["fc","Free Cl","ppm",3,5],["tc","Total Cl","ppm",3,5],["ph","pH","",7.2,7.8],["ta","Alkalinity","ppm",70,120],["cya","CYA","ppm",30,50],["ch","Calcium H.","ppm",200,400],["salt","Salt","ppm",2700,3400],["bo","Borates","ppm",30,50]];
 var B=[["pool","Pool","🏊"],["spa","Spa","♨️"],["agspa","Above Ground Spa","🛁"],["plunge","Cold Plunge","🧊"],["fountain","Fountain","⛲"]];
 var O={fc:[0,1,2,3,4,5,6,7,8,9,10],tc:[0,1,2,3,4,5,6,7,8,9,10],ph:["6.2","6.4","6.6","6.8","7.0","7.2","7.4","7.6","7.8","8.0","8.2","8.4"],ta:[0,40,60,80,100,120,140,180,240],cya:[0,20,30,40,50,60,80,100,150,200],ch:[0,100,150,200,250,300,400,500,800],salt:[0,2000,2500,2700,2900,3000,3200,3400,3600,4000],bo:[0,10,20,30,40,50,60,80,100],temp:[50,55,60,65,70,72,74,76,78,80,82,84,86,88,90,95,100]};
@@ -806,7 +815,7 @@ function initCloud(){
    if(had)wipeLocal();locked=false;gate="login";render();setSv();return}
   uid=u.uid;startMember(u)});
  render()}
-function wipeLocal(){S={pools:[],readings:[]};sent={};phq=[];["poollog","poolsent2","poolphq","poolsnap","poolnav","poolrole","poolph2","pooldrafts"].forEach(function(k){try{localStorage.removeItem(k)}catch(e){}});try{indexedDB.deleteDatabase("poollog")}catch(e){}view="days"}
+function wipeLocal(){S={pools:[],readings:[]};sent={};phq=[];["poollog","poolsent2","poolphq","poolsnap","poolnav","poolrole","poolph2","pooldrafts"].forEach(function(k){try{localStorage.removeItem(k)}catch(e){}});try{indexedDB.deleteDatabase(APFX+"poollog")}catch(e){}view="days"}
 async function startMember(u){
  var cm=cachedMe();if(cm&&cm.uid!==u.uid){wipeLocal();cm=null}
  if(!cm){gate="loading";render()}
@@ -928,7 +937,7 @@ document.getElementById("rf").addEventListener("change",function(e){var f=e.targ
  for(var i=0;i<j.S.readings.length;i++){var r=j.S.readings[i];if(!S.readings.some(function(x){return x.id===r.id})){S.readings.push(r);nr++;if(j.photos&&j.photos[r.id])await pput(r.id,j.photos[r.id])}}
  var npx=0;if(j.photos)for(var pk3 in j.photos){if(pk3.indexOf("pp_")===0&&S.pools.some(function(x){return (x.pics||[]).indexOf(pk3)>-1})){await pput(pk3,j.photos[pk3]);npx++}}
  save();pruneAll();render();toast("Restored "+np+" customers, "+nr+" readings"+(npx?" and "+npx+" profile photo"+(npx===1?"":"s"):""))}catch(x){toast("That file isn't a Pool Log backup")}e.target.value=""};rd.readAsText(f)});
-function db(){return new Promise(function(res,rej){try{var q=indexedDB.open("poollog",1);q.onupgradeneeded=function(){q.result.createObjectStore("p")};q.onsuccess=function(){res(q.result)};q.onerror=function(){rej()}}catch(e){rej()}})}
+function db(){return new Promise(function(res,rej){try{var q=indexedDB.open(APFX+"poollog",1);q.onupgradeneeded=function(){q.result.createObjectStore("p")};q.onsuccess=function(){res(q.result)};q.onerror=function(){rej()}}catch(e){rej()}})}
 function lput(k,v){return db().then(function(d){d.transaction("p","readwrite").objectStore("p").put(v,k)}).catch(function(){})}
 function lget(k){return db().then(function(d){return new Promise(function(r){var q=d.transaction("p").objectStore("p").get(k);q.onsuccess=function(){r(q.result)};q.onerror=function(){r()}})}).catch(function(){})}
 function phsave(){try{localStorage.setItem("poolphq",JSON.stringify(phq))}catch(e){}}
@@ -938,7 +947,7 @@ function pget(k){return lget(k).then(function(v){if(v||!dbOK)return v;return phc
 function pdel(k){phq=phq.filter(function(x){return x!==k});phsave();db().then(function(d){d.transaction("p","readwrite").objectStore("p").delete(k)}).catch(function(){});if(dbOK)job(function(){return phc.doc(k).delete()})}
 document.getElementById("fi").addEventListener("change",function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);var q=.6,u=c.toDataURL("image/jpeg",q);while(u.length>230000&&q>.3){q-=.1;u=c.toDataURL("image/jpeg",q)}D(photoB).photo=u;e.target.value="";render()};im.src=rd.result};rd.readAsDataURL(f)});
 
-var BUILD="20261022103450";
+var BUILD="20261022211548";
 function checkUpdate(){if(location.protocol!=="https:")return;fetch("index.html?u="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var BUILD="(\d+)"/);if(m&&m[1]!==BUILD){var go2=function(){var ae=document.activeElement;if(pend()===0&&!(ae&&/INPUT|TEXTAREA/.test(ae.tagName))&&!document.querySelector(".ws"))location.reload();else setTimeout(go2,4000)};go2()}}).catch(function(){})}
 document.addEventListener("visibilitychange",function(){if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,3000);
 pruneAll();navSave();initCloud();setSv();
