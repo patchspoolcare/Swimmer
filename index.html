@@ -200,6 +200,8 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;border-radiu
 .subhd.sym h2{text-align:center;font-size:18px;white-space:nowrap}
 .subhd.sym .bk{min-height:40px}
 .bk .car{font-size:11px;margin-left:2px;vertical-align:1px}
+
+.subhd.sym{grid-template-columns:88px minmax(0,1fr) 88px;gap:6px}.subhd.sym h2{font-size:17px}.subhd.sym>div{width:88px}.subhd.sym>div>.bk{width:88px;font-size:15px;display:inline-flex;align-items:center;justify-content:center;padding:8px 6px}
 </style></head><body>
 <input type="file" id="rf" accept=".json,application/json" style="display:none"><input type="file" id="fi" accept="image/*" style="display:none"><input type="file" id="pfi" accept="image/*" multiple style="display:none"><header id="hd"></header><main id="app"></main><div id="sv" class="sv"></div><nav id="nav" class="bnav"></nav>
 <script>
@@ -529,7 +531,7 @@ function render(){if(view==="pool"&&pid&&selDate)drLoad();
   o+='<div class="mu" style="text-align:center;font-size:13px;margin-top:14px">Signed in as '+esc((me&&me.email)||cmx.email||"")+' · <a href="#" data-a="signout">Sign out</a></div>'+(fidOK?'<div class="mu" style="text-align:center;font-size:13px;margin-top:6px">Face ID: '+(fidId()?'<b class="t-ok">On</b> · <a href="#" data-a="fidoff">Turn off</a>':'Off · <a href="#" data-a="fidon">Turn on</a>')+'</div>':'');
  }else if(view==="day"){
   var dd=pd(selDate),wd=dd.getDay();
-  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="'+(DROPO||"icons/drop.png")+'" alt="">'+wmHtml()+'</button></h1>'+(admin?'<button data-a="add">+ Add</button>':'');var mgOK=admin&&(dayList(wd).length||incFor(selDate).length);o+='<div class="subhd sym"><div><button class="bk" data-a="days">‹ Days</button></div><h2>'+DN[wd]+', '+sd(dd)+'</h2><div>'+(mgOK?'<button class="bk" data-a="dmenu">Manage <span class="car">▾</span></button>':'')+'</div></div>';
+  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="'+(DROPO||"icons/drop.png")+'" alt="">'+wmHtml()+'</button></h1>';var mgOK=admin;o+='<div class="subhd sym"><div><button class="bk" data-a="days">‹ Days</button></div><h2>'+DN[wd]+', '+sd(dd)+'</h2><div>'+(mgOK?'<button class="bk" data-a="dmenu">Manage <span class="car">▾</span></button>':'')+'</div></div>';
   if(adding)o+='<div class="card"><input id="pn" placeholder="Customer name"><div style="height:8px"></div><input id="pa" placeholder="Address (optional)"><div class="row" style="margin-top:10px"><button data-a="savepool">Save</button><button class="g" data-a="cancel">Cancel</button></div></div>';
   ET={};var row=function(p,n,tot,tag,from){var rs=onDate(p.id,selDate),fs=fsum(p),dn=done(p,selDate),sk=skipped(p,selDate),
    wc=rs.length&&!sk?rs.map(worst).reduce(function(m,x){return x==="hi"||m==="hi"?"hi":x==="lo"||m==="lo"?"lo":"ok"},"ok"):"",
@@ -548,7 +550,7 @@ function render(){if(view==="pool"&&pid&&selDate)drLoad();
   
   if(admin){var cvp={};routeFor(selDate).concat(reg).forEach(function(p){var c=p.cover&&p.cover[selDate];if(!c)return;var k2=(p.tech||"")+">"+c;cvp[k2]=cvp[k2]||{fr:p.tech,to:c,n:{}};cvp[k2].n[p.id]=1});
    Object.keys(cvp).forEach(function(k2){var c=cvp[k2],n=Object.keys(c.n).length;o+='<div class="card covc"><div><b>'+esc(techName(c.to)||"Someone")+'</b> is covering '+n+' stop'+(n===1?'':'s')+(c.fr&&techName(c.fr)?' for <b>'+esc(techName(c.fr))+'</b>':'')+'</div><button class="tg" data-a="covundo" data-fr="'+esc(c.fr||"")+'" data-to="'+esc(c.to)+'">Undo</button></div>'})}
-if(!cs2.length&&!adding)o+='<div class="card mu">'+(!canAdmin?'No stops assigned to you on '+DN[wd]+'s.':'No customers on '+DN[wd]+'s'+(admin?' yet. Tap + Add to put a customer here.':'.'))+'</div>';
+if(!cs2.length&&!adding)o+='<div class="card mu">'+(!canAdmin?'No stops assigned to you on '+DN[wd]+'s.':'No customers on '+DN[wd]+'s'+(admin?' yet. Tap Manage → Add a client to put one here.':'.'))+'</div>';
   if(cs2.length){ET=etaPlan(cs2);var ech=etaChain(cs2);NX=selDate===T&&ech.pending[0]?ech.pending[0].id:null;fetchDrives((ech.last?[ech.last]:[]).concat(ech.pending));var nd=cs2.filter(function(p){return done(p,selDate)}).length,nk=cs2.filter(function(p){return skipped(p,selDate)}).length;o+='<div class="row" style="justify-content:space-between"><b>'+nd+' of '+cs2.length+' completed'+(nk?' · '+nk+' skipped':'')+'</b>'+'</div><div class="pb"><i style="width:'+Math.round(nd/cs2.length*100)+'%"></i></div>'+whoLine(cs2)+techLine(cs2)+(admin&&reg.length>1?'<div class="mu" style="font-size:12px;margin:0 0 8px;text-align:center">Press and hold a customer, then drag to reorder</div>':'')}
   if(cs2.length&&cs2.every(function(p){return done(p,selDate)}))o+='<div class="card t-ok" style="text-align:center"><b>✓ Day completed</b></div>';
   reg.forEach(function(p,i){o+=row(p,i,reg.length)});
@@ -770,9 +772,10 @@ else if(a==="covday"){var rt=regFor(selDate).concat(incFor(selDate).map(function
   pickSheet("Who's covering for "+techName(fr)+"?","",ot.map(function(x){return[x[0],x[1]]}),null,function(to){var n5=0,T5=today();rt.forEach(function(p){if(effTech(p,selDate)===fr){p.cover=p.cover||{};Object.keys(p.cover).forEach(function(k){if(k<T5)delete p.cover[k]});if(p.tech===to)delete p.cover[selDate];else p.cover[selDate]=to;if(!Object.keys(p.cover).length)delete p.cover;n5++}});save();render();toast(techName(to)+" is covering "+n5+" stop"+(n5===1?"":"s"))})})}
 else if(a==="covundo"){var fr2=el.dataset.fr,to2=el.dataset.to;S.pools.forEach(function(p){if(p.cover&&p.cover[selDate]===to2&&(p.tech||"")===fr2){delete p.cover[selDate];if(!Object.keys(p.cover).length)delete p.cover}});save();render();toast("Cover removed")}
 else if(a==="dmenu"){var wd3=pd(selDate).getDay(),hasT=Object.keys(team).length>0,mo=[];
- if(hasT)mo.push(["Assign whole day","dayt","Give every "+DN[wd3]+" stop to one tech"]);
- if(hasT&&selDate>=today())mo.push(["Cover a tech's stops","covday",DN[wd3]+", "+sd(pd(selDate))+" only. Regular routes don't change."]);
- mo.push(["Change one stop","one","Move it, change its tech, or send someone else today"]);
+ mo.push(["Add a client","add","New client on "+DN[wd3]+"s"]);var hasS=regFor(selDate).length+incFor(selDate).length>0;
+ if(hasT&&hasS)mo.push(["Assign whole day","dayt","Give every "+DN[wd3]+" stop to one tech"]);
+ if(hasT&&hasS&&selDate>=today())mo.push(["Cover a tech's stops","covday",DN[wd3]+", "+sd(pd(selDate))+" only. Regular routes don't change."]);
+ if(hasS)mo.push(["Change one stop","one","Move it, change its tech, or send someone else today"]);
  pickSheet("Manage "+DN[wd3]+", "+sd(pd(selDate)),"",mo,null,function(v){if(v==="one"){var rg=regFor(selDate),ic=incFor(selDate),all=rg.map(function(p,i){return{p:p,lab:"Stop "+(i+1)}}).concat(ic.map(function(x){return{p:x.p,lab:"Moved from "+DN[pd(x.from).getDay()],from:x.from}}));
    pickSheet("Which stop?","",all.map(function(x,i){var t=techName(effTech(x.p,selDate));return[x.p.name,String(i),x.lab+(t?" · "+t:"")]}),null,function(ix){var x=all[+ix];if(x)fire("rmenu",{id:x.p.id,d:x.from||""})})}
   else fire(v,{})})}
@@ -1085,7 +1088,7 @@ function pget(k){return lget(k).then(function(v){if(v||!dbOK)return v;return phc
 function pdel(k){phq=phq.filter(function(x){return x!==k});phsave();db().then(function(d){d.transaction("p","readwrite").objectStore("p").delete(k)}).catch(function(){});if(dbOK)job(function(){return phc.doc(k).delete()})}
 document.getElementById("fi").addEventListener("change",function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);var q=.6,u=c.toDataURL("image/jpeg",q);while(u.length>230000&&q>.3){q-=.1;u=c.toDataURL("image/jpeg",q)}D(photoB).photo=u;e.target.value="";render()};im.src=rd.result};rd.readAsDataURL(f)});
 
-var BUILD="20261023104747";
+var BUILD="20261023105530";
 function checkUpdate(){if(location.protocol!=="https:")return;fetch("index.html?u="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var BUILD="(\d+)"/);if(m&&m[1]!==BUILD){var go2=function(){var ae=document.activeElement;if(pend()===0&&!(ae&&/INPUT|TEXTAREA/.test(ae.tagName))&&!document.querySelector(".ws"))location.reload();else setTimeout(go2,4000)};go2()}}).catch(function(){})}
 document.addEventListener("visibilitychange",function(){if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,3000);
 pruneAll();navSave();initCloud();setSv();
