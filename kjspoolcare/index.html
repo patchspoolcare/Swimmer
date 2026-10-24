@@ -298,7 +298,7 @@ var APFX=(function(){var m=location.pathname.match(/\/swimmer\/([^\/]+)\//i);ret
 </script>
 <script>
 var F=[["fc","Free Cl","ppm",3,5],["tc","Total Cl","ppm",3,5],["ph","pH","",7.2,7.8],["ta","Alkalinity","ppm",70,120],["cya","CYA","ppm",30,50],["ch","Calcium H.","ppm",200,400],["salt","Salt","ppm",2700,3400],["bo","Borates","ppm",30,50]];
-var B=[["pool","Pool",""],["spa","Spa",""],["agspa","Above Ground Spa",""],["plunge","Cold Plunge",""],["fountain","Fountain",""]];
+var B=[["pool","Pool",""],["spa","Spa",""],["agspa","Above Ground Spa",""],["plunge","Cold Plunge",""],["fountain","Fountain",""],["trough","Trough",""]];
 var O={fc:[0,1,2,3,4,5,6,7,8,9,10],tc:[0,1,2,3,4,5,6,7,8,9,10],ph:["6.2","6.4","6.6","6.8","7.0","7.2","7.4","7.6","7.8","8.0","8.2","8.4"],ta:[0,40,60,80,100,120,140,180,240],cya:[0,20,30,40,50,60,80,100,150,200],ch:[0,100,150,200,250,300,400,500,800],salt:[0,2000,2500,2700,2900,3000,3200,3400,3600,4000],bo:[0,10,20,30,40,50,60,80,100],temp:[50,55,60,65,70,72,74,76,78,80,82,84,86,88,90,95,100]};
 function rng(a,b,u,p){var r=[];for(var i=a;i<=b;i++)r.push(i+" "+(i>1?p:u));return r}
 var DF=[["tabs","Chlorine tabs"],["lcl","Liquid chlorine"],["acid","Acid"],["ash","Soda ash"],["de","DE"],["bor","Borates"]];
@@ -1211,7 +1211,7 @@ function pget(k){return lget(k).then(function(v){if(v||!dbOK)return v;return phc
 function pdel(k){phq=phq.filter(function(x){return x!==k});phsave();db().then(function(d){d.transaction("p","readwrite").objectStore("p").delete(k)}).catch(function(){});if(dbOK)job(function(){return phc.doc(k).delete()})}
 document.getElementById("fi").addEventListener("change",function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);var q=.6,u=c.toDataURL("image/jpeg",q);while(u.length>230000&&q>.3){q-=.1;u=c.toDataURL("image/jpeg",q)}D(photoB).photo=u;e.target.value="";render()};im.src=rd.result};rd.readAsDataURL(f)});
 
-var BUILD="20261023223156";
+var BUILD="20261023223255";
 function checkUpdate(){if(location.protocol!=="https:")return;fetch("index.html?u="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var BUILD="(\d+)"/);if(m&&m[1]!==BUILD){var go2=function(){var ae=document.activeElement;if(pend()===0&&!(ae&&/INPUT|TEXTAREA/.test(ae.tagName))&&!document.querySelector(".ws"))location.reload();else setTimeout(go2,4000)};go2()}}).catch(function(){})}
 document.addEventListener("visibilitychange",function(){if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,3000);
 pruneAll();navSave();initCloud();setSv();
