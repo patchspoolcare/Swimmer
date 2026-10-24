@@ -349,10 +349,10 @@ function routeFor(k){return regFor(k).concat(incFor(k).map(function(x){return x.
 function permMove(p,from){wheelN("Move permanently",[{items:DN.map(function(n,i){return[n,i]}),sel:p.day==null?pd(selDate).getDay():p.day}],function(v){p.day=v[0];delete p.ord;if(from&&p.once)delete p.once[from];save();render();toast(p.name+" moved to "+DN[v[0]]+"s every week")})}
 function moveFlow(p,from){if(p.day==null){permMove(p);return}
  var o=document.createElement("div");o.className="ws";
- o.innerHTML='<div class="sh"><div style="padding:8px 0 2px;font-weight:700">Move '+esc(p.name)+'</div><div class="mu" style="margin-bottom:12px">'+(from?'Moved here from '+DN[pd(from).getDay()]+' (one time)':'Currently on '+DN[p.day]+'s')+'</div><button id="m1" style="width:100%;margin-bottom:8px">'+(from?'Move again just this time — pick a day':'Just this time — pick a day (up to 3 weeks out)')+'</button><button id="m2" style="width:100%;margin-bottom:8px;background:var(--bd);color:var(--tx)">Permanently — every week</button><button class="g" id="m0" style="width:100%">Cancel</button></div>';
+ o.innerHTML='<div class="sh"><div style="padding:8px 0 2px;font-weight:700">Move '+esc(p.name)+'</div><div class="mu" style="margin-bottom:12px">'+(from?'Moved here from '+DN[pd(from).getDay()]+' (one time)':'Currently on '+DN[p.day]+'s')+'</div>'+(from?'<button id="mb" style="width:100%;margin-bottom:8px">Put back on '+DN[pd(from).getDay()]+', '+sd(pd(from))+'</button>':'')+'<button id="m1" style="width:100%;margin-bottom:8px'+(from?';background:var(--bd);color:var(--tx)':'')+'">'+(from?'Move again just this time — pick a day':'Just this time — pick a day (up to 3 weeks out)')+'</button><button id="m2" style="width:100%;margin-bottom:8px;background:var(--bd);color:var(--tx)">Permanently — every week</button><button class="g" id="m0" style="width:100%">Cancel</button></div>';
  document.body.appendChild(o);
  o.addEventListener("click",function(e){if(e.target===o)o.remove()});
- o.querySelector("#m0").onclick=function(){o.remove()};
+ o.querySelector("#m0").onclick=function(){o.remove()};if(from)o.querySelector("#mb").onclick=function(){o.remove();if(p.once){delete p.once[from];if(!Object.keys(p.once).length)delete p.once}save();render();toast(p.name+" is back on "+DN[pd(from).getDay()])};
  o.querySelector("#m2").onclick=function(){o.remove();permMove(p,from)};
  o.querySelector("#m1").onclick=function(){o.remove();var m=pd(selDate);m.setDate(m.getDate()-((m.getDay()+6)%7));var it=[],sel=0,got=false;
   for(var i=0;i<21;i++){var d=new Date(m);d.setDate(m.getDate()+i);var k=dkey(d);if(k===selDate)continue;if(d.getDay()===p.day&&k!==from&&!(p.once&&p.once[k]))continue;it.push([DN[d.getDay()].slice(0,3)+" "+sd(d)+(from&&k===from?" · original day":i>=14?" · in 2 weeks":i>=7?" · next week":""),k]);if(k>selDate&&!got){sel=it.length-1;got=true}}
@@ -634,7 +634,7 @@ if(!cs2.length&&!adding)o+='<div class="card mu">'+(!canAdmin?'No stops assigned
   if(cs2.length&&cs2.every(function(p){return done(p,selDate)}))o+='<div class="card t-ok" style="text-align:center"><b>✓ Day completed</b></div>';
   reg.forEach(function(p,i){o+=row(p,i,reg.length)});
   inc.forEach(function(x){o+=row(x.p,null,0,"Moved from "+DN[pd(x.from).getDay()],x.from)});
-  var away=admin?S.pools.filter(function(p){return p.once&&p.once[selDate]}):[];
+  var away=[];
   if(away.length){o+='<h3 style="margin:18px 0 8px">Moved away</h3>';away.forEach(function(p){var t=pd(p.once[selDate]);o+='<div class="card pool" style="opacity:.8"><div><b>'+esc(p.name)+'</b><div class="mu">Moved to '+DN[t.getDay()]+', '+sd(t)+'</div></div><button class="tg" data-a="undo" data-id="'+p.id+'" data-d="'+selDate+'">Undo</button></div>'})}
  }else if(view==="issues"){
   h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="'+(DROPO||"icons/drop.png")+'" alt="">'+wmHtml()+'</button></h1>';o+='<div class="subhd"><button class="bk" data-a="days">‹ Route</button><h2>Issues</h2></div>';
@@ -1177,7 +1177,7 @@ function pget(k){return lget(k).then(function(v){if(v||!dbOK)return v;return phc
 function pdel(k){phq=phq.filter(function(x){return x!==k});phsave();db().then(function(d){d.transaction("p","readwrite").objectStore("p").delete(k)}).catch(function(){});if(dbOK)job(function(){return phc.doc(k).delete()})}
 document.getElementById("fi").addEventListener("change",function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);var q=.6,u=c.toDataURL("image/jpeg",q);while(u.length>230000&&q>.3){q-=.1;u=c.toDataURL("image/jpeg",q)}D(photoB).photo=u;e.target.value="";render()};im.src=rd.result};rd.readAsDataURL(f)});
 
-var BUILD="20261023192255";
+var BUILD="20261023202707";
 function checkUpdate(){if(location.protocol!=="https:")return;fetch("index.html?u="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var BUILD="(\d+)"/);if(m&&m[1]!==BUILD){var go2=function(){var ae=document.activeElement;if(pend()===0&&!(ae&&/INPUT|TEXTAREA/.test(ae.tagName))&&!document.querySelector(".ws"))location.reload();else setTimeout(go2,4000)};go2()}}).catch(function(){})}
 document.addEventListener("visibilitychange",function(){if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,3000);
 pruneAll();navSave();initCloud();setSv();
