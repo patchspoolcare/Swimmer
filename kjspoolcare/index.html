@@ -326,7 +326,7 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;border-radiu
 
 .fsh{font-size:16px;font-weight:700;color:var(--tx);margin:0 0 6px}
 .fsr{justify-content:space-between;align-items:center;margin-bottom:2px}.fsr .fsh{margin:0}.fsr .g{padding:4px 0;font-size:15px}
-.mbp{display:flex;justify-content:center;margin-top:8px}.mbp .tg{width:56px;min-height:34px;padding:0;font-size:22px;line-height:1;border-radius:99px}
+.mbp{display:flex;justify-content:flex-end;margin-top:8px}.mbp .tg{width:56px;min-height:34px;padding:0;font-size:22px;line-height:1;border-radius:99px}
 .tg.issb.on{background:color-mix(in srgb,var(--hi) 14%,var(--card));border-color:var(--hi);color:var(--hi)}
 .issl{font-size:13px;color:var(--hi);font-weight:600;margin:0 0 4px}
 .isg .shb{font-size:14px;line-height:1.2;text-align:left}
@@ -1306,7 +1306,7 @@ function pget(k){return lget(k).then(function(v){if(v||!dbOK)return v;return phc
 function pdel(k){phq=phq.filter(function(x){return x!==k});phsave();db().then(function(d){d.transaction("p","readwrite").objectStore("p").delete(k)}).catch(function(){});if(dbOK)job(function(){return phc.doc(k).delete()})}
 document.getElementById("fi").addEventListener("change",function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);var q=.6,u=c.toDataURL("image/jpeg",q);while(u.length>230000&&q>.3){q-=.1;u=c.toDataURL("image/jpeg",q)}D(photoB).photo=u;e.target.value="";render()};im.src=rd.result};rd.readAsDataURL(f)});
 
-var BUILD="20261026130737";
+var BUILD="20261026131549";
 function checkUpdate(){if(location.protocol!=="https:")return;fetch("index.html?u="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var BUILD="(\d+)"/);if(m&&m[1]!==BUILD){var go2=function(){var ae=document.activeElement;if(pend()===0&&!(ae&&/INPUT|TEXTAREA/.test(ae.tagName))&&!document.querySelector(".ws"))location.reload();else setTimeout(go2,4000)};go2()}}).catch(function(){})}
 document.addEventListener("visibilitychange",function(){if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,3000);
 pruneAll();navSave();initCloud();setSv();
