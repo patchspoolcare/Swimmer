@@ -291,6 +291,13 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;border-radiu
 
 .fxh.pvh{font-size:16px;font-weight:800;color:var(--tx);letter-spacing:.05em;text-transform:uppercase}
 .nxc .vch{font-size:16px;font-weight:800;color:var(--tx);letter-spacing:.05em;text-transform:uppercase}
+
+.lt{margin:-6px 0 12px;text-align:center;font-size:14px}.lt>div{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 14px;align-items:baseline}
+.lt i{font-style:normal;color:var(--mu);font-weight:600;font-size:12px;letter-spacing:.04em;text-transform:uppercase}.lt b{font-size:16px}.lt small{color:var(--mu);font-size:12px}
+.lthb{font-weight:700;font-size:13px}
+.rvl{display:flex;flex-wrap:wrap;gap:2px 12px;margin:4px 0 2px;font-size:14px;line-height:1.35}
+.rvi{white-space:nowrap;font-weight:600}.rvi i{font-style:normal;font-weight:500;color:var(--mu)}
+.rvd{margin-top:2px}.rvd>b{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ac);align-self:center}
 </style></head><body>
 <input type="file" id="rf" accept=".json,application/json" style="display:none"><input type="file" id="fi" accept="image/*" style="display:none"><input type="file" id="pfi" accept="image/*" multiple style="display:none"><header id="hd"></header><main id="app"></main><div id="sv" class="sv"></div><nav id="nav" class="bnav"></nav>
 <script>
@@ -595,11 +602,19 @@ function hrow(r,lab){var b=bd(r),key="h"+r.id,ex=more[key],chips="",extra=false,
   +(extra?'<button class="g'+(ex?' rv-less':'')+'" data-a="more" data-k="'+key+'" style="padding:2px 0;font-size:14px">'+(ex?"See less":"See more")+(hint?' <span class="mu" style="font-weight:400">· '+hint+'</span>':'')+'</button>':'')+'</div>'}
 function rv(r){var b=bd(r),cur=dkey(new Date(r.t))===selDate,key="v"+r.id,ex=more[key],editing=ed[b]&&ed[b].id===r.id,chips="",extra=false;
  if(r.skip)chips+='<span class="chip s-lo t-lo">Skipped'+(r.reason?' · '+esc(r.reason):'')+'</span>';
- else{F.forEach(function(f){var v=r.v&&r.v[f[0]];if(v===""||v==null)return;var s=st(f,v);if(F.indexOf(f)<4||s==="lo"||s==="hi"||ex)chips+='<span class="chip '+(s?"s-"+s+" t-"+s:"")+'">'+L(f,b)+' '+esc(v)+'</span>';else extra=true});
-  if(r.v&&r.v.temp){if(ex)chips+='<span class="chip">Water Temp '+esc(r.v.temp)+'</span>';else extra=true}
-  DF.forEach(function(f){var x=(r.ds||{})[f[0]];if(!x)return;if(ex)chips+='<span class="chip ds">'+L(f,b)+' '+esc(x)+'</span>';else extra=true});
+ else{var AB=b==="agspa"?{}:{fc:"FC",tc:"TC",ta:"TA",ch:"CH"},rl=[],dl=[];F.forEach(function(f){var v=r.v&&r.v[f[0]];if(v===""||v==null)return;var s=st(f,v);rl.push('<span class="rvi'+(s==="lo"||s==="hi"?' t-'+s:'')+'"><i>'+esc(AB[f[0]]||L(f,b))+'</i> '+esc(v)+'</span>')});
+  if(r.v&&r.v.temp)rl.push('<span class="rvi"><i>Temp</i> '+esc(r.v.temp)+'°</span>');
+  DF.forEach(function(f){var x=(r.ds||{})[f[0]];if(x)dl.push('<span class="rvi"><i>'+esc(L(f,b))+'</i> '+esc(x)+'</span>')});
+  chips='<div class="rvl">'+(rl.length?rl.join(''):'<span class="mu">No readings</span>')+'</div>'+(dl.length?'<div class="rvl rvd"><b>Added</b>'+dl.join('')+'</div>':'');
   if(r.notes||r.ph)extra=true}
- return '<div class="'+(cur?'rtd':'rvr')+'"><div class="row" style="justify-content:space-between"><b>'+(cur?'<span class="rbg">'+(r.skip?'SKIPPED ':'✓ COMPLETED ')+(selDate===today()?'TODAY':DN[pd(selDate).getDay()].slice(0,3).toUpperCase())+'</span>':'')+fmt(r.t)+(admin&&r.by&&r.by!==uid?' <span class="mu" style="font-weight:400">· '+esc(whoName(r.by))+'</span>':'')+'</b>'+(editing?'<span class="mu">Editing below ↓</span>':r.skip?'<button class="d" data-a="del" data-id="'+r.id+'">Undo skip</button>':'<button class="tg" data-a="edit" data-id="'+r.id+'">Edit</button>')+'</div><div class="chips">'+chips+'</div>'+(ex&&!r.skip?(r.notes?'<div class="hnote">'+esc(r.notes)+'</div>':'')+(r.ph?'<img class="th" data-ph="'+r.id+'" data-a="zoom" alt="Test strip photo">':''):'')+(extra?'<button class="g'+(ex?' rv-less':'')+'" data-a="more" data-k="'+key+'" style="padding:2px 0;font-size:14px">'+(ex?"See less":"See more")+'</button>':'')+'</div>'}
+ return '<div class="'+(cur?'rtd':'rvr')+'"><div class="row" style="justify-content:space-between"><b>'+(cur?'<span class="rbg">'+(r.skip?'SKIPPED ':'✓ COMPLETED ')+(selDate===today()?'TODAY':DN[pd(selDate).getDay()].slice(0,3).toUpperCase())+'</span>':'')+fmt(r.t)+(admin&&r.by&&r.by!==uid?' <span class="mu" style="font-weight:400">· '+esc(whoName(r.by))+'</span>':'')+'</b>'+(editing?'<span class="mu">Editing below ↓</span>':r.skip?'<button class="d" data-a="del" data-id="'+r.id+'">Undo skip</button>':'<button class="tg" data-a="edit" data-id="'+r.id+'">Edit</button>')+'</div>'+(r.skip?'<div class="chips">'+chips+'</div>':chips)+(ex&&!r.skip?(r.notes?'<div class="hnote">'+esc(r.notes)+'</div>':'')+(r.ph?'<img class="th" data-ph="'+r.id+'" data-a="zoom" alt="Test strip photo">':''):'')+(extra?'<button class="g'+(ex?' rv-less':'')+'" data-a="more" data-k="'+key+'" style="padding:2px 0;font-size:14px">'+(ex?"See less":"See more")+'</button>':'')+'</div>'}
+function cyaLine(p){var bs=p.bodies||["pool"],multi=bs.length>1,out=[];
+ bs.forEach(function(b){var rs=S.readings.filter(function(r){return r.pid===p.id&&bd(r)===b&&!r.skip&&r.v}).sort(function(x,y){return y.t-x.t}),parts=[];
+  [["cya","CYA"],["ch","Hardness"]].forEach(function(k){var f=F.find(function(x){return x[0]===k[0]}),r=rs.find(function(x){return x.v[k[0]]!==""&&x.v[k[0]]!=null});
+   if(r){var v=r.v[k[0]],s2=st(f,v),d=new Date(r.t);parts.push('<span class="lth"><i>'+k[1]+'</i> <b class="'+(s2==="lo"||s2==="hi"?'t-'+s2:'')+'">'+esc(v)+'</b> <small>'+d.toLocaleDateString([],d.getFullYear()===new Date().getFullYear()?{month:"short",day:"numeric"}:{month:"short",year:"numeric"})+'</small></span>')}
+   else parts.push('<span class="lth"><i>'+k[1]+'</i> <small>not tested</small></span>')});
+  out.push((multi?'<span class="lthb">'+esc(bname(b))+'</span>':'')+parts.join(''))});
+ return '<div class="lt">'+out.map(function(x){return '<div>'+x+'</div>'}).join('')+'</div>'}
 function rvCard(bs){var T=today(),tbs=B.filter(function(b){return bs.indexOf(b[0])>=0});if(!tbs.length)return"";
  var rb=tbs.some(function(b){return b[0]===rvB})?rvB:tbs[0][0],all=S.readings.filter(function(r){return r.pid===pid&&bd(r)===rb}).sort(function(x,y){return y.t-x.t}),
  rs=showAll?all:(selDate===T?all.slice(0,4):all.filter(function(r){return dkey(new Date(r.t))===selDate})),
@@ -773,6 +788,7 @@ if(!cs2.length&&!adding)o+='<div class="card mu">'+(!canAdmin?'No stops assigned
  }else{
   var p=S.pools.find(function(x){return x.id===pid}),bs=p.bodies||["pool"],fs=fsum(p);
   h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="'+(DROPO||"icons/drop.png")+'" alt="">'+wmHtml()+'</button></h1>';o+='<div class="subhd sym"><div><button class="bk" data-a="day" data-d="'+selDate+'">‹ Back</button></div><h2>'+esc(p.name)+'</h2><div>'+(admin?'<button class="bk" data-a="prof" data-id="'+p.id+'">Profile</button>':'')+'</div></div>';
+  o+=cyaLine(p);
   var vn=p.notes?'<div class="nt">📝 '+esc(p.notes)+'</div>':'',vl='';if(p.phone)vl+='<a class="qab" href="tel:'+esc(p.phone)+'"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg><span>Call</span></a><a class="qab" href="sms:'+esc(p.phone)+'"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2z"/></svg><span>Text</span></a>';if(p.addr)vl+='<a class="qab" target="_blank" rel="noopener" href="'+mapUrl(p.addr)+'"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg><span>Directions</span></a>';
   var fus=funits(p),cells=[];if(vn)cells.push(vn);
   
@@ -1236,7 +1252,7 @@ function pget(k){return lget(k).then(function(v){if(v||!dbOK)return v;return phc
 function pdel(k){phq=phq.filter(function(x){return x!==k});phsave();db().then(function(d){d.transaction("p","readwrite").objectStore("p").delete(k)}).catch(function(){});if(dbOK)job(function(){return phc.doc(k).delete()})}
 document.getElementById("fi").addEventListener("change",function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);var q=.6,u=c.toDataURL("image/jpeg",q);while(u.length>230000&&q>.3){q-=.1;u=c.toDataURL("image/jpeg",q)}D(photoB).photo=u;e.target.value="";render()};im.src=rd.result};rd.readAsDataURL(f)});
 
-var BUILD="20261026103104";
+var BUILD="20261026105030";
 function checkUpdate(){if(location.protocol!=="https:")return;fetch("index.html?u="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var BUILD="(\d+)"/);if(m&&m[1]!==BUILD){var go2=function(){var ae=document.activeElement;if(pend()===0&&!(ae&&/INPUT|TEXTAREA/.test(ae.tagName))&&!document.querySelector(".ws"))location.reload();else setTimeout(go2,4000)};go2()}}).catch(function(){})}
 document.addEventListener("visibilitychange",function(){if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,3000);
 pruneAll();navSave();initCloud();setSv();
