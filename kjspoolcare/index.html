@@ -342,6 +342,23 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;border-radiu
 .strow:last-child{border-bottom:0}.strow>span{flex:none}.strow>b{flex:1;min-width:0;text-align:right;font-weight:500;color:var(--mu);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.strow>i{font-style:normal;color:var(--mu);font-size:20px;width:10px}
 .stn{font-size:12px;color:var(--mu);margin:6px 4px 0}
 .bdg2{display:inline-block;background:var(--lo);color:#fff;border-radius:99px;font-size:11px;font-weight:700;padding:1px 7px;margin-left:4px}
+
+.wstrip{display:flex;align-items:stretch;gap:4px;background:var(--card);border:1.5px solid var(--bd);border-radius:14px;padding:6px 4px;margin-bottom:12px}
+.wsa{flex:none;width:26px;background:transparent;color:var(--ac);font-size:22px;padding:0;border:0}
+.wsd{flex:1;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.wsb{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 0 5px;background:transparent;color:var(--tx);border:0;border-radius:10px;font-weight:500}
+.wsb small{font-size:11px;color:var(--mu);font-weight:600;text-transform:uppercase;letter-spacing:.03em}.wsb b{font-size:17px}
+.wsb i{width:5px;height:5px;border-radius:50%;background:transparent}.wsb i.has{background:var(--mu)}.wsb i.ok{background:var(--ok)}
+.wsb.td b{color:var(--ac)}.wsb.on{background:var(--ac)}.wsb.on small,.wsb.on b{color:#fff}.wsb.on i.has,.wsb.on i.ok{background:#fff}
+.wsh{display:flex;justify-content:space-between;align-items:center;margin:0 2px 10px}.wsh b{font-size:17px}.wsh .tg{min-height:34px;padding:4px 12px;font-size:14px}
+.tpc{display:flex;align-items:center;gap:14px;padding:14px}
+.rgw{position:relative;width:76px;height:76px;flex:none}.rg{width:76px;height:76px}.rg circle{fill:none;stroke-width:6}.rg0{stroke:var(--bd)}.rg1{stroke:var(--ac);stroke-linecap:round}.rg1.rgd{stroke:var(--ok)}
+.rgt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05}.rgt b{font-size:19px;color:var(--ac)}.rgt small{font-size:11px;color:var(--mu)}
+.tpm{flex:1;min-width:0}.tpn{font-size:19px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tpb{height:6px;border-radius:99px;background:var(--bd);margin:8px 0 6px;overflow:hidden}.tpb i{display:block;height:100%;background:var(--ok);border-radius:99px}
+.tpl{display:flex;justify-content:space-between;gap:8px;font-size:14px}.tpl span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tpu .tpn{color:var(--lo)}
+.rgt.rgdt b{color:var(--ok)}
 </style></head><body>
 <input type="file" id="rf" accept=".json,application/json" style="display:none"><input type="file" id="fi" accept="image/*" style="display:none"><input type="file" id="pfi" accept="image/*" multiple style="display:none"><header id="hd"></header><main id="app"></main><div id="sv" class="sv"></div><nav id="nav" class="bnav"></nav>
 <script>
@@ -723,9 +740,7 @@ function render(){if(view==="pool"&&pid&&selDate)drLoad();
   h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="'+(DROPO||"icons/drop.png")+'" alt="">'+wmHtml()+'</button></h1>'+(canAdmin?'<button class="mdp'+(admin?'':' emp')+'" data-a="mode">'+(admin?'Admin':'Employee')+' <i>⇄</i></button>':'')+(wk||(rmode!=="week")?'<button class="tg" data-a="wk0">Today</button>':'');
   o+=tabs("days");if(!canAdmin&&!S.pools.some(function(p){return p.tech===uid||(p.cover&&Object.keys(p.cover).some(function(k){return k>=T&&p.cover[k]===uid}))}))o+='<div class="card" style="border:2px solid var(--ac);text-align:center"><b style="font-size:17px">You\'re all set</b><div class="mu" style="margin-top:4px">You don\'t have any stops yet. They\'ll show up here as soon as they\'re assigned to you.</div></div>';if(admin){var oi=openIss();if(oi)o+='<div class="issc2" data-a="issues"><span class="idot"></span><b>'+oi+' open issue'+(oi===1?'':'s')+'</b><span class="ich">›</span></div>'}o+='<div class="rm">'+[["week","Week"],["month","Month"],["year","Year"]].map(function(m){return '<button class="'+(rmode===m[0]?'on':'')+'" data-a="rm" data-m="'+m[0]+'">'+m[1]+'</button>'}).join("")+'</div>';
   if(rmode==="month")o+=monthView();else if(rmode==="year")o+=yearView();else{
-  o+='<div class="row" style="justify-content:space-between;margin-bottom:10px"><button class="bk" data-a="wk" data-n="-1">‹ Prev</button><b>'+sd(b0)+' – '+sd(e0)+'</b><button class="bk" data-a="wk" data-n="1">Next ›</button></div>';
-  for(var i=0;i<7;i++){var d=new Date(b0);d.setDate(d.getDate()+i);var k=dkey(d),cs=routeFor(k),lg=cs.filter(function(p){return onDate(p.id,k).length}).length;
-   o+='<div class="card pool'+(k===T?' td':'')+'" data-a="day" data-d="'+k+'"><div><b>'+DN[d.getDay()]+'</b>'+(k===T?'<span class="tday">TODAY</span>':'')+'<div class="mu">'+sd(d)+'</div></div><div class="mu" style="text-align:right">'+cs.length+' customer'+(cs.length==1?'':'s')+(cs.length&&k<=T?'<br>'+(cs.every(function(p){return done(p,k)})?'<b class="t-ok">✓ Completed</b>':lg+' logged'):'')+'</div></div>'}
+  o+=weekBoard(b0);
   }
   if(admin){
   var oi2=openIss();o+='<div class="rdt lpg"><button class="rdb" data-a="issues"><small>Issues</small><b'+(oi2?' class="t-lo"':'')+'>'+(oi2?oi2+' open':'None open')+'</b><i>›</i></button><button class="rdb" data-a="chem"><b>Chemical totals</b><i>›</i></button></div>';
@@ -891,7 +906,7 @@ document.addEventListener("input",function(e){var t=e.target,ds=t.dataset||{};if
 document.addEventListener("toggle",function(e){if(e.target.dataset&&e.target.dataset.b)open[e.target.dataset.b]=e.target.open},true);
 document.addEventListener("click",function(e){
  var el=e.target.closest("[data-a]");if(!el)return;if(window.__nc&&window.__nc())return;var a=el.dataset.a,id=el.dataset.id,b=el.dataset.b;
- if(!admin){var EA={plan:1,dir:1,day:1,days:1,wk:1,wk0:1,rm:1,mo:1,yr:1,ymo:1,open:1,photo:1,rmphoto:1,pick:1,more:1,saveread:1,skip:1,edit:1,saveedit:1,canceledit:1,del:1,repeat:1,qn:1,rb:1,showall:1,zoom:1,visit:1,home:1,rskip:1,runskip:1,map:1,mapd:1,mapdir:1,mode:1,auth:1,reset:1,authmode:1,claim:1,signout:1,fidon:1,fidoff:1,fidno:1,unlock:1,unlockpw:1,cust:1,einfo:1,eopen:1,prof:1,hall:1,nmore:1,fsheet:1,fpboth:1,cltoday:1,prclear:1,pfclear:1,hday:1,fexp:1,filters:1,fdone:1,filter:1,bwtoday:1,shpick:1,iss:1,settings:1,theme:1,appupd:1};if(!EA[a])return;if(!ftE&&(a==="filters"||a==="fdone"||a==="filter"||a==="bwtoday"||a==="fsheet"||a==="fpboth"||a==="cltoday"))return;if(a==="del"){var dr=S.readings.find(function(r){return r.id===id});if(!dr||!dr.skip)return}}
+ if(!admin){var EA={plan:1,dir:1,day:1,days:1,wk:1,wk0:1,rm:1,mo:1,yr:1,ymo:1,open:1,photo:1,rmphoto:1,pick:1,more:1,saveread:1,skip:1,edit:1,saveedit:1,canceledit:1,del:1,repeat:1,qn:1,rb:1,showall:1,zoom:1,visit:1,home:1,rskip:1,runskip:1,map:1,mapd:1,mapdir:1,mode:1,auth:1,reset:1,authmode:1,claim:1,signout:1,fidon:1,fidoff:1,fidno:1,unlock:1,unlockpw:1,cust:1,einfo:1,eopen:1,prof:1,hall:1,nmore:1,fsheet:1,fpboth:1,cltoday:1,prclear:1,pfclear:1,hday:1,fexp:1,filters:1,fdone:1,filter:1,bwtoday:1,shpick:1,iss:1,wsel:1,settings:1,theme:1,appupd:1};if(!EA[a])return;if(!ftE&&(a==="filters"||a==="fdone"||a==="filter"||a==="bwtoday"||a==="fsheet"||a==="fpboth"||a==="cltoday"))return;if(a==="del"){var dr=S.readings.find(function(r){return r.id===id});if(!dr||!dr.skip)return}}
  if(a==="dir"){}
  else if(a==="add")addFlow()
  else if(a==="mode"){if(!canAdmin)return;var toEmp=admin;if(toEmp){pickSheet("Preview as…","See the app exactly as that kind of employee does.",[["Employee","0","Route, map and view-only client profiles"],["Employee + Filters","1","Also the Filters tab and filter buttons"]],empF?"1":"0",function(v){empF=v==="1";try{localStorage.setItem("poolviewf",v);localStorage.setItem("poolview","emp")}catch(e){}empView=true;roleCalc();go("days");toast(empF?"Previewing Employee + Filters":"Previewing Employee view")});return}ask(toEmp?"Switch to Employee view? You'll see the app exactly as your crew does — no Customers, Filters or profile editing.":"Switch back to Admin view?",function(){empView=toEmp;admin=canAdmin&&!empView;try{localStorage.setItem("poolview",empView?"emp":"admin")}catch(e){}go("days");toast(empView?"Now in Employee view":"Back in Admin view")},toEmp?"Employee view":"Admin view")}
@@ -953,8 +968,9 @@ else if(a==="eopen"){selDate=today();go("pool",{pid:id,date:today()})}
  else if(a==="mo"){var mm=new Date(+mk.slice(0,4),+mk.slice(5)-1+(+el.dataset.n),1);mk=mm.getFullYear()+"-"+("0"+(mm.getMonth()+1)).slice(-2);render()}
  else if(a==="yr"){yk+=+el.dataset.n;render()}
  else if(a==="ymo"){mk=el.dataset.k;rmode="month";render();window.scrollTo(0,0)}
- else if(a==="wk")go("days",{wk:wk+(+el.dataset.n)});
- else if(a==="wk0"){mk=null;yk=null;go("days",{wk:0})}
+ else if(a==="wk"){wkSel=null;go("days",{wk:wk+(+el.dataset.n)})}
+else if(a==="wsel"){wkSel=el.dataset.d;render()}
+ else if(a==="wk0"){mk=null;yk=null;wkSel=null;go("days",{wk:0})}
  else if(a==="day")go("day",{date:el.dataset.d});
  else if(a==="showall"){showAll=!showAll;render()}
  else if(a==="fsheet"){var fk3=el.dataset.k||"",fp3=S.pools.find(function(x){return x.id===pid}),u3=fu(fp3,fk3);if(!u3)return;var ty=u3.ftype||"cart",lab3=(fk3?bname(fk3)+" filter":funits(fp3).length>1?bname(fown(fp3))+" filter":"Filter")+" · "+(ty==="de"?"DE":ty==="sand"?"Sand":"Cartridge");
@@ -1250,6 +1266,21 @@ function settingsHtml(){var o='',cmx=cachedMe()||{},t=themePref(),nreq=Object.ke
  o+='<div class="sth">Account</div><div class="stc stg"><div class="strow st0"><span>Signed in as</span><b>'+esc((me&&me.email)||cmx.email||"")+'</b></div>'+(fidOK?'<button class="strow" data-a="'+(fidId()?'fidoff':'fidon')+'"><span>Face ID</span><b class="'+(fidId()?'t-ok':'')+'">'+(fidId()?'On':'Off')+'</b><i>›</i></button>':'')+'<button class="strow" data-a="signout"><span class="t-hi">Sign out</span><b></b><i></i></button></div>';
  o+='<div class="sth">App</div><div class="stc stg">'+setRow("Check for updates","Reload app","appupd")+'</div><div class="stn" style="text-align:center">Swimmer · version '+BUILD.slice(0,8).replace(/(\d{4})(\d\d)(\d\d)/,"$2/$3/$1")+'</div>';
  return o}
+var wkSel=null;
+function ring(n,t){var r=26,c=2*Math.PI*r,f=t?n/t:0;return '<svg class="rg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="'+r+'" class="rg0"/><circle cx="32" cy="32" r="'+r+'" class="rg1'+(t&&n===t?' rgd':'')+'"'+(n?'':' style="display:none"')+' stroke-dasharray="'+(c*f).toFixed(1)+' '+c.toFixed(1)+'" transform="rotate(-90 32 32)"/></svg><div class="rgt'+(t&&n===t?' rgdt':'')+'"><b>'+n+'/'+t+'</b><small>pool'+(t===1?'':'s')+'</small></div>'}
+function tclock(t){return new Date(t).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"}).toLowerCase()}
+function weekBoard(b0){var T=today(),keys=[];for(var i=0;i<7;i++){var d=new Date(b0);d.setDate(d.getDate()+i);keys.push(dkey(d))}
+ if(!wkSel||keys.indexOf(wkSel)<0)wkSel=keys.indexOf(T)>-1?T:keys[0];var k=wkSel,dd=pd(k),cs=routeFor(k);
+ var o='<div class="wstrip"><button class="wsa" data-a="wk" data-n="-1" aria-label="Previous week">‹</button><div class="wsd">'+keys.map(function(x){var d=pd(x),c=routeFor(x),all=c.length&&c.every(function(p){return done(p,x)});return '<button class="wsb'+(x===k?' on':'')+(x===T?' td':'')+'" data-a="wsel" data-d="'+x+'"><small>'+DN[d.getDay()].slice(0,3)+'</small><b>'+d.getDate()+'</b><i class="'+(all?'ok':c.length?'has':'')+'"></i></button>'}).join("")+'</div><button class="wsa" data-a="wk" data-n="1" aria-label="Next week">›</button></div>';
+ o+='<div class="wsh"><b>'+DN[dd.getDay()]+', '+sd(dd)+(k===T?' <span class="tday">TODAY</span>':'')+'</b><button class="tg" data-a="day" data-d="'+k+'">Full route ›</button></div>';
+ if(!cs.length)return o+'<div class="card mu" style="text-align:center">No stops on '+DN[dd.getDay()]+'.</div>';
+ var g={},ord=[];cs.forEach(function(p){var t=admin?(effTech(p,k)&&techName(effTech(p,k))?effTech(p,k):""):(uid||"");if(!g[t]){g[t]=[];ord.push(t)}g[t].push(p)});
+ ord.sort(function(a,b){return a===""?1:b===""?-1:techName(a).localeCompare(techName(b))});
+ ord.forEach(function(t){var ps=g[t],n=ps.filter(function(p){return done(p,k)}).length,rs=[];ps.forEach(function(p){onDate(p.id,k).forEach(function(r){rs.push(r.t)})});rs.sort();
+  var nx=ps.filter(function(p){return !done(p,k)})[0],nm=admin?(t?techName(t):"Unassigned"):"Your route",ln;
+  if(n===ps.length)ln='<span class="t-ok">✓ Done'+(rs.length?' · '+tclock(rs[rs.length-1]):'')+'</span>';else if(rs.length)ln='Started '+tclock(rs[0]);else ln=k<T?'<span class="t-lo">Not logged</span>':k===T?'Not started':'Scheduled';
+  o+='<div class="card pool tpc'+(t===""&&admin?' tpu':'')+'" data-a="day" data-d="'+k+'"><div class="rgw">'+ring(n,ps.length)+'</div><div class="tpm"><b class="tpn">'+esc(nm)+'</b><div class="tpb"><i style="width:'+Math.round(n/ps.length*100)+'%"></i></div><div class="tpl"><span>'+ln+'</span>'+(nx&&n<ps.length?'<span class="mu">Next: '+esc(nx.name)+'</span>':'')+'</div></div></div>'});
+ return o}
 function crewHtml(){var o='',rk=Object.keys(reqs).filter(function(k){return !team[k]}),tk=Object.keys(team).sort(function(a,b){return (team[a].name||team[a].email||"").localeCompare(team[b].name||team[b].email||"")}),ow=(cachedMe()||{});
  o+='<div class="card"><b>Adding someone</b><div class="mu" style="margin-top:4px">Send them this app\'s link. They tap <b>Create account</b>, then show up here for you to approve.</div><button class="tg" data-a="copylink" style="margin-top:10px">Copy app link</button></div>';
  if(rk.length){o+='<h3 class="t-lo" style="margin:16px 0 8px">Waiting for approval ('+rk.length+')</h3>';rk.forEach(function(k){var r=reqs[k];o+='<div class="card"><b>'+esc(r.name||"(no name)")+'</b><div class="mu">'+esc(r.email||"")+'</div><div class="row" style="margin-top:10px;flex-wrap:wrap;gap:6px"><button data-a="approve" data-id="'+k+'" data-r="employee" style="flex:1">Approve</button><button class="tg" data-a="approve" data-id="'+k+'" data-r="filters">+ Filters</button>'+(isOwner?'<button class="tg" data-a="approve" data-id="'+k+'" data-r="admin">As admin</button>':'')+'<button class="d" data-a="decline" data-id="'+k+'">Decline</button></div></div>'})}
@@ -1334,7 +1365,7 @@ function pget(k){return lget(k).then(function(v){if(v||!dbOK)return v;return phc
 function pdel(k){phq=phq.filter(function(x){return x!==k});phsave();db().then(function(d){d.transaction("p","readwrite").objectStore("p").delete(k)}).catch(function(){});if(dbOK)job(function(){return phc.doc(k).delete()})}
 document.getElementById("fi").addEventListener("change",function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);var q=.6,u=c.toDataURL("image/jpeg",q);while(u.length>230000&&q>.3){q-=.1;u=c.toDataURL("image/jpeg",q)}D(photoB).photo=u;e.target.value="";render()};im.src=rd.result};rd.readAsDataURL(f)});
 
-var BUILD="20261026144118";
+var BUILD="20261026145145";
 function checkUpdate(){if(location.protocol!=="https:")return;fetch("index.html?u="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var BUILD="(\d+)"/);if(m&&m[1]!==BUILD){var go2=function(){var ae=document.activeElement;if(pend()===0&&!(ae&&/INPUT|TEXTAREA/.test(ae.tagName))&&!document.querySelector(".ws"))location.reload();else setTimeout(go2,4000)};go2()}}).catch(function(){})}
 document.addEventListener("visibilitychange",function(){if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,3000);
 pruneAll();navSave();initCloud();setSv();
