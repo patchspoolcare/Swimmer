@@ -330,6 +330,9 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;border-radiu
 .tg.issb.on{background:color-mix(in srgb,var(--hi) 14%,var(--card));border-color:var(--hi);color:var(--hi)}
 .issl{font-size:13px;color:var(--hi);font-weight:600;margin:0 0 4px}
 .isg .shb{font-size:14px;line-height:1.2;text-align:left}
+
+.issc2{display:flex;align-items:center;gap:8px;padding:8px 12px;margin:0 0 10px;border-radius:12px;border:1.5px solid color-mix(in srgb,var(--lo) 55%,var(--bd));background:color-mix(in srgb,var(--lo) 7%,var(--card));cursor:pointer;font-size:15px}
+.issc2 b{flex:1;font-weight:600;color:var(--tx)}.issc2 .idot{width:8px;height:8px;border-radius:50%;background:var(--lo);flex:none}.issc2 .ich{color:var(--mu);font-size:20px;line-height:1}
 </style></head><body>
 <input type="file" id="rf" accept=".json,application/json" style="display:none"><input type="file" id="fi" accept="image/*" style="display:none"><input type="file" id="pfi" accept="image/*" multiple style="display:none"><header id="hd"></header><main id="app"></main><div id="sv" class="sv"></div><nav id="nav" class="bnav"></nav>
 <script>
@@ -709,7 +712,7 @@ function render(){if(view==="pool"&&pid&&selDate)drLoad();
  if(view==="days"){
   var b0=new Date();b0.setHours(0,0,0,0);b0.setDate(b0.getDate()-((b0.getDay()+6)%7)+wk*7);var e0=new Date(b0);e0.setDate(e0.getDate()+6);
   h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="'+(DROPO||"icons/drop.png")+'" alt="">'+wmHtml()+'</button></h1>'+(canAdmin?'<button class="mdp'+(admin?'':' emp')+'" data-a="mode">'+(admin?'Admin':'Employee')+' <i>⇄</i></button>':'')+(wk||(rmode!=="week")?'<button class="tg" data-a="wk0">Today</button>':'');
-  o+=tabs("days");if(!canAdmin&&!S.pools.some(function(p){return p.tech===uid||(p.cover&&Object.keys(p.cover).some(function(k){return k>=T&&p.cover[k]===uid}))}))o+='<div class="card" style="border:2px solid var(--ac);text-align:center"><b style="font-size:17px">You\'re all set</b><div class="mu" style="margin-top:4px">You don\'t have any stops yet. They\'ll show up here as soon as they\'re assigned to you.</div></div>';if(admin){var oi=openIss();if(oi)o+='<div class="card pool issc" data-a="issues"><div><b>'+oi+' open issue'+(oi===1?'':'s')+'</b><div class="mu">Skipped stops and equipment problems to follow up on</div></div><span class="mu" style="font-size:22px">›</span></div>'}o+='<div class="rm">'+[["week","Week"],["month","Month"],["year","Year"]].map(function(m){return '<button class="'+(rmode===m[0]?'on':'')+'" data-a="rm" data-m="'+m[0]+'">'+m[1]+'</button>'}).join("")+'</div>';
+  o+=tabs("days");if(!canAdmin&&!S.pools.some(function(p){return p.tech===uid||(p.cover&&Object.keys(p.cover).some(function(k){return k>=T&&p.cover[k]===uid}))}))o+='<div class="card" style="border:2px solid var(--ac);text-align:center"><b style="font-size:17px">You\'re all set</b><div class="mu" style="margin-top:4px">You don\'t have any stops yet. They\'ll show up here as soon as they\'re assigned to you.</div></div>';if(admin){var oi=openIss();if(oi)o+='<div class="issc2" data-a="issues"><span class="idot"></span><b>'+oi+' open issue'+(oi===1?'':'s')+'</b><span class="ich">›</span></div>'}o+='<div class="rm">'+[["week","Week"],["month","Month"],["year","Year"]].map(function(m){return '<button class="'+(rmode===m[0]?'on':'')+'" data-a="rm" data-m="'+m[0]+'">'+m[1]+'</button>'}).join("")+'</div>';
   if(rmode==="month")o+=monthView();else if(rmode==="year")o+=yearView();else{
   o+='<div class="row" style="justify-content:space-between;margin-bottom:10px"><button class="bk" data-a="wk" data-n="-1">‹ Prev</button><b>'+sd(b0)+' – '+sd(e0)+'</b><button class="bk" data-a="wk" data-n="1">Next ›</button></div>';
   for(var i=0;i<7;i++){var d=new Date(b0);d.setDate(d.getDate()+i);var k=dkey(d),cs=routeFor(k),lg=cs.filter(function(p){return onDate(p.id,k).length}).length;
@@ -1306,7 +1309,7 @@ function pget(k){return lget(k).then(function(v){if(v||!dbOK)return v;return phc
 function pdel(k){phq=phq.filter(function(x){return x!==k});phsave();db().then(function(d){d.transaction("p","readwrite").objectStore("p").delete(k)}).catch(function(){});if(dbOK)job(function(){return phc.doc(k).delete()})}
 document.getElementById("fi").addEventListener("change",function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);var q=.6,u=c.toDataURL("image/jpeg",q);while(u.length>230000&&q>.3){q-=.1;u=c.toDataURL("image/jpeg",q)}D(photoB).photo=u;e.target.value="";render()};im.src=rd.result};rd.readAsDataURL(f)});
 
-var BUILD="20261026131549";
+var BUILD="20261026141524";
 function checkUpdate(){if(location.protocol!=="https:")return;fetch("index.html?u="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var BUILD="(\d+)"/);if(m&&m[1]!==BUILD){var go2=function(){var ae=document.activeElement;if(pend()===0&&!(ae&&/INPUT|TEXTAREA/.test(ae.tagName))&&!document.querySelector(".ws"))location.reload();else setTimeout(go2,4000)};go2()}}).catch(function(){})}
 document.addEventListener("visibilitychange",function(){if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,3000);
 pruneAll();navSave();initCloud();setSv();
