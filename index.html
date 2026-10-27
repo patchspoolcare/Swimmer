@@ -375,6 +375,7 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;border-radiu
 .vgate{margin-top:3px;font-size:15px;font-weight:700;color:var(--tx);overflow-wrap:anywhere}.vgate i{font-style:normal;font-weight:600;font-size:12px;color:var(--mu);text-transform:uppercase;letter-spacing:.05em;margin-right:2px}
 .subhd.sym.vh{align-items:center}.subhd.sym.vh>div:first-child,.subhd.sym.vh>div:last-child{align-self:center}.subhd.sym.vh .bk{height:auto;min-height:40px;width:88px}
 .hx .rvr .skc{margin:2px 0 0}
+.hx .chip.skp{display:inline-flex;align-items:center;font-size:13px;font-weight:600;padding:6px 11px;line-height:1.2;white-space:normal;margin-left:6px;max-width:100%}.hx .rvr>.row>b{display:flex;flex-wrap:wrap;align-items:center;row-gap:4px}
 </style></head><body>
 <input type="file" id="rf" accept=".json,application/json" style="display:none"><input type="file" id="fi" accept="image/*" style="display:none"><input type="file" id="pfi" accept="image/*" multiple style="display:none"><header id="hd"></header><main id="app"></main><div id="sv" class="sv"></div><nav id="nav" class="bnav"></nav>
 <script>
@@ -687,7 +688,7 @@ function hrow(r,lab){var b=bd(r),key="h"+r.id,ex=more[key],chips="",extra=false,
   +(extra?'<button class="g'+(ex?' rv-less':'')+'" data-a="more" data-k="'+key+'" style="padding:2px 0;font-size:14px">'+(ex?"See less":"See more")+(hint?' <span class="mu" style="font-weight:400">· '+hint+'</span>':'')+'</button>':'')+'</div>'}
 var tvMode=false,tvMulti=false;
 function rv(r){var b=bd(r),cur=!tvMode&&dkey(new Date(r.t))===selDate,key="v"+r.id,ex=more[key],editing=ed[b]&&ed[b].id===r.id,chips="",extra=false;
- if(r.skip)chips+='<span class="chip s-lo t-lo">Skipped'+(r.reason?' · '+esc(r.reason):'')+'</span>';
+ if(r.skip)chips+='<span class="chip s-lo t-lo skp">Skipped'+(r.reason?' · '+esc(r.reason):'')+'</span>';
  else{var AB=b==="agspa"?{fc:"FB",tc:"TB",ta:"TA",ch:"CH",bo:"Bor"}:{fc:"FC",tc:"TC",ta:"TA",ch:"CH",bo:"Bor"},rl=[],dl=[];F.forEach(function(f){var v=r.v&&r.v[f[0]];if(v===""||v==null)return;var s=st(f,v);rl.push('<span class="chip rc'+(s==="lo"||s==="hi"?' s-'+s+' t-'+s:'')+'"><i>'+esc(AB[f[0]]||L(f,b))+'</i>'+esc(v)+'</span>')});
   if(r.v&&r.v.temp)rl.push('<span class="chip rc"><i>Temp</i>'+esc(r.v.temp)+'°</span>');
   DF.forEach(function(f){var x=(r.ds||{})[f[0]];if(x)dl.push('<span class="chip ds rc"><i>'+esc(L(f,b))+'</i>'+esc(x)+'</span>')});
@@ -695,7 +696,7 @@ function rv(r){var b=bd(r),cur=!tvMode&&dkey(new Date(r.t))===selDate,key="v"+r.
   if(r.notes||r.ph)extra=true;
   var pb=extra?'<button class="tg rvp" data-a="more" data-k="'+key+'" aria-label="'+(ex?'Show less':'Show more')+'">'+(ex?'−':'+')+'</button>':'';
   chips=chips.replace('%RVL%',dl.length||pb?'<div class="rvl">'+(dl.length?'<div class="chips rcs rcd">'+dl.join('')+'</div>':'<div style="flex:1"></div>')+pb+'</div>':'')}
- return '<div class="'+(cur?'rtd':'rvr')+'"><div class="row" style="justify-content:space-between"><b>'+(cur?'<span class="rbg'+(r.skip?' rbs':'')+'">'+(r.skip?'Skipped':'✓ '+(selDate===today()?'Today':DN[pd(selDate).getDay()].slice(0,3)))+'</span>':'')+(tvMode&&tvMulti?esc(bname(b))+' · ':'')+(tvMode?new Date(r.t).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"}):fmt(r.t))+(admin&&r.by&&r.by!==uid?' <span class="mu" style="font-weight:400">· '+esc(whoName(r.by))+'</span>':'')+'</b>'+(editing?'<span class="mu">Editing below ↓</span>':r.skip?(tvMode||cur?'<button class="d" data-a="del" data-id="'+r.id+'">Undo skip</button>':''):'<button class="tg" data-a="edit" data-id="'+r.id+'">Edit</button>')+'</div>'+(r.skip?'<div class="chips'+(tvMode||cur?'':' skc')+'">'+chips+'</div>':chips)+(ex&&!r.skip?(r.notes?'<div class="hnote">'+esc(r.notes)+'</div>':'')+(r.ph?'<img class="th" data-ph="'+r.id+'" data-a="zoom" alt="Test strip photo">':''):'')+'</div>'}
+ return '<div class="'+(cur?'rtd':'rvr')+'"><div class="row" style="justify-content:space-between"><b>'+(cur?'<span class="rbg'+(r.skip?' rbs':'')+'">'+(r.skip?'Skipped':'✓ '+(selDate===today()?'Today':DN[pd(selDate).getDay()].slice(0,3)))+'</span>':'')+(tvMode&&tvMulti?esc(bname(b))+' · ':'')+(tvMode?new Date(r.t).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"}):fmt(r.t))+(admin&&r.by&&r.by!==uid?' <span class="mu" style="font-weight:400">· '+esc(whoName(r.by))+'</span>':'')+(r.skip&&!(tvMode||cur)?' '+chips:'')+'</b>'+(editing?'<span class="mu">Editing below ↓</span>':r.skip?(tvMode||cur?'<button class="d" data-a="del" data-id="'+r.id+'">Undo skip</button>':''):'<button class="tg" data-a="edit" data-id="'+r.id+'">Edit</button>')+'</div>'+(r.skip?(tvMode||cur?'<div class="chips">'+chips+'</div>':''):chips)+(ex&&!r.skip?(r.notes?'<div class="hnote">'+esc(r.notes)+'</div>':'')+(r.ph?'<img class="th" data-ph="'+r.id+'" data-a="zoom" alt="Test strip photo">':''):'')+'</div>'}
 function cyaLine(p){var bs=p.bodies||["pool"],multi=bs.length>1,out=[];
  bs.forEach(function(b){var rs=S.readings.filter(function(r){return r.pid===p.id&&bd(r)===b&&!r.skip&&r.v}).sort(function(x,y){return y.t-x.t}),parts=[];
   [["cya","CYA"],["ch","Hardness"]].forEach(function(k){var f=F.find(function(x){return x[0]===k[0]}),r=rs.find(function(x){return x.v[k[0]]!==""&&x.v[k[0]]!=null});
@@ -1394,7 +1395,7 @@ function pget(k){return lget(k).then(function(v){if(v||!dbOK)return v;return phc
 function pdel(k){phq=phq.filter(function(x){return x!==k});phsave();db().then(function(d){d.transaction("p","readwrite").objectStore("p").delete(k)}).catch(function(){});if(dbOK)job(function(){return phc.doc(k).delete()})}
 document.getElementById("fi").addEventListener("change",function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);var q=.6,u=c.toDataURL("image/jpeg",q);while(u.length>230000&&q>.3){q-=.1;u=c.toDataURL("image/jpeg",q)}D(photoB).photo=u;e.target.value="";render()};im.src=rd.result};rd.readAsDataURL(f)});
 
-var BUILD="20261026181533";
+var BUILD="20261026182009";
 function checkUpdate(){if(location.protocol!=="https:")return;fetch("index.html?u="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var BUILD="(\d+)"/);if(m&&m[1]!==BUILD){var go2=function(){var ae=document.activeElement;if(pend()===0&&!(ae&&/INPUT|TEXTAREA/.test(ae.tagName))&&!document.querySelector(".ws"))location.reload();else setTimeout(go2,4000)};go2()}}).catch(function(){})}
 document.addEventListener("visibilitychange",function(){if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,3000);
 pruneAll();navSave();initCloud();setSv();
