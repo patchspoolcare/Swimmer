@@ -361,7 +361,7 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;border-radiu
 .rgt.rgdt b{color:var(--ok)}
 .rvl{display:flex;align-items:center;gap:6px;margin-top:5px}.rvl .rcd{flex:1;min-width:0;margin:0}.rvp{flex:none;width:44px;min-height:30px;padding:0;font-size:22px;line-height:1;border-radius:99px}
 .pvlt{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:6px 0 2px}.pvc{display:flex;align-items:baseline;justify-content:center;gap:5px;padding:2px 6px;border:1px solid var(--bd);border-radius:99px;background:var(--card);min-width:0;white-space:nowrap;overflow:hidden}.pvc i{font-style:normal;color:var(--mu);font-weight:600;font-size:12px}.pvc b{font-size:14px}.pvc small{color:var(--mu);font-size:11px}
-.subhd.sym.vh{align-items:center}.vhc h2{margin:0}
+.subhd.sym.vh{align-items:center}.subhd.sym.vh .vhc h2{margin:0;font-size:24px;font-weight:800;line-height:1.15;letter-spacing:-.01em;color:var(--tx);white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
 </style></head><body>
 <input type="file" id="rf" accept=".json,application/json" style="display:none"><input type="file" id="fi" accept="image/*" style="display:none"><input type="file" id="pfi" accept="image/*" multiple style="display:none"><header id="hd"></header><main id="app"></main><div id="sv" class="sv"></div><nav id="nav" class="bnav"></nav>
 <script>
@@ -1377,7 +1377,7 @@ function pget(k){return lget(k).then(function(v){if(v||!dbOK)return v;return phc
 function pdel(k){phq=phq.filter(function(x){return x!==k});phsave();db().then(function(d){d.transaction("p","readwrite").objectStore("p").delete(k)}).catch(function(){});if(dbOK)job(function(){return phc.doc(k).delete()})}
 document.getElementById("fi").addEventListener("change",function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);var q=.6,u=c.toDataURL("image/jpeg",q);while(u.length>230000&&q>.3){q-=.1;u=c.toDataURL("image/jpeg",q)}D(photoB).photo=u;e.target.value="";render()};im.src=rd.result};rd.readAsDataURL(f)});
 
-var BUILD="20261026165602";
+var BUILD="20261026172133";
 function checkUpdate(){if(location.protocol!=="https:")return;fetch("index.html?u="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var BUILD="(\d+)"/);if(m&&m[1]!==BUILD){var go2=function(){var ae=document.activeElement;if(pend()===0&&!(ae&&/INPUT|TEXTAREA/.test(ae.tagName))&&!document.querySelector(".ws"))location.reload();else setTimeout(go2,4000)};go2()}}).catch(function(){})}
 document.addEventListener("visibilitychange",function(){if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,3000);
 pruneAll();navSave();initCloud();setSv();
