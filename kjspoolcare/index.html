@@ -781,7 +781,6 @@ function render(){if(view==="pool"&&pid&&selDate)drLoad();
   o+=weekBoard(b0);
   }
   if(admin){
-  var oi2=openIss();o+='<div class="rdt lpg"><button class="rdb" data-a="issues"><small>Issues</small><b'+(oi2?' class="t-lo"':'')+'>'+(oi2?oi2+' open':'None open')+'</b><i>›</i></button><button class="rdb" data-a="chem"><b>Chemical totals</b><i>›</i></button></div>';
   o+='<div class="mu" style="text-align:center;font-size:12px;margin-top:8px">'+esc(snapLine())+'</div>'}
   var cmx=cachedMe()||{},askd=false;try{askd=localStorage.getItem("poolfidask")==="1"}catch(e){}
   if(fidOK&&!fidId()&&!askd)o='<div class="card" style="border:2px solid var(--ac)"><b>Open Swimmer with Face ID?</b><div class="mu" style="margin-top:4px">You\'ll stay signed in, and Face ID keeps the app locked when you\'re not using it.</div><div class="row" style="margin-top:10px"><button data-a="fidon" style="flex:1">Turn on Face ID</button><button class="g" data-a="fidno">Not now</button></div></div>'+o;
@@ -817,14 +816,14 @@ if(!cs2.length&&!adding)o+='<div class="card mu">'+(!canAdmin?'No stops assigned
   var away=[];
   if(away.length){o+='<h3 style="margin:18px 0 8px">Moved away</h3>';away.forEach(function(p){var t=pd(p.once[selDate]);o+='<div class="card pool" style="opacity:.8"><div><b>'+esc(p.name)+'</b><div class="mu">Moved to '+DN[t.getDay()]+', '+sd(t)+'</div></div><button class="tg" data-a="undo" data-id="'+p.id+'" data-d="'+selDate+'">Undo</button></div>'})}
  }else if(view==="issues"){
-  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="'+(DROPO||"icons/drop.png")+'" alt="">'+wmHtml()+'</button></h1>';o+='<div class="subhd"><button class="bk" data-a="days">‹ Route</button><h2>Issues</h2></div>';
+  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="'+(DROPO||"icons/drop.png")+'" alt="">'+wmHtml()+'</button></h1>';o+='<div class="subhd"><button class="bk" data-a="settings">‹ Settings</button><h2>Issues</h2></div>';
   var all=issues(),op=all.filter(function(x){return !x.res}),rv=all.filter(function(x){return x.res});
   o+='<div class="seg"><button class="'+(issRes?'':'on')+'" data-a="isstab" data-v="0">Open ('+op.length+')</button><button class="'+(issRes?'on':'')+'" data-a="isstab" data-v="1">Resolved</button></div>';
   var li=issRes?rv:op;if(!li.length)o+='<div class="card mu" style="text-align:center">'+(issRes?'Nothing resolved in the last 60 days.':'No open issues. Skipped stops and visits with an Issue picked show up here.')+'</div>';
   li.forEach(function(x){var p=S.pools.find(function(q){return q.id===x.pid}),dd=new Date(x.t),k=dkey(dd);
    o+='<div class="card"><div class="row" style="justify-content:space-between;align-items:flex-start;gap:8px"><div style="min-width:0"><b>'+esc(p.name)+'</b><div class="mu">'+DN[dd.getDay()].slice(0,3)+', '+sd(dd)+(x.by?' · '+esc(whoName(x.by)):'')+'</div></div><div class="chips" style="margin:0;justify-content:flex-end">'+(x.skip?'<span class="chip s-lo t-lo">Skipped</span>':'')+x.tags.map(function(t){return '<span class="chip s-hi t-hi">'+esc(t)+'</span>'}).join("")+'</div></div>'+(x.skip&&x.reason?'<div style="margin-top:6px">Reason: '+esc(x.reason)+'</div>':'')+(x.res?'<div class="mu" style="margin-top:6px;font-size:13px">Resolved by '+esc(whoName(x.resBy.by))+' on '+sd(new Date(x.resBy.at))+'</div>':'')+'<div class="row" style="margin-top:10px;gap:8px"><button class="tg" data-a="iopen" data-id="'+x.pid+'" data-d="'+k+'" style="flex:1">Open visit</button><button class="'+(x.res?'tg':'')+'" data-a="ires" data-k="'+esc(x.rs.map(function(r){return r.id}).join(","))+'" data-v="'+(x.res?0:1)+'" style="flex:1">'+(x.res?'Reopen':'Resolve')+'</button></div></div>'});
  }else if(view==="chem"){
-  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="'+(DROPO||"icons/drop.png")+'" alt="">'+wmHtml()+'</button></h1>';o+='<div class="subhd"><button class="bk" data-a="days">‹ Route</button><h2>Chemical totals</h2></div>';
+  h.innerHTML='<h1 class="brand"><button class="brandbtn" data-a="home" aria-label="Swimmer — go to Route"><img src="'+(DROPO||"icons/drop.png")+'" alt="">'+wmHtml()+'</button></h1>';o+='<div class="subhd"><button class="bk" data-a="settings">‹ Settings</button><h2>Chemical totals</h2></div>';
   if(!chemM)chemM=T.slice(0,7);var cy=+chemM.slice(0,4),cm=+chemM.slice(5,7)-1,mrs=S.readings.filter(function(r){var d2=new Date(r.t);return d2.getFullYear()===cy&&d2.getMonth()===cm&&!r.skip});
   o+='<div class="row" style="justify-content:space-between;margin-bottom:10px"><button class="bk" data-a="chemm" data-n="-1">‹ Prev</button><b>'+MN[cm]+' '+cy+'</b><button class="bk" data-a="chemm" data-n="1">Next ›</button></div>';
   o+='<div class="card"><div class="row" style="justify-content:space-between;margin-bottom:6px"><b>Whole business</b><span class="mu" style="font-size:13px">'+mrs.length+' reading'+(mrs.length===1?'':'s')+'</span></div>'+chemLine(chemSum(mrs))+'</div>';
@@ -909,7 +908,7 @@ if(!cs2.length&&!adding)o+='<div class="card mu">'+(!canAdmin?'No stops assigned
   
  }
  if(canAdmin&&!admin)o='<button class="empbar" data-a="mode"><span>You\'re seeing the <b>'+(ftE?'Employee + Filters':'Employee')+' view</b></span><u>Back to Admin</u></button>'+o;
- if(!navHtml&&(view==="day"||view==="pool"||view==="prof"||view==="issues"||view==="chem"))tabs(view==="prof"?"cust":"days");
+ if(!navHtml&&(view==="day"||view==="pool"||view==="prof"||view==="issues"||view==="chem"))tabs(view==="prof"?"cust":view==="issues"||view==="chem"?"settings":"days");
  if(view==="pool")drSave();
  a.innerHTML=o;if(view==="day")markOv();var nv=document.getElementById("nav");nv.innerHTML=navHtml;document.body.classList.toggle("hasnav",!!navHtml);if(!navHtml)nv.classList.remove("hid");window.scrollTo(0,y);if(view==="map")mountMap();else unmountMap();
  document.querySelectorAll("img[data-ph]").forEach(function(im){pget(im.dataset.ph).then(function(d){if(d)im.src=d})});
@@ -1299,7 +1298,7 @@ function setRow(lab,val,a,extra){return '<button class="strow" data-a="'+a+'"'+(
 function settingsHtml(){var o='',cmx=cachedMe()||{},t=themePref(),nreq=Object.keys(reqs).filter(function(k){return !team[k]}).length,nm2=function(tt){var L0=tt==="r"?F:DF;return shown(tt).map(function(k){var f=L0.find(function(x){return x[0]===k});return f?(tt==="r"?({fc:"FC",tc:"TC",ta:"TA",ch:"CH"}[k]||f[1]):f[1]):""}).join(", ")};
  o+='<div class="sth">Appearance</div><div class="stc"><div class="stl">Dark mode</div><div class="seg" style="margin:6px 0 0">'+[["auto","Auto"],["light","Off"],["dark","On"]].map(function(x){return '<button class="'+(t===x[0]?'on':'')+'" data-a="theme" data-v="'+x[0]+'">'+x[1]+'</button>'}).join("")+'</div></div><div class="stn">Auto follows the phone setting.</div>';
  o+='<div class="sth">Recording a visit</div><div class="stc stg">'+setRow("Readings shown",esc(nm2("r")),"shpick",' data-t="r"')+setRow("Dosages shown",esc(nm2("d")),"shpick",' data-t="d"')+'</div><div class="stn">Only changes this phone.</div>';
- if(admin){o+='<div class="sth">Business</div><div class="stc stg">'+setRow("Crew",Object.keys(team).length+' '+(Object.keys(team).length===1?'person':'people')+(nreq?' <span class="bdg2">'+nreq+' new</span>':''),"crew")+'</div>';
+ if(admin){o+='<div class="sth">Business</div><div class="stc stg">'+setRow("Crew",Object.keys(team).length+' '+(Object.keys(team).length===1?'person':'people')+(nreq?' <span class="bdg2">'+nreq+' new</span>':''),"crew")+(function(){var oi3=openIss();return setRow("Issues",oi3?'<span class="t-lo">'+oi3+' open</span>':'None open',"issues")})()+setRow("Chemical totals","By month","chem")+'</div>';
   o+='<div class="sth">Data</div><div class="stc stg">'+(S.readings.length?setRow("Export visits","CSV file","csv"):'')+setRow("Back up data","Save a copy","backup")+setRow("Restore backup","From a saved copy","restore")+'</div>'}
  o+='<div class="sth">Account</div><div class="stc stg"><div class="strow st0"><span>Signed in as</span><b>'+esc((me&&me.email)||cmx.email||"")+'</b></div>'+(fidOK?'<button class="strow" data-a="'+(fidId()?'fidoff':'fidon')+'"><span>Face ID</span><b class="'+(fidId()?'t-ok':'')+'">'+(fidId()?'On':'Off')+'</b><i>›</i></button>':'')+'<button class="strow" data-a="signout"><span class="t-hi">Sign out</span><b></b><i></i></button></div>';
  o+='<div class="sth">App</div><div class="stc stg">'+setRow("Check for updates","Reload app","appupd")+'</div><div class="stn" style="text-align:center">Swimmer · version '+BUILD.slice(0,8).replace(/(\d{4})(\d\d)(\d\d)/,"$2/$3/$1")+'</div>';
@@ -1404,7 +1403,7 @@ function pget(k){return lget(k).then(function(v){if(v||!dbOK)return v;return phc
 function pdel(k){phq=phq.filter(function(x){return x!==k});phsave();db().then(function(d){d.transaction("p","readwrite").objectStore("p").delete(k)}).catch(function(){});if(dbOK)job(function(){return phc.doc(k).delete()})}
 document.getElementById("fi").addEventListener("change",function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);var q=.6,u=c.toDataURL("image/jpeg",q);while(u.length>230000&&q>.3){q-=.1;u=c.toDataURL("image/jpeg",q)}D(photoB).photo=u;e.target.value="";render()};im.src=rd.result};rd.readAsDataURL(f)});
 
-var BUILD="20261026215432";
+var BUILD="20261026231537";
 function checkUpdate(){if(location.protocol!=="https:")return;fetch("index.html?u="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var BUILD="(\d+)"/);if(m&&m[1]!==BUILD){var go2=function(){var ae=document.activeElement;if(pend()===0&&!(ae&&/INPUT|TEXTAREA/.test(ae.tagName))&&!document.querySelector(".ws"))location.reload();else setTimeout(go2,4000)};go2()}}).catch(function(){})}
 document.addEventListener("visibilitychange",function(){if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,3000);
 pruneAll();navSave();initCloud();setSv();
