@@ -1285,27 +1285,27 @@ function mapHtml(){var k=mapDate||today(),T=today(),wkm=mapMode==="week",o=mapSt
  o+='<div class="mprog'+(nd===cs.length?' full':'')+'"><div class="mpbar"><i style="width:'+Math.round(nd/cs.length*100)+'%"></i></div><div class="mpt"><b>'+(nd===cs.length?'✓ Route complete':nd+' of '+cs.length+' done')+'</b><span id="mpmi"></span></div></div>';
  o+='<div class="mapwrap"><div id="map" class="mapbox mbig"></div><div id="mcard" class="mcard"></div></div>';
  if(pend2)o+='<div class="mu" style="font-size:13px;margin:-4px 0 8px;text-align:center">Finding '+pend2+' address'+(pend2===1?'':'es')+' on the map…</div>';
- var row='';if(admin&&regFor(k).filter(gok).length>=3)row+='<button class="g mopt" data-a="mopt">✨ Optimize order</button>';row+='<button class="g" data-a="mapdir">Whole route in Google Maps ›</button>';
+ var row='';if(admin&&regFor(k).filter(gok).length>=3)row+='<button class="g mopt" data-a="mopt">Optimize order</button>';row+='<button class="g" data-a="mapdir">Whole route in Google Maps ›</button>';
  o+='<div class="mrow">'+row+'</div>';
- o+=cs.map(function(p,i){var dn=done(p,k),fb=fBadge(p);return '<div class="card pool cp" data-a="open" data-id="'+p.id+'" style="padding:8px 12px;margin-bottom:6px"><div class="num" style="background:'+stopColor(p,k)+';color:#fff;min-width:30px;height:30px;font-size:14px">'+(dn&&!skipped(p,k)?'✓':(i+1))+'</div><div class="cm"><b>'+esc(p.name)+(fb?' <span class="fdt t-'+fb+'">💧</span>':'')+'</b><div class="mu">'+esc(p.addr||"No address")+'</div></div></div>'}).join("");
+ o+=cs.map(function(p,i){var dn=done(p,k),fb=fBadge(p);return '<div class="card pool cp" data-a="open" data-id="'+p.id+'" style="padding:8px 12px;margin-bottom:6px"><div class="num" style="background:'+stopColor(p,k)+';color:#fff;min-width:30px;height:30px;font-size:14px">'+(dn&&!skipped(p,k)?'✓':(i+1))+'</div><div class="cm"><b>'+esc(p.name)+'</b><div class="mu">'+esc(p.addr||"No address")+'</div></div></div>'}).join("");
  if(nog.length)o+='<div class="mu" style="font-size:13px;text-align:center">Not on the map: '+nog.map(function(p){return esc(p.name)}).join(", ")+' — check the address on their profile.</div>';
  return o}
 function mCard(){var c=document.getElementById("mcard");if(!c)return;var k=mapDate||today(),wkm=mapMode==="week";
  if(!mList.length){c.style.display="none";return}c.style.display="";
  var i=Math.max(0,mList.findIndex(function(x){return x.p.id===mapFocus}));var x=mList[i],p=x.p;mapFocus=p.id;
  var body;
- if(wkm){body='<div class="mct"><span class="mcnum" style="background:'+WDC[x.wd]+'">'+DN[pd(x.d).getDay()].slice(0,2)+'</span><b>'+esc(p.name)+'</b></div><div class="mu mca">'+DN[pd(x.d).getDay()]+(p.once&&Object.keys(p.once).some(function(f){return p.once[f]===x.d})?' (moved this week)':'s')+(p.addr?' · '+esc(p.addr):'')+'</div>'+(fBadgeTxt(p)?'<div class="mcx t-'+fBadge(p)+'">💧 '+esc(fBadgeTxt(p))+'</div>':'');
+ if(wkm){body='<div class="mct"><span class="mcnum" style="background:'+WDC[x.wd]+'">'+DN[pd(x.d).getDay()].slice(0,2)+'</span><b>'+esc(p.name)+'</b></div><div class="mu mca">'+DN[pd(x.d).getDay()]+(p.once&&Object.keys(p.once).some(function(f){return p.once[f]===x.d})?' (moved this week)':'s')+(p.addr?' · '+esc(p.addr):'')+'</div>'+(fBadgeTxt(p)?'<div class="mcx t-'+fBadge(p)+'">'+esc(fBadgeTxt(p))+'</div>':'');
   body+='<div class="mcb">'+(p.addr?'<a class="tg" target="_blank" rel="noopener" href="'+mapUrl(p.addr)+'">Directions</a>':'')+'<button class="tg" data-a="mopen" data-id="'+p.id+'" data-d="'+x.d+'">Open visit</button>'+(admin?'<button data-a="mmove" data-id="'+p.id+'">Move day</button>':'')+'</div>'}
  else{var dn=done(p,k),sk=skipped(p,k),nx=mList.find(function(y){return !done(y.p,k)}),isNx=nx&&nx.p.id===p.id;
   var st=sk?'<span class="mcst t-lo">Skipped</span>':dn?'<span class="mcst t-ok">✓ Done</span>':isNx?'<span class="mcst nx">Next</span>':'<span class="mcst mu">Stop '+(i+1)+' of '+mList.length+'</span>';
-  body='<div class="mct"><span class="mcnum" style="background:'+stopColor(p,k)+'">'+(dn&&!sk?'✓':(i+1))+'</span><b>'+esc(p.name)+'</b>'+st+'</div><div class="mu mca">'+esc(p.addr||"No address")+'</div><div class="mcx" id="mcd">'+(!dn&&k===today()?meLine(p):'')+'</div>'+(fBadgeTxt(p)?'<div class="mcx t-'+fBadge(p)+'">💧 '+esc(fBadgeTxt(p))+'</div>':'');
+  body='<div class="mct"><span class="mcnum" style="background:'+stopColor(p,k)+'">'+(dn&&!sk?'✓':(i+1))+'</span><b>'+esc(p.name)+'</b>'+st+'</div><div class="mu mca">'+esc(p.addr||"No address")+'</div><div class="mcx" id="mcd">'+(!dn&&k===today()?meLine(p):'')+'</div>'+(fBadgeTxt(p)?'<div class="mcx t-'+fBadge(p)+'">'+esc(fBadgeTxt(p))+'</div>':'');
   body+='<div class="mcb">'+(p.addr?'<a class="tg" target="_blank" rel="noopener" href="'+(IOSD?'https://maps.apple.com/?daddr='+encodeURIComponent(p.addr)+'&dirflg=d':'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(p.addr))+'">Directions</a>':'')+'<button data-a="open" data-id="'+p.id+'">Open visit</button></div>'}
  c.innerHTML='<button class="mcar" data-mc="-1" aria-label="Previous stop"'+(i===0?' disabled':'')+'>‹</button><div class="mcm">'+body+'</div><button class="mcar" data-mc="1" aria-label="Next stop"'+(i===mList.length-1?' disabled':'')+'>›</button>';
  Object.keys(mkrs).forEach(function(id){mkrs[id].el.classList.toggle("on",id===p.id)})}
 function meLine(p){if(!myPos||!gok(p))return "";var key=p.id+"|"+myPos.lat.toFixed(3)+","+myPos.lon.toFixed(3),r=meRt[key];
- if(r)return '📍 '+fmtMi(r.d)+' mi · ~'+Math.max(1,Math.round(r.t/60))+' min away';
+ if(r)return fmtMi(r.d)+' mi · ~'+Math.max(1,Math.round(r.t/60))+' min away';
  if(!meRt[key+"_p"]){meRt[key+"_p"]=1;fetch("https://router.project-osrm.org/route/v1/driving/"+myPos.lon+","+myPos.lat+";"+p.geo.lon+","+p.geo.lat+"?overview=false").then(function(x){return x.json()}).then(function(j){meRt[key]={d:j.routes[0].distance,t:j.routes[0].duration};var e=document.getElementById("mcd");if(e&&mapFocus===p.id)e.innerHTML=meLine(p)}).catch(function(){})}
- return '📍 ~'+fmtMi(hav(myPos,p.geo)*1.3)+' mi away'}
+ return '~'+fmtMi(hav(myPos,p.geo)*1.3)+' mi away'}
 function mFocus(id,fly){mapFocus=id;mCard();var m=mkrs[id];if(fly&&m&&lmap)lmap.easeTo({center:m.ll,zoom:Math.max(lmap.getZoom(),13),duration:450,padding:{bottom:150}})}
 function mStep(n){var i=mList.findIndex(function(x){return x.p.id===mapFocus}),j=i+n;if(j<0||j>=mList.length)return;mFocus(mList[j].p.id,true)}
 function startGeo(){if(geoW!=null||!navigator.geolocation)return;try{geoW=navigator.geolocation.watchPosition(function(pos){myPos={lat:pos.coords.latitude,lon:pos.coords.longitude};placeMe();var e=document.getElementById("mcd"),p=S.pools.find(function(x){return x.id===mapFocus});if(e&&p&&!done(p,mapDate||today()))e.innerHTML=meLine(p)},function(){},{enableHighAccuracy:true,maximumAge:20000,timeout:20000})}catch(e){}}
@@ -1568,7 +1568,7 @@ function pget(k){return lget(k).then(function(v){if(v||!dbOK)return v;return phc
 function pdel(k){phq=phq.filter(function(x){return x!==k});phsave();db().then(function(d){d.transaction("p","readwrite").objectStore("p").delete(k)}).catch(function(){});if(dbOK)job(function(){return phc.doc(k).delete()})}
 document.getElementById("fi").addEventListener("change",function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);var q=.6,u=c.toDataURL("image/jpeg",q);while(u.length>230000&&q>.3){q-=.1;u=c.toDataURL("image/jpeg",q)}D(photoB).photo=u;e.target.value="";render()};im.src=rd.result};rd.readAsDataURL(f)});
 
-var BUILD="20261029110102";
+var BUILD="20261029110728";
 function checkUpdate(){if(location.protocol!=="https:")return;fetch("index.html?u="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var BUILD="(\d+)"/);if(m&&m[1]!==BUILD){var go2=function(){var ae=document.activeElement;if(pend()===0&&!(ae&&/INPUT|TEXTAREA/.test(ae.tagName))&&!document.querySelector(".ws"))location.reload();else setTimeout(go2,4000)};go2()}}).catch(function(){})}
 document.addEventListener("visibilitychange",function(){if(!document.hidden)checkUpdate()});setTimeout(checkUpdate,3000);
 pruneAll();navSave();initCloud();setSv();
